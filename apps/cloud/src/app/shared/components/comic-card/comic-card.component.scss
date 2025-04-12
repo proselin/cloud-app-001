@@ -1,0 +1,44 @@
+.card {
+  cursor: pointer;
+  display: block;
+  vertical-align: top;
+  width: 210px;
+  height: 210px;
+  background: #fff;
+
+  .info {
+    height: 178px;
+    left: 18px;
+    position: absolute;
+    top: 14px;
+    width: 157px;
+
+    .title {
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      word-wrap: break-word;
+      display: -webkit-box;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 18px;
+      overflow: hidden;
+      padding-top: 5px;
+      text-overflow: ellipsis;
+      width: 157px;
+    }
+
+    .author {
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      word-wrap: break-word;
+      display: -webkit-box;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 14px;
+      margin-top: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+}

@@ -1,0 +1,22 @@
+<h1>Comic</h1>
+
+<!--<nz-carousel nzAutoPlay>-->
+<!--  @for (index of array; track index) {-->
+<!--    <div nz-carousel-content>-->
+<!--      <h3>{{ index }}</h3>-->
+<!--    </div>-->
+<!--  }-->
+<!--</nz-carousel>-->
+
+<h2 class="list-comic">List comic</h2>
+
+<nz-divider nzOrientation="left" nzText="Vertical"></nz-divider>
+<div class="container">
+  <div nz-row nzJustify="space-evenly">
+    @for (item of [1,2,3,4]; track item) {
+      <div nz-col nzSpan="4">
+        <cloud-comic-card [comicInfo]="mockComicInfo"></cloud-comic-card>
+      </div>
+    }
+  </div>
+</div>

@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "humit:serve": "npx nx serve humit"
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^19.2.9",
     "@angular/common": "~19.2.0",
     "@angular/compiler": "~19.2.0",
     "@angular/core": "~19.2.0",
@@ -14,13 +16,20 @@
     "@angular/platform-browser": "~19.2.0",
     "@angular/platform-browser-dynamic": "~19.2.0",
     "@angular/router": "~19.2.0",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^10.0.2",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.2",
     "@nestjs/platform-express": "^10.0.2",
-    "@nx/nest": "^20.7.2",
-    "axios": "^1.6.0",
-    "reflect-metadata": "^0.1.13",
+    "@nestjs/typeorm": "^11.0.0",
+    "@nx/nest": "20.7.2",
+    "axios": "^1.8.4",
+    "better-sqlite3": "^11.9.1",
+    "nanoid": "^5.1.5",
+    "ng-zorro-antd": "^19.2.1",
+    "reflect-metadata": "^0.1.14",
     "rxjs": "~7.8.0",
+    "typeorm": "0.3.21",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
@@ -41,7 +50,7 @@
     "@nx/js": "20.7.2",
     "@nx/node": "20.7.2",
     "@nx/web": "20.7.2",
-    "@nx/webpack": "20.7.2",
+    "@nx/webpack": "^20.7.2",
     "@nx/workspace": "20.7.2",
     "@schematics/angular": "~19.2.0",
     "@swc-node/register": "~1.9.1",
@@ -68,6 +77,6 @@
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.19.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^6.0.1"
   }
 }

@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NxWelcomeComponent } from './nx-welcome.component';
+import {Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {LayoutComponent} from './shared/components/layout/layout.component';
 
 @Component({
-  imports: [NxWelcomeComponent, RouterModule],
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  selector: 'cloud-root',
+  imports: [RouterOutlet, LayoutComponent],
+  template: `
+    <cloud-layout>
+      <router-outlet></router-outlet>
+    </cloud-layout>`,
+  standalone: true
 })
 export class AppComponent {
-  title = 'cloud';
+  title = 'Margiet';
 }

@@ -13,16 +13,20 @@
         "outputPath": "dist/apps/cloud",
         "index": "apps/cloud/src/index.html",
         "browser": "apps/cloud/src/main.ts",
-        "polyfills": ["zone.js"],
         "tsConfig": "apps/cloud/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
             "input": "apps/cloud/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+            "output": "apps/cloud/public"
           }
         ],
-        "styles": ["apps/cloud/src/styles.scss"],
+        "styles": ["apps/cloud/src/styles.scss", "apps/cloud/src/theme.less"],
         "scripts": []
       },
       "configurations": {
@@ -30,8 +34,8 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumWarning": "1mb",
+              "maximumError": "3mb"
             },
             {
               "type": "anyComponentStyle",

@@ -1,0 +1,19 @@
+<ng-template #loading>
+  <div class="card">
+    <div class="info">
+      <nz-skeleton [nzActive]="true"></nz-skeleton>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #cardDisplay let-info>
+  <a [routerLink]="info.url" class="card">
+    <img [ngSrc]="info.url" alt="{{info.title}} Thumb Image" width="210" height="210">
+    <div class="info">
+      <p class="title">{{ info.title }}</p>
+      <p class="author">{{ info.author }}</p>
+    </div>
+  </a>
+</ng-template>
+
+<ng-template [ngIf]="comicInfo" [ngIfThen]="cardDisplay" [ngIfElse]="loading"></ng-template>
