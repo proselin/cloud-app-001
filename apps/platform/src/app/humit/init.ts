@@ -1,10 +1,10 @@
 import { ChildProcess, fork } from 'child_process';
-import { resolve } from 'path';
+import { join, resolve } from 'path';
 
 export class HumitServiceProcess {
   instantProcess: ChildProcess;
 
   constructor() {
-    this.instantProcess = fork(resolve('..', 'humit', 'main.js'));
+    this.instantProcess = fork(join('dist', 'apps','humit', 'main.js'));
   }
 }
