@@ -1,9 +1,9 @@
 {
-  "name": "@cloud/source",
-  "version": "0.0.0",
+  "name": "cloud",
+  "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-builder install-app-deps ",
     "humit:serve": "npx nx serve humit"
   },
   "private": true,
@@ -51,7 +51,7 @@
     "@nx/nest": "20.7.2",
     "@nx/node": "20.7.2",
     "@nx/web": "20.7.2",
-    "@nx/webpack": "^20.7.2",
+    "@nx/webpack": "20.7.2",
     "@nx/workspace": "20.7.2",
     "@schematics/angular": "~19.2.7",
     "@swc-node/register": "~1.9.2",
