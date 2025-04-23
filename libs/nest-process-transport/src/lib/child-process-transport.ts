@@ -22,6 +22,7 @@ export class ChildProcessTransport extends Server implements CustomTransportStra
     }
 
     process.on('message', async (raw) => {
+      this._logger.log(`[Message Comming] Receive message ${JSON.stringify(raw)}`)
       await this.handleMessage(raw, callback);
     });
     callback();

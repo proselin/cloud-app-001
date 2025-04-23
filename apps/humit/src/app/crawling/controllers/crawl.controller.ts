@@ -1,6 +1,7 @@
 import { Controller, Param, Post, Req, Res } from '@nestjs/common';
 import {Response, Request} from 'express';
 import { ComicService } from '../services/comic.service';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('/crawl')
 export class CrawlController {
@@ -15,5 +16,10 @@ export class CrawlController {
 
     const result = await this.comicService.handleCrawlComic(req.body.href);
     res.status(200).json(result);
+  }
+
+  @MessagePattern({ cmd: 'sum' })
+  accumulate(data: number[]): number {
+    return (data || []).reduce((a, b) => a + b);
   }
 }
