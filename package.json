@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps ",
-    "humit:serve": "npx nx serve humit"
+    "postinstall": "electron-builder install-app-deps "
   },
   "private": true,
   "dependencies": {
@@ -25,6 +24,7 @@
     "@nestjs/typeorm": "11.0.0",
     "axios": "^1.8.4",
     "better-sqlite3": "11.9.1",
+    "humid": "file:humid-0.0.1.tgz",
     "ng-zorro-antd": "^19.2.1",
     "reflect-metadata": "^0.1.14",
     "rxjs": "~7.8.2",

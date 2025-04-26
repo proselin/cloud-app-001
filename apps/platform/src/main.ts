@@ -3,7 +3,7 @@ import ElectronEvents from './app/events/electron.events';
 import UpdateEvents from './app/events/update.events';
 import { app, BrowserWindow } from 'electron';
 import App from './app/app';
-import { HumitEvent } from './app/humit/humit.event';
+import { HumidEvent } from './app/humid/humid.event';
 
 export default class Main {
   static initialize() {
@@ -19,7 +19,7 @@ export default class Main {
 
   static bootstrapAppEvents() {
     ElectronEvents.bootstrapElectronEvents();
-    HumitEvent.bootstrapHumitEvents();
+    HumidEvent.bootstrapHumitEvents();
 
     // initialize auto updater service
     if (!App.isDevelopmentMode()) {
