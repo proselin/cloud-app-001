@@ -1,8 +1,11 @@
 import { ChildProcess, Serializable } from 'child_process';
 import { ClientProxy, ReadPacket, WritePacket } from '@nestjs/microservices';
+import { Logger, LoggerService } from '@nestjs/common';
 
 export class ChildProcessClient extends ClientProxy {
-  private logger: Record<'log' | 'error', any>;
+  private logger: LoggerService;
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   private pendingEventListeners: {event: string, callBack: Function}[]
 
   constructor(
@@ -11,19 +14,12 @@ export class ChildProcessClient extends ClientProxy {
   ) {
     super();
     this.pendingEventListeners = [];
-    this.logger = {
-      log(...args: any[]) {
-        console.log("[ChildProcessClient]", ...args)
-      },
-      error(...args: any[]) {
-        console.error("[ChildProcessClient]", ...args)
-      }
-    }
+    this.logger = new Logger('ChildProcessClient');
     this.initializeSerializer(options);
     this.initializeDeserializer(options);
   }
 
-  override async connect(): Promise<any> {
+  override async connect(): Promise<void> {
     this.pendingEventListeners.forEach(({ event, callBack }) => {
       this.childProcess.on(event, (...args: any[]) => {callBack(...args)});
     });
@@ -69,8 +65,22 @@ export class ChildProcessClient extends ClientProxy {
       return () => { /**/ };
     }
   }
-  protected override dispatchEvent<T = any>(packet: ReadPacket): Promise<T> {
-    throw new Error('Method not implemented.');
+  protected override async dispatchEvent<T = void>(packet: ReadPacket): Promise<T> {
+    try {
+      packet.pattern = this.normalizePattern(packet.pattern);
+      const packetSend = this.assignPacketId(packet);
+      const serializedPacket = this.serializer.serialize(packetSend);
+      this.logger.log(`Send Message id=${packetSend.id} data=${JSON.stringify(serializedPacket)}`);
+      this.childProcess.send(serializedPacket, (error) => {
+        if (error) {
+          this.logger.error(error);
+          throw error;
+        }
+      });
+    } catch (err) {
+      this.logger.log("Send error", err);
+    }
+    return void 0 as T
   }
 
   override on(event: string, callback: (...args: any[]) => void) {

@@ -1,17 +1,29 @@
 import {
   CustomTransportStrategy,
+  IncomingEvent,
   IncomingRequest,
+  PacketId,
   Server,
+  WritePacket,
 } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
 import { ProcessResponse } from './message.types';
+import {
+  ChildProcessEvents,
+  ChildProcessStatus,
+} from './events/child-process.event';
+import { NO_MESSAGE_HANDLER } from '@nestjs/microservices/constants';
+import { isString } from '@nestjs/common/utils/shared.utils';
+import { ChildProcessContext } from './context/child-process.context';
+import { ReadPacket } from '@nestjs/microservices/interfaces';
+import { BaseRpcContext } from '@nestjs/microservices/ctx-host/base-rpc.context';
+import { NOT_IN_CHILD_PROCESS } from './constant';
 
 export class ChildProcessTransport
-  extends Server
+  extends Server<ChildProcessEvents, ChildProcessStatus>
   implements CustomTransportStrategy
 {
-  public override readonly transportId = Symbol('PROCESS');
-  protected isManuallyTerminated = false;
+  public override readonly transportId = Symbol('CHILD_PROCESS');
   private readonly _logger = new Logger('ServerProcess');
 
   constructor(private readonly options?: Record<string, any>) {
@@ -24,76 +36,130 @@ export class ChildProcessTransport
     callback: (err?: unknown, ...optionalParams: unknown[]) => void
   ) {
     if (!process.send) {
-      throw new Error(
-        'Not running as a nested/child process (process.send missing)'
-      );
+      throw new Error(NOT_IN_CHILD_PROCESS);
     }
-    this._logger.log('Start Listening');
+
+    process.once('error', (error) => {
+      this._logger.error(error);
+      callback(error);
+    });
+
     process.on('message', async (raw) => {
       this._logger.log(
         `[Message Coming] Receive message ${JSON.stringify(raw)}`
       );
       await this.handleMessage(raw);
     });
-    callback();
   }
 
   public close() {
     process.removeAllListeners('message');
-    this.isManuallyTerminated = true;
+    process.removeAllListeners('close');
+    process.removeAllListeners('error');
   }
 
   /**
-   * @param raw
+   * @param incomingMessage Message send to process
    * @protected
    */
-  protected async handleMessage(raw: any) {
-    let packet: IncomingRequest;
+  protected async handleMessage(incomingMessage: any) {
+    let packet: IncomingRequest | IncomingEvent;
+    const id =
+      'id' in incomingMessage && incomingMessage.id
+        ? incomingMessage.id
+        : undefined;
+    const pattern = !isString(incomingMessage.pattern)
+      ? JSON.stringify(incomingMessage.pattern)
+      : incomingMessage.pattern;
+
     try {
-      packet = (await this.deserializer.deserialize(raw)) as IncomingRequest;
-      this._logger.log("Deserialize packet" + JSON.stringify(packet));
+      packet = await this.deserializer.deserialize(incomingMessage);
     } catch (err) {
-      process.send?.({
-        id: raw?.id ?? 'unknown',
-        err: {
-          message: 'Invalid message format',
-          details: err,
-        },
+      return this.sendToParentMessage({
+        id,
+        err: err,
+        pattern,
       });
-      return;
     }
 
-    this._logger.log("Route", packet);
-    const handler = this.getHandlers().get(packet.pattern);
+    const context: ChildProcessContext = new ChildProcessContext([
+      process,
+      pattern,
+      id,
+    ]);
 
-    if (!handler) {
-      process.send?.({ id: packet.id, err: 'NO_HANDLER' });
-      return;
+    if ('id' in packet && packet.id == undefined) {
+      return this.handleEvent(pattern, packet, context);
     }
-
-    try {
-      // context can be enhanced if you wish
-      const result = (await handler(packet.data)) as ProcessResponse;
-      this._logger.log(
-        `[Send] id=${packet.id} response data : ${JSON.stringify(result)}`
-      );
-      process.send?.({
-        id: packet.id,
-        pattern: packet.pattern,
-        response: result,
-      });
-    } catch (err: any) {
-      process.send?.({ id: packet.id, err: err });
-    }
+    return this.handleIncomingRequest(
+      pattern,
+      packet as IncomingRequest,
+      context
+    );
   }
 
   // Unwrap/Get raw server not really needed
   public unwrap<T>(): T {
+    if (!process.send) {
+      throw new Error(NOT_IN_CHILD_PROCESS);
+    }
     return process as T;
   }
 
   // Mimic EventEmitter (no-op for this transport, unless you want send events)
   public on(event: any, callback: any): any {
     return process.on(event, callback);
+  }
+
+  private async sendToParentMessage(
+    data: WritePacket & PacketId & { pattern?: string }
+  ) {
+    return new Promise<void>((resolve, reject) => {
+      process.send?.(
+        data,
+        null,
+        {
+          swallowErrors: false,
+        },
+        (error) => {
+          if (error) reject(error);
+          resolve();
+        }
+      );
+    });
+  }
+
+  private async handleIncomingRequest(
+    pattern: string,
+    packet: IncomingRequest,
+    context: BaseRpcContext
+  ) {
+    const handler = this.getHandlers().get(packet.pattern);
+
+    if (!handler) {
+      return this.sendToParentMessage({
+        pattern,
+        id: (packet as IncomingRequest).id ?? 'unknown',
+        err: NO_MESSAGE_HANDLER,
+      });
+    }
+    try {
+      const result: any = await handler(packet.data);
+      this._logger.log(
+        `[Send] id=${packet.id} response data : ${JSON.stringify(result)}`
+      );
+      return this.sendToParentMessage({
+        pattern,
+        id: packet.id ?? 'unknown',
+        response: result,
+      });
+    } catch (err: any) {
+      return this.sendToParentMessage({
+        pattern,
+        id: packet.id,
+        err: err,
+        response: packet.pattern,
+      });
+    }
   }
 }
