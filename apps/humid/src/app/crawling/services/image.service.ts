@@ -32,7 +32,7 @@ export class ImageService {
           type: data.type,
         },
         data.comicId,
-        null,
+        undefined,
         queryRunner
       );
     } catch (error) {
@@ -62,7 +62,7 @@ export class ImageService {
               originUrls: data.dataUrls,
               type: data.type,
             },
-            null,
+            undefined,
             data.chapterId,
             queryRunner
           );
@@ -101,7 +101,7 @@ export class ImageService {
       image.comic = {
         id: comicId,
       };
-      await queryRunner.manager.save(image);
+      await queryRunner?.manager.save(image);
 
       this.logger.log(
         `DONE [${this.createImage.name}]: create image with file name ${storedImage.fileName}`

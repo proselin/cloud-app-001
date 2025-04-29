@@ -13,7 +13,7 @@ export default class App {
   static BrowserWindow;
 
   //Services
-  static AppHumit: HumidServiceProcess
+  static AppHumid: HumidServiceProcess
 
   public static isDevelopmentMode() {
     const isEnvironmentSet: boolean = 'ELECTRON_IS_DEV' in process.env;
@@ -80,7 +80,7 @@ export default class App {
         sandbox: true
       },
     });
-    App.mainWindow.setMenu(null);
+    // App.mainWindow.setMenu(null);
     App.mainWindow.center();
 
     App.mainWindow.webContents.openDevTools();
@@ -107,11 +107,11 @@ export default class App {
 
   private static loadMainWindow() {
     // load the index.html of the app.
-    if (!App.application.isPackaged) {
-      App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
-    } else {
-      App.mainWindow.loadURL(pathToFileURL( join(__dirname, '..', rendererAppName, 'index.html')).toString());
-    }
+    // if (!App.application.isPackaged) {
+    //   App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
+    // } else {
+      App.mainWindow.loadURL(pathToFileURL( join(__dirname, '..', rendererAppName,'browser', 'index.html')).toString());
+    // }
   }
 
   static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
@@ -122,7 +122,7 @@ export default class App {
 
     App.BrowserWindow = browserWindow;
     App.application = app;
-    App.AppHumit = new HumidServiceProcess();
+    App.AppHumid = new HumidServiceProcess();
     App.application.on('window-all-closed', App.onWindowAllClosed); // Quit when all windows are closed.
     App.application.on('ready', App.onReady); // App is ready to load data
     App.application.on('activate', App.onActivate); // App is activated

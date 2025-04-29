@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps "
+    "postinstall": "electron-builder install-app-deps ",
+    "humid:pack": "npx nx build humid && npm pack dist/apps/humid"
   },
   "private": true,
   "dependencies": {
@@ -29,6 +30,7 @@
     "reflect-metadata": "^0.1.14",
     "rxjs": "~7.8.2",
     "typeorm": "0.3.21",
+    "uuid": "^11.1.0",
     "zod": "^3.24.2",
     "zone.js": "~0.15.0"
   },

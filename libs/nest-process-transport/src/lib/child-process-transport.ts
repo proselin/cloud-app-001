@@ -1,15 +1,23 @@
-import { CustomTransportStrategy, Server } from '@nestjs/microservices';
+import {
+  CustomTransportStrategy,
+  IncomingRequest,
+  Server,
+} from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
-import { ProcessMessage, ProcessResponse } from './message.types';
-import { PostProcessSchema } from './message.schema';
+import { ProcessResponse } from './message.types';
 
-export class ChildProcessTransport extends Server implements CustomTransportStrategy {
+export class ChildProcessTransport
+  extends Server
+  implements CustomTransportStrategy
+{
   public override readonly transportId = Symbol('PROCESS');
   protected isManuallyTerminated = false;
   private readonly _logger = new Logger('ServerProcess');
 
   constructor(private readonly options?: Record<string, any>) {
     super();
+    this.initializeDeserializer(options);
+    this.initializeSerializer(options);
   }
 
   public listen(
@@ -20,10 +28,12 @@ export class ChildProcessTransport extends Server implements CustomTransportStra
         'Not running as a nested/child process (process.send missing)'
       );
     }
-
+    this._logger.log('Start Listening');
     process.on('message', async (raw) => {
-      this._logger.log(`[Message Comming] Receive message ${JSON.stringify(raw)}`)
-      await this.handleMessage(raw, callback);
+      this._logger.log(
+        `[Message Coming] Receive message ${JSON.stringify(raw)}`
+      );
+      await this.handleMessage(raw);
     });
     callback();
   }
@@ -35,39 +45,43 @@ export class ChildProcessTransport extends Server implements CustomTransportStra
 
   /**
    * @param raw
-   * @param callback
    * @protected
    */
-  //eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  protected async handleMessage(raw: any, callback: Function) {
-    let packet: ProcessMessage;
+  protected async handleMessage(raw: any) {
+    let packet: IncomingRequest;
     try {
-      packet = PostProcessSchema.parse(raw);
-    } catch (err: any) {
+      packet = (await this.deserializer.deserialize(raw)) as IncomingRequest;
+      this._logger.log("Deserialize packet" + JSON.stringify(packet));
+    } catch (err) {
       process.send?.({
         id: raw?.id ?? 'unknown',
         err: {
           message: 'Invalid message format',
-          details: err.errors,
+          details: err,
         },
       });
       return;
     }
 
-    const route = this.getRouteFromPattern(packet.pattern);
-    const handler = this.getHandlerByPattern(route);
+    this._logger.log("Route", packet);
+    const handler = this.getHandlers().get(packet.pattern);
 
     if (!handler) {
-      process.send?.({ id: packet.id, err: 'NO_MESSAGE_HANDLER' });
+      process.send?.({ id: packet.id, err: 'NO_HANDLER' });
       return;
     }
 
     try {
       // context can be enhanced if you wish
-      const result = await handler(packet.data) as ProcessResponse;
-      if (!packet.isEvent) {
-        process.send?.({ id: packet.id, response: result });
-      }
+      const result = (await handler(packet.data)) as ProcessResponse;
+      this._logger.log(
+        `[Send] id=${packet.id} response data : ${JSON.stringify(result)}`
+      );
+      process.send?.({
+        id: packet.id,
+        pattern: packet.pattern,
+        response: result,
+      });
     } catch (err: any) {
       process.send?.({ id: packet.id, err: err });
     }
@@ -75,11 +89,11 @@ export class ChildProcessTransport extends Server implements CustomTransportStra
 
   // Unwrap/Get raw server not really needed
   public unwrap<T>(): T {
-    return undefined as any;
+    return process as T;
   }
 
   // Mimic EventEmitter (no-op for this transport, unless you want send events)
   public on(event: any, callback: any): any {
-    /* no-op */
+    return process.on(event, callback);
   }
 }

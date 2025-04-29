@@ -7,65 +7,65 @@ import { ChapterEntity } from "../chapter";
 @Entity("comic")
 export class ComicEntity extends CommonEntity {
   @Column()
-  title: string;
+  title!: string;
 
   @Column({
     name: "chapter_count",
     type: "integer",
   })
-  chapterCount: number;
+  chapterCount!: number;
 
   @Column({
     name: "origin_id",
     unique: true,
     nullable: false,
   })
-  originId: string;
+  originId!: string;
 
   @Column({
     nullable: true,
   })
-  status: string;
+  status!: string;
 
   @Column({
     nullable: true,
   })
-  description: string;
+  description!: string;
 
   @Column({
     name: "origin_url",
   })
-  originUrl: string;
+  originUrl!: string;
 
   @Column({
     name: "should_refresh",
     type: "boolean",
     default: false,
   })
-  shouldRefresh: boolean;
+  shouldRefresh!: boolean;
 
   @Column({
     type: "varchar",
     default: "",
   })
-  tags: string;
+  tags!: string;
 
   @Column({
     type: "varchar",
     default: "",
   })
-  author: string;
+  author!: string;
 
   @Column({
     type: "varchar",
     name: "crawling_status",
   })
-  crawlStatus: CrawlingStatus;
+  crawlStatus!: CrawlingStatus;
 
   @OneToMany(() => ChapterEntity, chapter => chapter.comic, {
     lazy: true,
   })
-  chapters: ChapterEntity[];
+  chapters!: ChapterEntity[];
 
   @OneToOne(() => ImageEntity, {
     lazy: true,
@@ -73,5 +73,5 @@ export class ComicEntity extends CommonEntity {
   @JoinColumn({
     name: 'thumb_image_id',
   })
-  thumbImage: ImageEntity;
+  thumbImage!: ImageEntity;
 }

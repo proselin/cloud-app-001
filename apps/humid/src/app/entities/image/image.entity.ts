@@ -10,31 +10,31 @@ export class ImageEntity extends CommonEntity {
     type: 'varchar',
     length: 1000,
   })
-  fileName: string;
+  fileName!: string;
 
   @Column({
     type: 'integer',
   })
-  position: number;
+  position!: number;
 
   @Column({
     type: 'int',
     default: 1,
   })
-  type: number;
+  type!: number;
 
   @Column({ type: 'varchar', name: 'origin_urls' })
-  originUrls: string;
+  originUrls!: string;
 
   @ManyToOne(() => ChapterEntity, (chapter) => chapter.images)
   @JoinColumn({
     name: 'chapter_id',
   })
-  chapter: ChapterEntity | Partial<ChapterEntity>;
+  chapter!: ChapterEntity | Partial<ChapterEntity>;
 
   @OneToOne(() => ComicEntity)
   @JoinColumn({
     name: 'comic_id',
   })
-  comic: ComicEntity | Partial<ComicEntity>;
+  comic!: ComicEntity | Partial<ComicEntity>;
 }

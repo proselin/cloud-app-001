@@ -60,13 +60,6 @@
           "apps/humid/**/*.ts"
         ]
       }
-    },
-    "pack": {
-      "executor": "@nx/run-commands",
-      "command": "npm pack dist/apps/humid",
-      "dependsOn": [
-        "build"
-      ]
     }
   }
 }

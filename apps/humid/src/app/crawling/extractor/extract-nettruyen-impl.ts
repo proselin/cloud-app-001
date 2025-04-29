@@ -3,12 +3,12 @@ import { InfoExtractedResult$1, RawCrawledChapter } from '../../common';
 import { NettruyenHttpService } from '../services/nettruyen-http.service';
 
 export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
-  private http: NettruyenHttpService;
-  private url?: string;
-  private htmlContent?: string;
-  private domain?: string;
-  private comicId?: string;
-  private comicSlug?: string;
+  private http!: NettruyenHttpService;
+  private url!: string;
+  private htmlContent!: string;
+  private domain!: string;
+  private comicId!: string;
+  private comicSlug!: string;
 
   setHttp(http: NettruyenHttpService) {
     this.http = http;

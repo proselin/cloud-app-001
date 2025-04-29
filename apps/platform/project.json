@@ -11,8 +11,10 @@
         "outputPath": "dist/apps/platform",
         "main": "apps/platform/src/main.ts",
         "tsConfig": "apps/platform/tsconfig.app.json",
-        "assets": ["apps/platform/src/assets"]
+        "assets": ["apps/platform/src/assets"],
+        "sourceMap": true
       },
+      "dependsOn": ["humid:build"],
       "configurations": {
         "production": {
           "optimization": true,

@@ -5,9 +5,9 @@ export function createShake256Hash(data: any, len: number) {
 }
 
 
-export async function runWithConcurrency(tasks: Promise<any>[], limit: number) {
-  const results = [];
-  const executing = [];
+export async function runWithConcurrency<T = any>(tasks: Promise<T>[], limit: number) {
+  const results: Awaited<typeof tasks> = [];
+  const executing: typeof tasks= [];
 
   for (const task of tasks) {
     const p = task.then(res => {

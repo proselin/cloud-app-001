@@ -1,5 +1,5 @@
 export type HumitIpcFunction = {
-  getComicByUrl(commicUrl: string): Promise<void>
+  getComicByUrl(comicUrl: string): Promise<string>
   getAppVersion(): Promise<string>
   platform: string
 }

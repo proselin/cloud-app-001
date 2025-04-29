@@ -9,27 +9,27 @@ export class ChapterEntity extends CommonEntity {
   @Column({
     name: 'chapter_num',
   })
-  chapterNumber: string;
+  chapterNumber!: string;
 
   @Column({
     name: 'source_url',
     type: 'varchar',
   })
-  sourceUrl: string;
+  sourceUrl!: string;
 
   @Column({ type: String })
-  title: string;
+  title!: string;
 
   @Column({
     type: 'int',
   })
-  position: number;
+  position!: number;
 
   @Column({
     type: 'varchar',
     name: 'crawling_status',
   })
-  crawlStatus: string;
+  crawlStatus!: string;
 
   @ManyToOne(() => ComicEntity, (comic) => comic.chapters, {
     lazy: true,
@@ -37,10 +37,10 @@ export class ChapterEntity extends CommonEntity {
   @JoinColumn({
     name: 'comic_id',
   })
-  comic: ComicEntity;
+  comic!: ComicEntity;
 
   @OneToMany(() => ImageEntity, (image) => image.chapter, {
     lazy: true,
   })
-  images: ImageEntity[];
+  images!: ImageEntity[];
 }

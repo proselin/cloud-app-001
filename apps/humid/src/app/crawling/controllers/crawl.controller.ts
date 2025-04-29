@@ -22,4 +22,9 @@ export class CrawlController {
   accumulate(data: number[]): number {
     return (data || []).reduce((a, b) => a + b);
   }
+
+  @MessagePattern('hello')
+  hello(data: string): string {
+    return "Hello World!";
+  }
 }

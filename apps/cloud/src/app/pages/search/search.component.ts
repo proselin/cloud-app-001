@@ -20,6 +20,8 @@ export class SearchComponent extends BasePagesComponent {
 
   async onSearch() {
     console.log(await this.humitIpcService.getAppVersion())
-    console.log(await this.humitIpcService.getComicByUrl(""))
+    await this.humitIpcService.getComicByUrl("").then(result => {
+      console.log("Response", result);
+    })
   }
 }

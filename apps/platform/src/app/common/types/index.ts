@@ -2,7 +2,6 @@ export interface ProcessMessage<T> {
   id: string; // Unique ID for the message
   pattern: string; // Pattern to match handlers
   data: T; // Data payload
-  isEvent?: boolean; // Whether this is an event (no response expected)
 }
 
 export interface ProcessResponse<T> {

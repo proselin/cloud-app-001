@@ -17,7 +17,8 @@ export class StoreService {
     return fs.promises.readFile(this.saveImageDir + fileName);
   }
 
-  generateFileName(prefixFileName: string, contentType: string) {
+  generateFileName(prefixFileName: string, contentType: string | null) {
+    if(!contentType) throw new Error("Content type must be a string");
     const extension = Utils.getFileExtensionFromContentType(contentType);
     if (!extension) {
       throw new Error('Unsupported content type');
