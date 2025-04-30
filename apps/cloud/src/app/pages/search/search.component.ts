@@ -5,7 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { HumitIpcService } from '../../shared/services/ipc/humit-ipc.service';
+import { HumidIpcService } from '../../shared/services/ipc/humid-ipc.service';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'cloud-search',
@@ -16,12 +17,16 @@ import { HumitIpcService } from '../../shared/services/ipc/humit-ipc.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent extends BasePagesComponent {
-  private humitIpcService = inject(HumitIpcService)
+  private humidIpcService = inject(HumidIpcService)
+  searchString = "";
 
   async onSearch() {
-    console.log(await this.humitIpcService.getAppVersion())
-    await this.humitIpcService.getComicByUrl("").then(result => {
-      console.log("Response", result);
+    console.log(await this.humidIpcService.getAppVersion())
+    from(this.humidIpcService.getComicByUrl(this.searchString)).subscribe({
+      next: result => {
+        console.log("Response", result);
+      },
+      error: err => {console.log(err)}
     })
   }
 }

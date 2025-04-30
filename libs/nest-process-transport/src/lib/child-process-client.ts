@@ -1,12 +1,20 @@
 import { ChildProcess, Serializable } from 'child_process';
-import { ClientProxy, ReadPacket, WritePacket } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  PacketId,
+  ReadPacket,
+  WritePacket,
+} from '@nestjs/microservices';
 import { Logger, LoggerService } from '@nestjs/common';
+import { v4 } from 'uuid';
+import { isObject } from '@nestjs/common/utils/shared.utils';
 
 export class ChildProcessClient extends ClientProxy {
   private logger: LoggerService;
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  private pendingEventListeners: {event: string, callBack: Function}[]
+  private pendingEventListeners: { event: string; callBack: Function }[];
+  private connected = false;
 
   constructor(
     private childProcess: ChildProcess,
@@ -20,12 +28,17 @@ export class ChildProcessClient extends ClientProxy {
   }
 
   override async connect(): Promise<void> {
-    this.pendingEventListeners.forEach(({ event, callBack }) => {
-      this.childProcess.on(event, (...args: any[]) => {callBack(...args)});
-    });
-    this.pendingEventListeners = [];
-    this.registerErrorEventListener()
-    this.childProcess.on('message', this.createResponseCallback())
+    if (!this.connected) {
+      this.pendingEventListeners.forEach(({ event, callBack }) => {
+        this.childProcess.on(event, (...args: any[]) => {
+          callBack(...args);
+        });
+      });
+      this.pendingEventListeners = [];
+      this.registerErrorEventListener();
+      this.childProcess.on('message', this.createResponseCallback());
+      this.connected = true;
+    }
     return Promise.resolve();
   }
 
@@ -36,7 +49,8 @@ export class ChildProcessClient extends ClientProxy {
   }
 
   override unwrap<T = ChildProcess>(): T {
-    if(!this.childProcess.connected) throw new Error('Unable to connect to child process');
+    if (!this.childProcess.connected)
+      throw new Error('Unable to connect to child process');
     return this.childProcess as T;
   }
 
@@ -49,7 +63,11 @@ export class ChildProcessClient extends ClientProxy {
       const packetSend = this.assignPacketId(packet);
       const serializedPacket = this.serializer.serialize(packetSend);
       this.routingMap.set(packetSend.id, callback);
-      this.logger.log(`Send Message id=${packetSend.id} data=${JSON.stringify(serializedPacket)}`);
+      this.logger.log(
+        `Send Message id=${packetSend.id} data=${JSON.stringify(
+          serializedPacket
+        )}`
+      );
       this.childProcess.send(serializedPacket, (error) => {
         if (error) {
           this.logger.error(error);
@@ -60,17 +78,26 @@ export class ChildProcessClient extends ClientProxy {
         this.routingMap.delete(packetSend.id);
       };
     } catch (err) {
-      this.logger.log("Send error", err);
+      this.logger.log('Send error', err);
       callback({ err });
-      return () => { /**/ };
+      return () => {
+        /**/
+      };
     }
   }
-  protected override async dispatchEvent<T = void>(packet: ReadPacket): Promise<T> {
+
+  protected override async dispatchEvent<T = void>(
+    packet: ReadPacket
+  ): Promise<T> {
     try {
       packet.pattern = this.normalizePattern(packet.pattern);
       const packetSend = this.assignPacketId(packet);
       const serializedPacket = this.serializer.serialize(packetSend);
-      this.logger.log(`Send Message id=${packetSend.id} data=${JSON.stringify(serializedPacket)}`);
+      this.logger.log(
+        `Send Message id=${packetSend.id} data=${JSON.stringify(
+          serializedPacket
+        )}`
+      );
       this.childProcess.send(serializedPacket, (error) => {
         if (error) {
           this.logger.error(error);
@@ -78,14 +105,16 @@ export class ChildProcessClient extends ClientProxy {
         }
       });
     } catch (err) {
-      this.logger.log("Send error", err);
+      this.logger.log('Send error', err);
     }
-    return void 0 as T
+    return void 0 as T;
   }
 
   override on(event: string, callback: (...args: any[]) => void) {
     this.logger.log(`Start Listening to event ${event}`);
-    this.childProcess.on(event, (...args: any[]) => {callback(...args)})
+    this.childProcess.on(event, (...args: any[]) => {
+      callback(...args);
+    });
   }
 
   private registerErrorEventListener() {
@@ -96,8 +125,13 @@ export class ChildProcessClient extends ClientProxy {
 
   createResponseCallback() {
     return async (data: Serializable) => {
-      this.logger.log(`Received Response: ${JSON.stringify(data)}`);
-      const { err, response, isDisposed, id } = await this.deserializer.deserialize(data);
+      if (isObject(data) && 'err' in data && data.err) {
+        this.logger.error(`Received Error: ${JSON.stringify(data)}`);
+      } else {
+        this.logger.error(`Received Response: ${JSON.stringify(data)}`);
+      }
+      const { err, response, isDisposed, id } =
+        await this.deserializer.deserialize(data);
       const callback = this.routingMap.get(id);
       if (!callback) {
         return;
@@ -114,5 +148,10 @@ export class ChildProcessClient extends ClientProxy {
         response,
       });
     };
+  }
+
+  override assignPacketId(packet: ReadPacket): ReadPacket & PacketId {
+    const id = v4();
+    return Object.assign(packet, { id });
   }
 }

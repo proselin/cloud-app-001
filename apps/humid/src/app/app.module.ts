@@ -3,6 +3,7 @@ import { DatabaseModule } from './config/database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { CrawlingModule } from './crawling/crawling.module';
+import { LoggerModule } from 'logger';
 
 @Module({
   controllers: [],
@@ -11,6 +12,7 @@ import { CrawlingModule } from './crawling/crawling.module';
       isGlobal: true,
     }),
     DatabaseModule,
+    LoggerModule,
     HttpModule.register({
       global: true,
     }),

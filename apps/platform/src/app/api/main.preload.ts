@@ -6,8 +6,9 @@ contextBridge.exposeInMainWorld('cloudIpcCommon', {
 });
 
 
-contextBridge.exposeInMainWorld('cloudIpcHumit', {
+contextBridge.exposeInMainWorld('cloudIpcHumid', {
   getComicByUrl: (comicUrl: string) => ipcRenderer.invoke('ipc/humid/get-comic', {comicUrl}),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   platform: process.platform,
 });
+

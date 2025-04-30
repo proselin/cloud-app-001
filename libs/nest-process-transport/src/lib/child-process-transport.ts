@@ -18,6 +18,7 @@ import { ChildProcessContext } from './context/child-process.context';
 import { ReadPacket } from '@nestjs/microservices/interfaces';
 import { BaseRpcContext } from '@nestjs/microservices/ctx-host/base-rpc.context';
 import { NOT_IN_CHILD_PROCESS } from './constant';
+import { firstValueFrom, isObservable, lastValueFrom } from 'rxjs';
 
 export class ChildProcessTransport
   extends Server<ChildProcessEvents, ChildProcessStatus>
@@ -144,7 +145,10 @@ export class ChildProcessTransport
       });
     }
     try {
-      const result: any = await handler(packet.data);
+      let result = await handler(packet.data);
+      if (isObservable(result)) {
+        result = await firstValueFrom(result);
+      }
       this._logger.log(
         `[Send] id=${packet.id} response data : ${JSON.stringify(result)}`
       );
@@ -154,11 +158,12 @@ export class ChildProcessTransport
         response: result,
       });
     } catch (err: any) {
+      this._logger.error('normal');
+      this._logger.error(err);
       return this.sendToParentMessage({
         pattern,
         id: packet.id,
         err: err,
-        response: packet.pattern,
       });
     }
   }

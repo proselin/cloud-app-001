@@ -1,8 +1,8 @@
-import { BrowserWindow, shell, screen } from 'electron';
-import { rendererAppName, rendererAppPort } from './constants';
+import { BrowserWindow, screen, shell } from 'electron';
+import { rendererAppName } from './constants';
 import { environment } from '../environments/environment';
 import { join } from 'path';
-import { format, pathToFileURL } from 'url';
+import { pathToFileURL } from 'url';
 import { HumidServiceProcess } from './humid';
 
 export default class App {
@@ -90,7 +90,7 @@ export default class App {
       App.mainWindow.show();
     });
 
-    // handle all external redirects in a new browser window
+    // handles all external redirects in a new browser window
     // App.mainWindow.webContents.on('will-navigate', App.onRedirect);
     // App.mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options) => {
     //     App.onRedirect(event, url);

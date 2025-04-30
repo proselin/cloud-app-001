@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BaseIpcService } from '../../../common/services';
-import { HumitIpcFunction } from '../../models/ipc/humit-ipc.types';
+import { HumidIpcFunction } from '../../models/ipc';
 
 @Injectable({
   providedIn: 'root',
 })
-export class HumitIpcService extends BaseIpcService<HumitIpcFunction> {
+export class HumidIpcService extends BaseIpcService<HumidIpcFunction> {
   constructor() {
-    super('cloudIpcHumit');
+    super('cloudIpcHumid');
   }
 
   getComicByUrl(comicUrl: string) {

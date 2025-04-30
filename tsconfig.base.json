@@ -15,11 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@cloud/configuration": ["libs/configuration/src/index.ts"],
       "@cloud/nest-process-transport": [
         "libs/nest-process-transport/src/index.ts"
       ],
-      "humi2222": ["libs/humi2222/src/index.ts"],
-      "humid": ["libs/humid/src/index.ts"]
+      "logger": ["libs/logger/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

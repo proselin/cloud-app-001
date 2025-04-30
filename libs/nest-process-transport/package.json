@@ -6,7 +6,8 @@
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "peerDependencies": {
-    "@nestjs/microservices": "v10.0.0"
+    "@nestjs/common": ">=10.0.0",
+    "@nestjs/microservices": ">=10.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

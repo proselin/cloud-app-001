@@ -1,5 +1,5 @@
 <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-  <input type="text" nz-input placeholder="Input Nettruyen URL" (keydown.enter)="onSearch()"/>
+  <input type="text" nz-input placeholder="Input Nettruyen URL" [(ngModel)]="searchString" (keydown.enter)="onSearch()"/>
 </nz-input-group>
 <ng-template #suffixIconButton>
   <button nz-button nzType="primary" nzSearch><nz-icon nzType="search" (click)="onSearch()"/></button>

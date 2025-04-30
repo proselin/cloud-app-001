@@ -1,30 +1,30 @@
-import { Controller, Param, Post, Req, Res } from '@nestjs/common';
-import {Response, Request} from 'express';
+import { Controller, Logger, UseFilters } from '@nestjs/common';
 import { ComicService } from '../services/comic.service';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { ComicEntity } from '../../entities/comic';
+import { z } from 'zod';
+import { ExceptionFilter } from '../../filters/rpc-exception.filter';
 
-@Controller('/crawl')
+@Controller()
 export class CrawlController {
+  private logger = new Logger('CrawlController');
+
   constructor(private comicService: ComicService) {}
 
-  @Post(':type')
-  public async crawling(
-    @Param('type') type: string,
-    @Res() res: Response,
-    @Req() req: Request
-  ) {
-
-    const result = await this.comicService.handleCrawlComic(req.body.href);
-    res.status(200).json(result);
-  }
-
-  @MessagePattern({ cmd: 'sum' })
-  accumulate(data: number[]): number {
-    return (data || []).reduce((a, b) => a + b);
-  }
-
-  @MessagePattern('hello')
-  hello(data: string): string {
-    return "Hello World!";
+  @UseFilters(new ExceptionFilter())
+  @MessagePattern('crawling-by-url')
+  async crawlingByComicUrl(@Payload() data: { comicUrl: string }) {
+    this.logger.log(`START crawling-by-url comicUrl=${JSON.stringify(data)}`);
+    const url = z.string().url().parse(data.comicUrl);
+    throw new RpcException('No one can do it')
+    return this.comicService
+      .handleCrawlComic(url)
+      .then(
+        (r) =>
+          JSON.parse(JSON.stringify(r)) as Record<
+            keyof ComicEntity,
+            ComicEntity[keyof ComicEntity]
+          >
+      );
   }
 }
