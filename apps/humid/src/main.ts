@@ -4,7 +4,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { ChildProcessTransport } from '@cloud/nest-process-transport';
+import { ChildProcessTransport } from '@cloud/libs/nest-process-transport';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ExceptionFilter } from './app/filters/rpc-exception.filter';
 import { AllExceptionFilter } from './app/filters/all-exception.filter';

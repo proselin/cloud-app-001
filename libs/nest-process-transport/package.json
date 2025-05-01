@@ -1,5 +1,5 @@
 {
-  "name": "@cloud/nest-process-transport",
+  "name": "nest-process-transport",
   "version": "0.0.1",
   "private": true,
   "type": "commonjs",

@@ -1,5 +1,5 @@
+import { ChannelResponse } from './channel.type';
+
 export type HumidIpcFunction = {
-  getComicByUrl(comicUrl: string): Promise<string>
-  getAppVersion(): Promise<string>
-  platform: string
-}
+  pullComicByUrl(comicUrl: string): Promise<ChannelResponse>;
+};

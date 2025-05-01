@@ -1,1 +1,1 @@
-export * from './lib/logger.module';
+export {createLoggerInstant,getLoggerConfig} from './lib/logger';

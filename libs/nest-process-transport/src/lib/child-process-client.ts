@@ -18,6 +18,7 @@ export class ChildProcessClient extends ClientProxy {
 
   constructor(
     private childProcess: ChildProcess,
+    //eslint-disable-next-line
     private options?: Record<string, any>
   ) {
     super();
@@ -30,6 +31,7 @@ export class ChildProcessClient extends ClientProxy {
   override async connect(): Promise<void> {
     if (!this.connected) {
       this.pendingEventListeners.forEach(({ event, callBack }) => {
+        //eslint-disable-next-line
         this.childProcess.on(event, (...args: any[]) => {
           callBack(...args);
         });
@@ -110,8 +112,10 @@ export class ChildProcessClient extends ClientProxy {
     return void 0 as T;
   }
 
+  //eslint-disable-next-line
   override on(event: string, callback: (...args: any[]) => void) {
     this.logger.log(`Start Listening to event ${event}`);
+    //eslint-disable-next-line
     this.childProcess.on(event, (...args: any[]) => {
       callback(...args);
     });
@@ -128,7 +132,7 @@ export class ChildProcessClient extends ClientProxy {
       if (isObject(data) && 'err' in data && data.err) {
         this.logger.error(`Received Error: ${JSON.stringify(data)}`);
       } else {
-        this.logger.error(`Received Response: ${JSON.stringify(data)}`);
+        this.logger.log(`Received Response: ${JSON.stringify(data)}`);
       }
       const { err, response, isDisposed, id } =
         await this.deserializer.deserialize(data);

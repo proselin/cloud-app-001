@@ -10,11 +10,7 @@ export class HumidIpcService extends BaseIpcService<HumidIpcFunction> {
     super('cloudIpcHumid');
   }
 
-  getComicByUrl(comicUrl: string) {
-    return this.channel.getComicByUrl(comicUrl);
-  }
-
-  getAppVersion() {
-    return this.channel.getAppVersion();
+  pullComicByUrl(comicUrl: string) {
+    return this.send<{ id: string }>('pullComicByUrl', comicUrl);
   }
 }

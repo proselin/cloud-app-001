@@ -12,6 +12,7 @@ import { ExtractNettruyenImpl } from '../extractor/extract-nettruyen-impl';
 import { ImageService } from './image.service';
 import { ImageType } from '../../common/constant/image';
 import { ChapterService } from './chapter.service';
+import { z } from 'zod';
 
 @Injectable()
 export class ComicService {
@@ -26,18 +27,12 @@ export class ComicService {
     private readonly chapterService: ChapterService
   ) {}
 
-  async handleCrawlComic(href: string) {
+  private async pullNewComic(href: string, crawledInformation:  InfoExtractedResult$1 ) {
     const queryRunner = this.dataSource.createQueryRunner();
 
     try {
-      this.logger.log(`START [handleCrawlComic] with href=${href}`)
+      this.logger.log(`START [handleCrawlComic] with href=${href}`);
       await queryRunner.startTransaction();
-      const crawledInformation = await this.extractInfo(href);
-      await this.comicRepository
-        .existsBy({ originId: crawledInformation.comicId })
-        .then((r) => {
-          if (r) throw new Error('comic is already exists');
-        });
 
       const comic: ComicEntity = new ComicEntity();
       // comic.urlHistory = [href];
@@ -90,10 +85,9 @@ export class ComicService {
       //   6
       // );
 
-
       await queryRunner.commitTransaction();
 
-      this.logger.log(`DONE [handleCrawlComic] with href=${href}`)
+      this.logger.log(`DONE [handleCrawlComic] with href=${href}`);
       return comic;
     } catch (e) {
       this.logger.error(e);
@@ -102,7 +96,24 @@ export class ComicService {
     }
   }
 
-  async extractInfo(url: string): Promise<InfoExtractedResult$1> {
+  private async getComicOrCrawlNew(href: string) {
+    this.logger.log(`START [getIdOrCrawlNew] with href=${href}`);
+    const crawledInformation = await this.extractInfo(href);
+    const comic = await this.comicRepository.findOneBy({
+      originId: crawledInformation.comicId,
+    });
+    if (!comic) {
+      this.logger.log(`[getIdOrCrawlNew] not found comic by url try to pull new`);
+      return this.pullNewComic(href, crawledInformation).then((r) => {
+        this.logger.log(`DONE [getIdOrCrawlNew]`);
+        return r;
+      });
+    }
+    this.logger.log(`DONE [getIdOrCrawlNew]`);
+    return comic;
+  }
+
+  private async extractInfo(url: string): Promise<InfoExtractedResult$1> {
     const response = await this.nettruyenHttpService.get(url);
     const extractor = new ExtractNettruyenImpl();
     return extractor
@@ -110,5 +121,21 @@ export class ComicService {
       .setUrl(url)
       .setHtmlContent(response.data)
       .extract();
+  }
+
+  public async getComicByUrl(url: string) {
+    this.logger.log(`START [getComicByUrl] with href=${url}`);
+    url = z.string().url().parse(url);
+    const comic = await this.comicRepository.findOneBy({
+      originUrl: url,
+    });
+
+    if (!comic) {
+      return structuredClone(this.getComicOrCrawlNew(url).then(r => {
+        this.logger.log(`DONE [getComicByUrl]`);
+        return r
+      }))
+    }
+    return structuredClone(comic);
   }
 }

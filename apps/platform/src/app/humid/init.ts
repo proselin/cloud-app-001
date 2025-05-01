@@ -1,7 +1,7 @@
 import { fork, ChildProcess } from 'child_process';
 import { join } from 'path';
 import App from '../app';
-import { ChildProcessClient } from '@cloud/nest-process-transport';
+import { ChildProcessClient } from '@cloud/libs/nest-process-transport';
 import { HumidHandler } from './humid.handler';
 
 export class HumidServiceProcess {
@@ -11,7 +11,9 @@ export class HumidServiceProcess {
 
   constructor() {
     if (App.isDevelopmentMode()) {
-      this.instantProcess = fork(join('dist', 'apps', 'humid', 'main.js'));
+      this.instantProcess = fork(join('dist', 'apps', 'humid', 'main.js'), {
+        execArgv: ['--inspect']
+      });
     } else {
       this.instantProcess = fork(join('node_modules', 'humid', 'main.js'));
     }

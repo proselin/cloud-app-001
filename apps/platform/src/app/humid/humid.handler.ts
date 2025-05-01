@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import { ChildProcessClient } from '@cloud/nest-process-transport';
+import { ChildProcessClient } from '@cloud/libs/nest-process-transport';
 import { firstValueFrom } from 'rxjs';
 import { responseMapper } from '../common/response/response-mapper';
 
@@ -9,12 +9,13 @@ export class HumidHandler {
     this.registerHandler();
   }
 
-  async getComicByUrl(
+  async pullComicByUrl(
     _,
     data: { comicUrl: string }
+    //eslint-disable-next-line
   ): Promise<{ response: any; error: any }> {
     console.log(
-      `[ipc/humid/get-comic]: Start handles data=${JSON.stringify(data)}`
+      `[ipc/humid/pull-comic]: Start handles data=${JSON.stringify(data)}`
     );
     return responseMapper(
       firstValueFrom(
@@ -27,6 +28,6 @@ export class HumidHandler {
   }
 
   registerHandler() {
-    ipcMain.handle('ipc/humid/get-comic', this.getComicByUrl.bind(this));
+    ipcMain.handle('ipc/humid/pull-comic', this.pullComicByUrl.bind(this));
   }
 }
