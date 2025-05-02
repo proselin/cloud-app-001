@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { CrawlingModule } from './crawling/crawling.module';
 import { LoggerModule } from './config/logger';
+import { FileIoModule } from './file-io/file-io.module';
 
 @Module({
   controllers: [],
@@ -11,11 +12,12 @@ import { LoggerModule } from './config/logger';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    DatabaseModule,
-    LoggerModule,
     HttpModule.register({
       global: true,
     }),
+    DatabaseModule,
+    LoggerModule,
+    FileIoModule,
     CrawlingModule,
   ],
 })

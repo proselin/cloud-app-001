@@ -7,7 +7,6 @@ import {
   WritePacket,
 } from '@nestjs/microservices';
 import { Logger } from '@nestjs/common';
-import { ProcessResponse } from './message.types';
 import {
   ChildProcessEvents,
   ChildProcessStatus,
@@ -15,10 +14,9 @@ import {
 import { NO_MESSAGE_HANDLER } from '@nestjs/microservices/constants';
 import { isString } from '@nestjs/common/utils/shared.utils';
 import { ChildProcessContext } from './context/child-process.context';
-import { ReadPacket } from '@nestjs/microservices/interfaces';
 import { BaseRpcContext } from '@nestjs/microservices/ctx-host/base-rpc.context';
 import { NOT_IN_CHILD_PROCESS } from './constant';
-import { firstValueFrom, isObservable, lastValueFrom } from 'rxjs';
+import { firstValueFrom, isObservable } from 'rxjs';
 
 export class ChildProcessTransport
   extends Server<ChildProcessEvents, ChildProcessStatus>
@@ -133,7 +131,7 @@ export class ChildProcessTransport
   private async handleIncomingRequest(
     pattern: string,
     packet: IncomingRequest,
-    context: BaseRpcContext
+    _: BaseRpcContext
   ) {
     const handler = this.getHandlers().get(packet.pattern);
 
@@ -158,7 +156,6 @@ export class ChildProcessTransport
         response: result,
       });
     } catch (err: any) {
-      this._logger.error('normal');
       this._logger.error(err);
       return this.sendToParentMessage({
         pattern,

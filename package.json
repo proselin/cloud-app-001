@@ -5,7 +5,8 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps ",
     "humid:pack": "npx nx build humid && npm pack dist/apps/humid",
-    "build": " nx run-many -t build -p humid cloud platform   "
+    "build": " nx run-many -t build -p humid cloud platform",
+    "serve": "npm run build && nx serve"
   },
   "private": true,
   "dependencies": {

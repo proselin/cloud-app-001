@@ -33,8 +33,15 @@ export class ImageEntity extends CommonEntity {
   chapter!: ChapterEntity | Partial<ChapterEntity>;
 
   @OneToOne(() => ComicEntity)
-  @JoinColumn({
-    name: 'comic_id',
-  })
   comic!: ComicEntity | Partial<ComicEntity>;
+
+  static toJSON(entity: ImageEntity) {
+    return {
+      ...CommonEntity.toJSON(entity),
+      fileName: entity.fileName,
+      originUrls: entity.originUrls,
+      position: entity.position,
+      type: entity.type,
+    }
+  }
 }

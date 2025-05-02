@@ -1,6 +1,7 @@
 import { Extractor } from './extractor';
 import { InfoExtractedResult$1, RawCrawledChapter } from '../../common';
 import { NettruyenHttpService } from '../services/nettruyen-http.service';
+import { RpcException } from '@nestjs/microservices';
 
 export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
   private http!: NettruyenHttpService;
@@ -72,20 +73,20 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
     const thumbImageRegex = /<img[^>]*data-src=["']([^"]*)["']/g;
     const thumbMatch = thumbImageRegex.exec(this.htmlContent);
     if (!thumbMatch || !thumbMatch[1]) {
-      throw new Error('Not found thumb url !!');
+      throw new RpcException('Not found thumb url !!');
     }
     return thumbMatch[1];
   }
 
   private validateInput() {
     if (!this.htmlContent) {
-      throw new Error('Missing Html content');
+      throw new RpcException('Missing Html content');
     }
     if (!this.url) {
-      throw new Error('Missing URL content');
+      throw new RpcException('Missing URL content');
     }
     if (!this.http) {
-      throw new Error('Missing HTTP Service');
+      throw new RpcException('Missing HTTP Service');
     }
   }
 

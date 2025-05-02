@@ -12,10 +12,8 @@ import "better-sqlite3"
           type: 'better-sqlite3',
           appName: 'Humid',
           database: resolve('assets', 'humid.db'),
-          entities: [__dirname + '/**/*.entity{.ts,.js}'],
           autoLoadEntities: true,
           synchronize: true, // only for dev! turns models into tables
-          logging: true,
           retryAttempts: 1,
           timeout: 30000,
         } ;

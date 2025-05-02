@@ -4,19 +4,19 @@ import { CommonEntity, CrawlingStatus } from "../../common";
 import { ImageEntity } from "../image";
 import { ChapterEntity } from "../chapter";
 
-@Entity("comic")
+@Entity('comic')
 export class ComicEntity extends CommonEntity {
   @Column()
   title!: string;
 
   @Column({
-    name: "chapter_count",
-    type: "integer",
+    name: 'chapter_count',
+    type: 'integer',
   })
   chapterCount!: number;
 
   @Column({
-    name: "origin_id",
+    name: 'origin_id',
     unique: true,
     nullable: false,
   })
@@ -33,45 +33,56 @@ export class ComicEntity extends CommonEntity {
   description!: string;
 
   @Column({
-    name: "origin_url",
+    name: 'origin_url',
   })
   originUrl!: string;
 
   @Column({
-    name: "should_refresh",
-    type: "boolean",
+    name: 'should_refresh',
+    type: 'boolean',
     default: false,
   })
   shouldRefresh!: boolean;
 
   @Column({
-    type: "varchar",
-    default: "",
+    type: 'varchar',
+    default: '',
   })
   tags!: string;
 
   @Column({
-    type: "varchar",
-    default: "",
+    type: 'varchar',
+    default: '',
   })
   author!: string;
 
   @Column({
-    type: "varchar",
-    name: "crawling_status",
+    type: 'varchar',
+    name: 'crawling_status',
   })
   crawlStatus!: CrawlingStatus;
 
-  @OneToMany(() => ChapterEntity, chapter => chapter.comic, {
-    lazy: true,
-  })
+  @OneToMany(() => ChapterEntity, (chapter) => chapter.comic)
   chapters!: ChapterEntity[];
 
-  @OneToOne(() => ImageEntity, {
-    lazy: true,
-  })
   @JoinColumn({
     name: 'thumb_image_id',
   })
+  @OneToOne(() => ImageEntity, {
+    nullable: true,
+  })
   thumbImage!: ImageEntity;
+
+  static async mapWithThumb(entity: ComicEntity) {
+    await Promise.resolve(entity.thumbImage);
+    return {
+      ...CommonEntity.toJSON(entity),
+      title: entity.title,
+      description: entity.description,
+      chapterCount: entity.chapterCount,
+      originId: entity.originId,
+      status: entity.status,
+      thumbImage: ImageEntity.toJSON(entity.thumbImage),
+    }
+  }
 }

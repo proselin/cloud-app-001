@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import * as fs from 'node:fs';
-import { Utils } from '../../utils';
+import { Injectable, Logger } from '@nestjs/common';
+import fs from 'node:fs';
+import { Utils } from '../utils';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
-export class StoreService {
+export class FileIoService {
+  private logger = new Logger('FileIoService');
   private saveImageDir = `${__dirname}/assets/images/`;
 
-  async saveImages(fileName: string, buffer: Buffer) {
+  async saveImageFile(fileName: string, buffer: Buffer) {
+    this.logger.log(`START [saveImages] with filename=${fileName}`)
     if (!fs.existsSync(this.saveImageDir)) {
       await fs.promises.mkdir(this.saveImageDir);
     }
@@ -18,10 +21,10 @@ export class StoreService {
   }
 
   generateFileName(prefixFileName: string, contentType: string | null) {
-    if(!contentType) throw new Error("Content type must be a string");
+    if(!contentType) throw new RpcException("Content type must be a string");
     const extension = Utils.getFileExtensionFromContentType(contentType);
     if (!extension) {
-      throw new Error('Unsupported content type');
+      throw new RpcException('Unsupported content type');
     }
     const hash = Date.now().toString(3).substring(0, 3);
     return `${prefixFileName}-${hash}.${extension}`;

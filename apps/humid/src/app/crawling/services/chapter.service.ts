@@ -62,7 +62,9 @@ export class ChapterService {
         } satisfies CrawlImageJobData;
       });
 
-      await this.imageService.handleCrawlImages(requestImages, queryRunner);
+      chapter.images = await this.imageService.handleCrawlImages(requestImages, queryRunner).then(r => {
+        return r.filter(item => !!item)
+      });
       if (!isolate) await queryRunner.commitTransaction();
 
       this.logger.log(

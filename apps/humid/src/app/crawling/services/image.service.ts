@@ -1,18 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { StoreService } from './store.service';
 import { NettruyenHttpService } from './nettruyen-http.service';
 import { ImageEntity } from '../../entities/image';
 import { QueryRunner } from 'typeorm';
 import { CrawlImageJobData } from '../../common';
 import { ImageType } from '../../common/constant/image';
+import { FileIoService } from '../../file-io/file-io.service';
+import { ComicEntity } from '../../entities/comic';
+import { ChapterEntity } from '../../entities/chapter';
+import { RpcException } from '@nestjs/microservices';
 
-@Injectable()
 @Injectable()
 export class ImageService {
   private logger = new Logger(ImageService.name);
 
   constructor(
-    private storeService: StoreService,
+    private storeService: FileIoService,
     private http: NettruyenHttpService
   ) {}
 
@@ -95,18 +97,29 @@ export class ImageService {
       image.originUrls = JSON.stringify(storedImage.originUrls ?? []);
       image.position = storedImage.position;
       image.type = storedImage.type as number;
-      image.chapter = {
-        id: chapterId,
-      };
-      image.comic = {
-        id: comicId,
-      };
+
+      switch (true) {
+        case !!comicId: {
+          const comic = new ComicEntity();
+          comic.id = comicId;
+          image.comic = comic;
+          break;
+        }
+        case !!chapterId: {
+          const chapter = new ChapterEntity();
+          chapter.id = chapterId;
+          image.chapter = chapter;
+          break;
+        }
+      }
+
       await queryRunner?.manager.save(image);
 
       this.logger.log(
         `DONE [${this.createImage.name}]: create image with file name ${storedImage.fileName}`
       );
-      return image.id;
+      return image;
+
     } catch (e) {
       this.logger.error(
         `ERROR [${this.createImage.name}]: Failed to create image with uploaded url `
@@ -137,7 +150,7 @@ export class ImageService {
       }
 
       if (!buffer) {
-        throw new Error(`Not result found on ${JSON.stringify(imageUrls)}`);
+        throw new RpcException(`Not result found on ${JSON.stringify(imageUrls)}`);
       }
 
       this.logger.log(
@@ -176,7 +189,7 @@ export class ImageService {
         prefixFileName,
         contentType
       );
-      await this.storeService.saveImages(fileName, buffer);
+      await this.storeService.saveImageFile(fileName, buffer);
       this.logger.log(
         `DONE [crawlAndSaveImage] with svUrls=${JSON.stringify(
           svUrls

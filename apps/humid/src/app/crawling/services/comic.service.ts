@@ -27,7 +27,10 @@ export class ComicService {
     private readonly chapterService: ChapterService
   ) {}
 
-  private async pullNewComic(href: string, crawledInformation:  InfoExtractedResult$1 ) {
+  private async pullNewComic(
+    href: string,
+    crawledInformation: InfoExtractedResult$1
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
 
     try {
@@ -50,9 +53,8 @@ export class ComicService {
       this.logger.log('Process create new comic');
       await queryRunner.manager.save(comic);
 
-      await this.imageService.handleCrawlThumb(
+      comic.thumbImage = await this.imageService.handleCrawlThumb(
         {
-          comicId: comic.id,
           type: ImageType.THUMB,
           domain: crawledInformation.domain,
           dataUrls: [crawledInformation.thumbUrl],
@@ -78,12 +80,6 @@ export class ComicService {
           return this.chapterService.handleCrawlChapter(chapter, queryRunner);
         })
       );
-      // await runWithConcurrency(
-      //   dataCrawlingChapters.map((chapter) => {
-      //     return this.chapterService.handleCrawlChapter(chapter, queryRunner);
-      //   }),
-      //   6
-      // );
 
       await queryRunner.commitTransaction();
 
@@ -103,7 +99,9 @@ export class ComicService {
       originId: crawledInformation.comicId,
     });
     if (!comic) {
-      this.logger.log(`[getIdOrCrawlNew] not found comic by url try to pull new`);
+      this.logger.log(
+        `[getIdOrCrawlNew] not found comic by url try to pull new`
+      );
       return this.pullNewComic(href, crawledInformation).then((r) => {
         this.logger.log(`DONE [getIdOrCrawlNew]`);
         return r;
@@ -126,16 +124,21 @@ export class ComicService {
   public async getComicByUrl(url: string) {
     this.logger.log(`START [getComicByUrl] with href=${url}`);
     url = z.string().url().parse(url);
-    const comic = await this.comicRepository.findOneBy({
-      originUrl: url,
-    });
+    const comic = await this.comicRepository
+      .findOneBy({
+        originUrl: url,
+      })
+      .then(async (r) => {
+        this.logger.log(`DONE [getComicByUrl]`);
+        return r;
+      });
 
     if (!comic) {
-      return structuredClone(this.getComicOrCrawlNew(url).then(r => {
+      return this.getComicOrCrawlNew(url).then(async (r) => {
         this.logger.log(`DONE [getComicByUrl]`);
-        return r
-      }))
+        return ComicEntity.mapWithThumb(r);
+      });
     }
-    return structuredClone(comic);
+    return ComicEntity.mapWithThumb(comic);
   }
 }
