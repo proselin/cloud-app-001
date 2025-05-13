@@ -1,6 +1,6 @@
 {
   "name": "nest-process-transport",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/nest-process-transport/src",
   "projectType": "library",
   "tags": [],

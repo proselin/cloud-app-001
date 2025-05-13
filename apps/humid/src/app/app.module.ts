@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { CrawlingModule } from './crawling/crawling.module';
 import { LoggerModule } from './config/logger';
 import { FileIoModule } from './file-io/file-io.module';
+import { ComicModule } from './comic/comic.module';
 
 @Module({
   controllers: [],
@@ -18,6 +19,7 @@ import { FileIoModule } from './file-io/file-io.module';
     DatabaseModule,
     LoggerModule,
     FileIoModule,
+    ComicModule,
     CrawlingModule,
   ],
 })

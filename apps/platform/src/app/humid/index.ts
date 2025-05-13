@@ -1,3 +1,3 @@
 import { HumidServiceProcess } from './init';
 
-export  {HumidServiceProcess}
+export { HumidServiceProcess };

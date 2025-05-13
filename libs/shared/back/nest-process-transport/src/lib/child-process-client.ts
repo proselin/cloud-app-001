@@ -8,6 +8,14 @@ import {
 import { Logger, LoggerService } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { isObject } from '@nestjs/common/utils/shared.utils';
+import { Serializer } from '@nestjs/microservices/interfaces/serializer.interface';
+import { Deserializer } from '@nestjs/microservices/interfaces/deserializer.interface';
+
+export interface ChildProcessClientOptions {
+  serializer?: Serializer;
+  deserializer?: Deserializer;
+  logger?: LoggerService;
+}
 
 export class ChildProcessClient extends ClientProxy {
   private logger: LoggerService;
@@ -18,12 +26,11 @@ export class ChildProcessClient extends ClientProxy {
 
   constructor(
     private childProcess: ChildProcess,
-    //eslint-disable-next-line
-    private options?: Record<string, any>
+    private options?: ChildProcessClientOptions
   ) {
     super();
     this.pendingEventListeners = [];
-    this.logger = new Logger('ChildProcessClient');
+    this.logger = options?.logger ?? new Logger();
     this.initializeSerializer(options);
     this.initializeDeserializer(options);
   }
@@ -129,13 +136,16 @@ export class ChildProcessClient extends ClientProxy {
 
   createResponseCallback() {
     return async (data: Serializable) => {
-      if (isObject(data) && 'err' in data && data.err) {
-        this.logger.error(`Received Error: ${JSON.stringify(data)}`);
-      } else {
-        this.logger.log(`Received Response: ${JSON.stringify(data)}`);
+      this.logger.log("Received a message");
+      const { err, response, isDisposed, id } = this.deserializer.deserialize(data) as any;
+      if (err) {
+        this.logger.error(`Received error on id:${id} error ${JSON.stringify(err)}`);
       }
-      const { err, response, isDisposed, id } =
-        await this.deserializer.deserialize(data);
+      if (response && isObject(response) && "type" in response && response.type != "Buffer") {
+        this.logger.log(`Received response on id:${id} ${JSON.stringify(response)}`);
+      }else if(isObject(response) && "type" in response && response.type == "Buffer") {
+        this.logger.log(`Received a response buffer on id:${id}`);
+      }
       const callback = this.routingMap.get(id);
       if (!callback) {
         return;

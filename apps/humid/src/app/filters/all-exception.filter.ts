@@ -1,25 +1,21 @@
-import {
-  ArgumentsHost,
-  Catch,
-  Logger,
-  RpcExceptionFilter,
-} from '@nestjs/common';
+import { Catch, Logger, RpcExceptionFilter } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
+import { RpcException } from '@nestjs/microservices';
+import { INTERNAL_SERVER_ERROR } from '../exceptions/exceptions';
+import { ZodError } from 'zod';
 
 @Catch()
 export class AllExceptionFilter implements RpcExceptionFilter {
-  catch(exception: any, host: ArgumentsHost): Observable<any> {
+  catch(exception: object | string): Observable<string | object> {
     Logger.error(exception, AllExceptionFilter.name);
     return throwError(() => {
-      if(exception instanceof Error) {
-        return exception.message
+      if (exception instanceof RpcException) {
+        return exception.getError();
       }
-      if("message" in exception) {
-        return exception.message;
+      if(exception instanceof ZodError) {
+        return new RpcException(exception).getError()
       }
-      if("error" in exception) {
-        return exception.error;
-      }
+      return INTERNAL_SERVER_ERROR.getError();
     });
   }
 }

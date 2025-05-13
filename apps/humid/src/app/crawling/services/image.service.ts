@@ -99,12 +99,12 @@ export class ImageService {
       image.type = storedImage.type as number;
 
       switch (true) {
-        case !!comicId: {
-          const comic = new ComicEntity();
-          comic.id = comicId;
-          image.comic = comic;
-          break;
-        }
+        // case !!comicId: {
+        //   const comic = new ComicEntity();
+        //   comic.id = comicId;
+        //   image.comic = comic;
+        //   break;
+        // }
         case !!chapterId: {
           const chapter = new ChapterEntity();
           chapter.id = chapterId;

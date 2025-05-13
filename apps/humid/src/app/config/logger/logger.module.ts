@@ -1,4 +1,4 @@
-import { WinstonModule } from 'nest-winston';
+import { utilities, WinstonModule } from 'nest-winston';
 import { getLoggerConfig } from '@cloud/libs/logger';
 import { Module } from '@nestjs/common';
 
@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common';
   imports: [
     WinstonModule.forRootAsync({
       useFactory: () => {
-        return getLoggerConfig('Humid');
+        return getLoggerConfig('Humid', utilities);
       },
     }),
   ],

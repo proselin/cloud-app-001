@@ -6,7 +6,6 @@ import {
   Server,
   WritePacket,
 } from '@nestjs/microservices';
-import { Logger } from '@nestjs/common';
 import {
   ChildProcessEvents,
   ChildProcessStatus,
@@ -23,7 +22,6 @@ export class ChildProcessTransport
   implements CustomTransportStrategy
 {
   public override readonly transportId = Symbol('CHILD_PROCESS');
-  private readonly _logger = new Logger('ServerProcess');
 
   constructor(private readonly options?: Record<string, any>) {
     super();
@@ -39,12 +37,12 @@ export class ChildProcessTransport
     }
 
     process.once('error', (error) => {
-      this._logger.error(error);
+      this.logger.error(error);
       callback(error);
     });
 
     process.on('message', async (raw) => {
-      this._logger.log(
+      this.logger.log(
         `[Message Coming] Receive message ${JSON.stringify(raw)}`
       );
       await this.handleMessage(raw);
@@ -147,7 +145,7 @@ export class ChildProcessTransport
       if (isObservable(result)) {
         result = await firstValueFrom(result);
       }
-      this._logger.log(
+      this.logger.log(
         `[Send] id=${packet.id} response data : ${JSON.stringify(result)}`
       );
       return this.sendToParentMessage({
@@ -156,7 +154,7 @@ export class ChildProcessTransport
         response: result,
       });
     } catch (err: any) {
-      this._logger.error(err);
+      this.logger.error(err);
       return this.sendToParentMessage({
         pattern,
         id: packet.id,

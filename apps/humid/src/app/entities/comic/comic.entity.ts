@@ -66,10 +66,12 @@ export class ComicEntity extends CommonEntity {
   chapters!: ChapterEntity[];
 
   @JoinColumn({
-    name: 'thumb_image_id',
+    name: 'thumb_image_id'
   })
   @OneToOne(() => ImageEntity, {
+    eager: true,
     nullable: true,
+    createForeignKeyConstraints: true
   })
   thumbImage!: ImageEntity;
 
@@ -77,12 +79,12 @@ export class ComicEntity extends CommonEntity {
     await Promise.resolve(entity.thumbImage);
     return {
       ...CommonEntity.toJSON(entity),
-      title: entity.title,
-      description: entity.description,
-      chapterCount: entity.chapterCount,
-      originId: entity.originId,
-      status: entity.status,
-      thumbImage: ImageEntity.toJSON(entity.thumbImage),
+      title: entity?.title,
+      description: entity?.description,
+      chapterCount: entity?.chapterCount,
+      originId: entity?.originId,
+      status: entity?.status,
+      thumbImage: ImageEntity.toJSON(entity?.thumbImage),
     }
   }
 }

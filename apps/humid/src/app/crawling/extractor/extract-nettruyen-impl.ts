@@ -73,20 +73,20 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
     const thumbImageRegex = /<img[^>]*data-src=["']([^"]*)["']/g;
     const thumbMatch = thumbImageRegex.exec(this.htmlContent);
     if (!thumbMatch || !thumbMatch[1]) {
-      throw new RpcException('Not found thumb url !!');
+      throw new Error('Not found thumb url !!');
     }
     return thumbMatch[1];
   }
 
   private validateInput() {
     if (!this.htmlContent) {
-      throw new RpcException('Missing Html content');
+      throw new Error('Missing Html content');
     }
     if (!this.url) {
-      throw new RpcException('Missing URL content');
+      throw new Error('Missing URL content');
     }
     if (!this.http) {
-      throw new RpcException('Missing HTTP Service');
+      throw new Error('Missing HTTP Service');
     }
   }
 

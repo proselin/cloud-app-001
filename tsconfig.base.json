@@ -15,10 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@cloud/libs/logger": ["libs/shared/back/logger/src/index.ts"],
       "@cloud/libs/nest-process-transport": [
-        "libs/nest-process-transport/src/index.ts"
-      ],
-      "@cloud/libs/logger": ["libs/logger/src/index.ts"]
+        "libs/shared/back/nest-process-transport/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

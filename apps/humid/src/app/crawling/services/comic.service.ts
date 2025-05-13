@@ -13,6 +13,7 @@ import { ImageService } from './image.service';
 import { ImageType } from '../../common/constant/image';
 import { ChapterService } from './chapter.service';
 import { z } from 'zod';
+import { COMIC_NOT_FOUND_BY_URL } from '../../exceptions/exceptions';
 
 @Injectable()
 export class ComicService {
@@ -55,6 +56,7 @@ export class ComicService {
 
       comic.thumbImage = await this.imageService.handleCrawlThumb(
         {
+          comicId: comic.id,
           type: ImageType.THUMB,
           domain: crawledInformation.domain,
           dataUrls: [crawledInformation.thumbUrl],
@@ -94,7 +96,9 @@ export class ComicService {
 
   private async getComicOrCrawlNew(href: string) {
     this.logger.log(`START [getIdOrCrawlNew] with href=${href}`);
-    const crawledInformation = await this.extractInfo(href);
+    const crawledInformation = await this.extractInfo(href).catch(() => {
+      throw COMIC_NOT_FOUND_BY_URL;
+    });
     const comic = await this.comicRepository.findOneBy({
       originId: crawledInformation.comicId,
     });

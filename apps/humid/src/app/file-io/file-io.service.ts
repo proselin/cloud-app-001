@@ -2,11 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import fs from 'node:fs';
 import { Utils } from '../utils';
 import { RpcException } from '@nestjs/microservices';
+import { resolve } from 'node:path';
 
 @Injectable()
 export class FileIoService {
   private logger = new Logger('FileIoService');
-  private saveImageDir = `${__dirname}/assets/images/`;
+  private saveImageDir = 'assets/images/';
 
   async saveImageFile(fileName: string, buffer: Buffer) {
     this.logger.log(`START [saveImages] with filename=${fileName}`)

@@ -3,7 +3,7 @@ export type ChannelType = Record<string,
 
 export type ChannelValueType = ChannelResponseFunction | ChannelResponse | Promise<ChannelResponse> | string | number | boolean | Record<string, unknown>
 export type ChannelResponse<T = unknown> = {
-  error: string | Record<string, any> | Error | null;
+  error: string | object | null;
   response: T | null;
 };
 
