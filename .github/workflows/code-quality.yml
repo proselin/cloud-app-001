@@ -103,7 +103,6 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
-
   notify-status:
     name: Notify Status
     runs-on: ubuntu-latest
@@ -115,7 +114,9 @@ jobs:
         if: needs.code-quality.result == 'success'
         run: |
           echo "✅ Code quality checks passed successfully!"
-          echo "All linting, formatting, and build steps completed."      - name: Notify partial success
+          echo "All linting, formatting, and build steps completed."
+
+      - name: Notify partial success
         if: needs.code-quality.result == 'failure'
         run: |
           echo "⚠️ Code quality checks completed with some issues."
