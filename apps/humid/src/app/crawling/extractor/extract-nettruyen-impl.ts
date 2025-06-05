@@ -1,7 +1,7 @@
 import { Extractor } from './extractor';
 import { InfoExtractedResult$1, RawCrawledChapter } from '../../common';
-import { NettruyenHttpService } from '../services/nettruyen-http.service';
-import { RpcException } from '@nestjs/microservices';
+import { NettruyenHttpService } from '../../http/nettruyen-http.service';
+import * as cheerio from 'cheerio';
 
 export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
   private http!: NettruyenHttpService;
@@ -13,38 +13,99 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
 
   setHttp(http: NettruyenHttpService) {
     this.http = http;
-    return this
+    return this;
   }
 
   setHtmlContent(htmlContent: string) {
     this.htmlContent = htmlContent;
-    return this
+    return this;
   }
 
   setUrl(url: string) {
     this.url = url;
-    return this
+    return this;
   }
 
   private extractSlug() {
-    const slugPattern = /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"];/g;
-    const slugMatch = slugPattern.exec(this.htmlContent);
-    if (!slugMatch || !slugMatch[1]) throw new Error('slug is not found !!');
-    return slugMatch[1];
+    const $ = cheerio.load(this.htmlContent);
+    let slug: string | undefined;
+
+    // Search for gOpts.comicSlug in script tags
+    $('script').each((_, element) => {
+      const scriptContent = $(element).html();
+      if (scriptContent && scriptContent.includes('gOpts.comicSlug')) {
+        const slugMatch = scriptContent.match(
+          /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"];/
+        );
+        if (slugMatch && slugMatch[1]) {
+          slug = slugMatch[1];
+          return false; // Break the loop
+        }
+      }
+    });
+
+    if (!slug) {
+      throw new Error('slug is not found !!');
+    }
+    return slug;
   }
 
   private extractTitle() {
-    const namePattern = /gOpts\.comicName\s*=\s*['"]([^'"]*)['"];/g;
-    const nameMatch = namePattern.exec(this.htmlContent);
-    if (!nameMatch || !nameMatch[1]) throw new Error('Header is not found !!');
-    return nameMatch[1];
+    const $ = cheerio.load(this.htmlContent);
+    let title: string | undefined;
+
+    // Search for gOpts.comicName in script tags
+    $('script').each((_, element) => {
+      const scriptContent = $(element).html();
+      if (scriptContent && scriptContent.includes('gOpts.comicName')) {
+        const nameMatch = scriptContent.match(
+          /gOpts\.comicName\s*=\s*['"]([^'"]*)['"];/
+        );
+        if (nameMatch && nameMatch[1]) {
+          title = nameMatch[1];
+          return false; // Break the loop
+        }
+      }
+    });
+
+    if (!title) {
+      throw new Error('Header is not found !!');
+    }
+    return title;
   }
 
   private extractId() {
-    const idPattern = /gOpts\.comicId\s*=\s*['"]([^'"]*)['"];/g;
-    const idMatch = idPattern.exec(this.htmlContent);
-    if (!idMatch || !idMatch[1]) throw new Error('comicId is not found !!');
-    return idMatch[1];
+    const $ = cheerio.load(this.htmlContent);
+    let id: string | undefined;
+
+    // Search for gOpts.comicId in script tags
+    $('script').each((_, element) => {
+      const scriptContent = $(element).html();
+      if (scriptContent && scriptContent.includes('gOpts.comicId')) {
+        const idMatch = scriptContent.match(
+          /gOpts\.comicId\s*=\s*['"]([^'"]*)['"];/
+        );
+        if (idMatch && idMatch[1]) {
+          id = idMatch[1];
+          return false; // Break the loop
+        }
+      }
+    });
+
+    if (!id) {
+      throw new Error('comicId is not found !!');
+    }
+    return id;
+  }
+
+  private extractThumb() {
+    const $ = cheerio.load(this.htmlContent);
+    const thumbUrl = $('img[data-src]').first().attr('data-src');
+
+    if (!thumbUrl) {
+      throw new Error('Not found thumb url !!');
+    }
+    return thumbUrl;
   }
 
   private async extractChapter(): Promise<RawCrawledChapter[]> {
@@ -63,30 +124,19 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
       });
   }
 
-  // from main.js nettruyen
   private generateChapterUrl(comicSlug: string, chapter_slug: string) {
     return `/truyen-tranh/${comicSlug}/${chapter_slug}`;
   }
 
-  private extractThumb() {
-    //Extract thumb url
-    const thumbImageRegex = /<img[^>]*data-src=["']([^"]*)["']/g;
-    const thumbMatch = thumbImageRegex.exec(this.htmlContent);
-    if (!thumbMatch || !thumbMatch[1]) {
-      throw new Error('Not found thumb url !!');
-    }
-    return thumbMatch[1];
-  }
-
   private validateInput() {
-    if (!this.htmlContent) {
-      throw new Error('Missing Html content');
+    if (!this.http) {
+      throw new Error('Missing HTTP Service');
     }
     if (!this.url) {
       throw new Error('Missing URL content');
     }
-    if (!this.http) {
-      throw new Error('Missing HTTP Service');
+    if (!this.htmlContent) {
+      throw new Error('Missing Html content');
     }
   }
 

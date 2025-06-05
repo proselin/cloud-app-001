@@ -1,3 +1,5 @@
+import {resolve} from "node:path";
+
 export abstract class Utils {
   public static extensionMap: Record<string, string> = {
     jpg: "image/jpeg",
@@ -21,5 +23,9 @@ export abstract class Utils {
 
   public static getFileExtensionFromContentType(contentType: string): string | null {
     return Utils.contentTypeMap[contentType] || null;
+  }
+
+  public static fromConfigToPath(pathInConfig: string) {
+      return resolve(...pathInConfig.split("/"))
   }
 }

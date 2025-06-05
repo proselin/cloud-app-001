@@ -1,7 +1,7 @@
-import { RpcException } from '@nestjs/microservices';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class MultilangException extends RpcException {
+export class MultilangException extends HttpException {
   constructor(error: object) {
-    super(error)
+    super(error, HttpStatus.BAD_REQUEST)
   }
 }

@@ -3,11 +3,12 @@ import { ComicController } from './comic.controller';
 import { ComicService } from './comic.service';
 import { ComicEntity } from '../entities/comic';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import {NettruyenHttpService} from "../http/nettruyen-http.service";
 
 @Module(
   {
     imports: [TypeOrmModule.forFeature([ComicEntity])],
-    providers: [ComicService],
+    providers: [ComicService, NettruyenHttpService],
     controllers: [ComicController],
   }
 )

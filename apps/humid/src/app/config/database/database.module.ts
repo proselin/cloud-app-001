@@ -7,11 +7,11 @@ import "better-sqlite3"
   imports: [
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: () => {
+      useFactory: (configService:ConfigService) => {
         return {
           type: 'better-sqlite3',
           appName: 'Humid',
-          database: resolve('assets', 'humid.db'),
+          database: configService.getOrThrow('db.location'),
           autoLoadEntities: true,
           synchronize: true, // only for dev! turns models into tables
           retryAttempts: 1,

@@ -6,12 +6,16 @@ import { CrawlingModule } from './crawling/crawling.module';
 import { LoggerModule } from './config/logger';
 import { FileIoModule } from './file-io/file-io.module';
 import { ComicModule } from './comic/comic.module';
+import {loadConfig} from "./config/env/load-config";
+import {resolve} from "node:path";
 
 @Module({
   controllers: [],
   imports: [
     ConfigModule.forRoot({
+      envFilePath: resolve('resources', 'config', '.env.humid'),
       isGlobal: true,
+      validate: loadConfig
     }),
     HttpModule.register({
       global: true,

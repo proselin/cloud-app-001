@@ -47,3 +47,6 @@ Thumbs.db
 
 .nx
 logs
+
+resources/db/*
+resources/images/*

@@ -44,6 +44,12 @@ export function getLoggerConfig(
       transports: [
         new transports.Console(),
         new transports.File({
+          format: format.combine(
+            format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            format.errors({ stack: false }),
+            format.json(),
+            format.label({ label: name })
+          ),
           filename: `logs/${name}/dev-combined.log`,
         }),
       ],

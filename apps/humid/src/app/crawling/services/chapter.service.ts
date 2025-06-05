@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ComicEntity } from '../../entities/comic';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { ChapterEntity } from '../../entities/chapter';
-import { NettruyenHttpService } from './nettruyen-http.service';
+import { NettruyenHttpService } from '../../http/nettruyen-http.service';
 import {
   CrawlChapterData,
   CrawlImageJobData,

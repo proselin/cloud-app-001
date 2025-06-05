@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ComicEntity } from '../../entities/comic';
 import { DataSource, Repository } from 'typeorm';
-import { NettruyenHttpService } from './nettruyen-http.service';
+import { NettruyenHttpService } from '../../http/nettruyen-http.service';
 import {
   CrawlChapterData,
   CrawlingStatus,
@@ -30,7 +30,8 @@ export class ComicService {
 
   private async pullNewComic(
     href: string,
-    crawledInformation: InfoExtractedResult$1
+    crawledInformation: InfoExtractedResult$1,
+    crawlChapters = true
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -77,11 +78,14 @@ export class ComicService {
         }
       );
 
-      await Promise.all(
-        dataCrawlingChapters.map((chapter) => {
-          return this.chapterService.handleCrawlChapter(chapter, queryRunner);
-        })
-      );
+      if(crawlChapters) {
+        await Promise.all(
+          dataCrawlingChapters.map((chapter) => {
+            return this.chapterService.handleCrawlChapter(chapter, queryRunner);
+          })
+        );
+      }
+
 
       await queryRunner.commitTransaction();
 
@@ -94,7 +98,7 @@ export class ComicService {
     }
   }
 
-  private async getComicOrCrawlNew(href: string) {
+  private async getComicOrCrawlNew(href: string, isCrawlChapter: boolean) {
     this.logger.log(`START [getIdOrCrawlNew] with href=${href}`);
     const crawledInformation = await this.extractInfo(href).catch(() => {
       throw COMIC_NOT_FOUND_BY_URL;
@@ -106,7 +110,7 @@ export class ComicService {
       this.logger.log(
         `[getIdOrCrawlNew] not found comic by url try to pull new`
       );
-      return this.pullNewComic(href, crawledInformation).then((r) => {
+      return this.pullNewComic(href, crawledInformation, isCrawlChapter).then((r) => {
         this.logger.log(`DONE [getIdOrCrawlNew]`);
         return r;
       });
@@ -125,7 +129,7 @@ export class ComicService {
       .extract();
   }
 
-  public async getComicByUrl(url: string) {
+  public async getComicByUrl(url: string, isCrawlChapter: boolean) {
     this.logger.log(`START [getComicByUrl] with href=${url}`);
     url = z.string().url().parse(url);
     const comic = await this.comicRepository
@@ -138,7 +142,7 @@ export class ComicService {
       });
 
     if (!comic) {
-      return this.getComicOrCrawlNew(url).then(async (r) => {
+      return this.getComicOrCrawlNew(url, isCrawlChapter).then(async (r) => {
         this.logger.log(`DONE [getComicByUrl]`);
         return ComicEntity.mapWithThumb(r);
       });

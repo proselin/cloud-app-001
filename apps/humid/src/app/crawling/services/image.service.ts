@@ -1,13 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { NettruyenHttpService } from './nettruyen-http.service';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { NettruyenHttpService } from '../../http/nettruyen-http.service';
 import { ImageEntity } from '../../entities/image';
 import { QueryRunner } from 'typeorm';
 import { CrawlImageJobData } from '../../common';
 import { ImageType } from '../../common/constant/image';
 import { FileIoService } from '../../file-io/file-io.service';
-import { ComicEntity } from '../../entities/comic';
 import { ChapterEntity } from '../../entities/chapter';
-import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class ImageService {
@@ -147,10 +145,8 @@ export class ImageService {
         buffer = response.data;
         contentType = response.headers['content-type'];
         if (buffer) break;
-      }
-
-      if (!buffer) {
-        throw new RpcException(`Not result found on ${JSON.stringify(imageUrls)}`);
+      }      if (!buffer) {
+        throw new BadRequestException(`Not result found on ${JSON.stringify(imageUrls)}`);
       }
 
       this.logger.log(

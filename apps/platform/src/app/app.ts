@@ -4,7 +4,6 @@ import { environment } from '../environments/environment';
 import { join } from 'path';
 import { pathToFileURL } from 'url';
 import { HumidServiceProcess } from './humid';
-import { RainServiceProcess } from './rain/init';
 
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
@@ -15,7 +14,6 @@ export default class App {
 
   //Services
   static AppHumid: HumidServiceProcess
-  static AppRain: RainServiceProcess;
 
   public static isDevelopmentMode() {
     const isEnvironmentSet: boolean = 'ELECTRON_IS_DEV' in process.env;
@@ -125,7 +123,6 @@ export default class App {
     App.BrowserWindow = browserWindow;
     App.application = app;
     App.AppHumid = new HumidServiceProcess();
-    App.AppRain = new RainServiceProcess();
     App.application.on('window-all-closed', App.onWindowAllClosed); // Quit when all windows are closed.
     App.application.on('ready', App.onReady); // App is ready to load data
     App.application.on('activate', App.onActivate); // App is activated
