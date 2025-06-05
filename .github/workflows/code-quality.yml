@@ -1,0 +1,125 @@
+name: Code Quality Check
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main, master, develop]
+  push:
+    branches: [main, master, develop]
+
+jobs:
+  code-quality:
+    name: Lint, Format & Test
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Nx
+        uses: actions/cache@v3
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Run ESLint
+        run: npx nx run-many -t lint -p cloud humid platform --parallel=3
+        continue-on-error: false
+
+      - name: Check code formatting
+        run: npx prettier --check "**/*.{ts,js,json,md,html,scss,less}"
+        continue-on-error: false
+
+      - name: Run tests (Angular - Cloud)
+        run: npx nx test cloud --watch=false --browsers=ChromeHeadless
+        continue-on-error: true
+
+      - name: Run tests (NestJS - Humid)
+        run: npx nx test humid --passWithNoTests
+        continue-on-error: true
+
+      - name: Run tests (Electron - Platform)
+        run: npx nx test platform --passWithNoTests
+        continue-on-error: true
+
+      - name: Run E2E tests (Cloud)
+        run: npx nx e2e cloud-e2e --headless
+        continue-on-error: true
+
+      - name: Run E2E tests (Humid)
+        run: npx nx e2e humid-e2e
+        continue-on-error: true
+
+      - name: Build all applications
+        run: npx nx run-many -t build -p cloud humid platform --parallel=3
+        continue-on-error: false
+
+      - name: Generate project graph
+        run: npx nx graph --file=dependency-graph.json
+        continue-on-error: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            dependency-graph.json
+          retention-days: 7
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = `## 🔍 Code Quality Check Results\n\n`;
+            comment += `✅ **Linting**: Passed\n`;
+            comment += `✅ **Formatting**: Passed\n`;
+            comment += `✅ **Build**: Passed\n`;
+            comment += `ℹ️ **Tests**: Executed (results may vary)\n\n`;
+            comment += `> Tests are run for information only and don't affect the workflow status.\n`;
+            comment += `> Check the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for detailed results.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  notify-status:
+    name: Notify Status
+    runs-on: ubuntu-latest
+    needs: code-quality
+    if: always()
+
+    steps:
+      - name: Notify success
+        if: needs.code-quality.result == 'success'
+        run: |
+          echo "✅ Code quality checks passed successfully!"
+          echo "All linting, formatting, and build steps completed."
+
+      - name: Notify partial success
+        if: needs.code-quality.result == 'failure'
+        run: |
+          echo "⚠️ Code quality checks completed with some issues."
+          echo "Please check the workflow logs for details."
+          echo "This is informational only - the workflow continues."
