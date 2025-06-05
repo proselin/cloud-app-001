@@ -103,7 +103,6 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
-
   notify-status:
     name: Notify Status
     runs-on: ubuntu-latest
