@@ -1,8 +1,5 @@
-import { BaseComponent } from "./base.component";
-import {Directive, OnInit} from '@angular/core';
+import { BaseComponent } from './base.component';
+import { Directive } from '@angular/core';
 
 @Directive()
-export abstract class BasePagesComponent extends BaseComponent implements OnInit {
-    ngOnInit() {
-    }
-}
+export abstract class BasePagesComponent extends BaseComponent {}

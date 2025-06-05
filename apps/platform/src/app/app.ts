@@ -1,9 +1,9 @@
-import { BrowserWindow, shell, screen } from 'electron';
+import { BrowserWindow, screen, shell } from 'electron';
 import { rendererAppName, rendererAppPort } from './constants';
 import { environment } from '../environments/environment';
 import { join } from 'path';
-import { format, pathToFileURL } from 'url';
-import { HumitServiceProcess } from './humit';
+import { pathToFileURL } from 'url';
+import { HumidServiceProcess } from './humid';
 
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
@@ -13,7 +13,7 @@ export default class App {
   static BrowserWindow;
 
   //Services
-  static AppHumit: HumitServiceProcess
+  static AppHumid: HumidServiceProcess
 
   public static isDevelopmentMode() {
     const isEnvironmentSet: boolean = 'ELECTRON_IS_DEV' in process.env;
@@ -80,7 +80,7 @@ export default class App {
         sandbox: true
       },
     });
-    App.mainWindow.setMenu(null);
+    // App.mainWindow.setMenu(null);
     App.mainWindow.center();
 
     App.mainWindow.webContents.openDevTools();
@@ -90,7 +90,7 @@ export default class App {
       App.mainWindow.show();
     });
 
-    // handle all external redirects in a new browser window
+    // handles all external redirects in a new browser window
     // App.mainWindow.webContents.on('will-navigate', App.onRedirect);
     // App.mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options) => {
     //     App.onRedirect(event, url);
@@ -110,7 +110,7 @@ export default class App {
     if (!App.application.isPackaged) {
       App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
     } else {
-      App.mainWindow.loadURL(pathToFileURL( join(__dirname, '..', rendererAppName, 'index.html')).toString());
+      App.mainWindow.loadURL(pathToFileURL( join(__dirname, '..', rendererAppName,'browser', 'index.html')).toString());
     }
   }
 
@@ -122,7 +122,7 @@ export default class App {
 
     App.BrowserWindow = browserWindow;
     App.application = app;
-    App.AppHumit = new HumitServiceProcess();
+    App.AppHumid = new HumidServiceProcess();
     App.application.on('window-all-closed', App.onWindowAllClosed); // Quit when all windows are closed.
     App.application.on('ready', App.onReady); // App is ready to load data
     App.application.on('activate', App.onActivate); // App is activated

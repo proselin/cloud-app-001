@@ -1,54 +1,238 @@
-# Cloud
+# Comic Crawling & Management System
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+A comprehensive multi-application Nx workspace for comic crawling, management, and reading. This system provides web crawling capabilities for comic sites (specifically nettruyenrr.com), a modern Angular frontend, a robust NestJS backend, and an Electron desktop application for cross-platform functionality.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## 🏗️ Project Structure
 
-## Run tasks
+```
+cloud-app-001/
+├── apps/
+│   ├── cloud/                    # Angular 19 Frontend (Web UI)
+│   ├── cloud-e2e/                # E2E tests for Angular app
+│   ├── humid/                    # NestJS 11 Backend API Server
+│   ├── humid-e2e/                # E2E tests for NestJS API
+│   └── platform/                 # Electron Desktop Application
+├── libs/
+│   └── shared/
+│       └── back/
+│           └── logger/            # Shared logging utilities
+├── resources/
+│   ├── config/                   # Configuration files
+│   ├── db/                       # SQLite database
+│   │   └── humid.db
+│   └── images/                   # Crawled comic images
+├── logs/                         # Application logs
+└── package.json                  # Workspace dependencies
+```
 
-To run the dev server for your app, use:
+## 🚀 Applications Overview
 
-```sh
+### 📱 Cloud (Angular Frontend)
+- **Technology**: Angular 19 with Ant Design (ng-zorro-antd)
+- **Purpose**: Modern web interface for comic browsing and management
+- **Features**:
+  - Comic search and browsing
+  - Image display with lazy loading
+  - Responsive design with Ant Design components
+  - IPC communication with Electron backend
+
+### 🔧 Humid (NestJS Backend)
+- **Technology**: NestJS 11 with TypeORM and SQLite
+- **Purpose**: Core API server handling comic crawling and data management
+- **Features**:
+  - Web scraping from nettruyenrr.com
+  - RESTful API with OpenAPI/Swagger documentation
+  - Database management (Comic, Chapter, Image entities)
+  - Image processing and storage
+  - HTTP-based exception handling
+  - Comprehensive logging with Winston
+
+#### API Endpoints
+- `GET /api/v1/comic` - Search and retrieve comics
+- `GET /api/v1/comic/suggest?q={query}` - Comic suggestions by keyword
+- `POST /api/v1/crawl/by-url` - Crawl comic data by URL
+
+### 🖥️ Platform (Electron Desktop)
+- **Technology**: Electron with TypeScript
+- **Purpose**: Cross-platform desktop application
+- **Features**:
+  - Native desktop experience
+  - IPC bridge between frontend and backend
+  - Background service management
+  - Auto-updater support (ready for implementation)
+
+## 🗄️ Database Schema
+
+The system uses SQLite with TypeORM for data persistence:
+
+### Entities
+- **ComicEntity**: Core comic information (title, origin URL, chapter count, thumbnails)
+- **ChapterEntity**: Individual comic chapters with position and crawl status
+- **ImageEntity**: Image storage with file references and metadata
+
+### Relationships
+- Comic → Thumbnail (One-to-One with ImageEntity)
+- Comic → Chapters (One-to-Many)
+- Chapter → Images (One-to-Many)
+
+## 🛠️ Technology Stack
+
+| Component | Technology | Version |
+|-----------|------------|---------|
+| **Monorepo** | Nx | 20.7.2 |
+| **Frontend** | Angular | 19.2.6 |
+| **UI Library** | Ant Design (ng-zorro-antd) | 19.2.2 |
+| **Backend** | NestJS | 11.0.17 |
+| **Database** | SQLite with TypeORM | 0.3.21 |
+| **Desktop** | Electron | 33.4.9 |
+| **Web Scraping** | Cheerio + Axios | Latest |
+| **Logging** | Winston + Pino | Latest |
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+```powershell
+git clone <repository-url>
+cd cloud-app-001
+```
+
+2. **Install dependencies**
+```powershell
+npm install
+```
+
+3. **Database Setup**
+The SQLite database is automatically created in `resources/db/humid.db`
+
+### Development
+
+1. **Start the backend server**
+```powershell
+npx nx serve humid
+```
+
+2. **Start the Angular frontend**
+```powershell
 npx nx serve cloud
 ```
 
-To create a production bundle:
-
-```sh
-npx nx build cloud
+3. **Run the Electron desktop app**
+```powershell
+npx nx serve platform
 ```
 
-To see all available targets to run for a project, run:
+### Production Build
 
-```sh
+**Build all applications**
+```powershell
+npm run build
+```
+
+**Build specific application**
+```powershell
+npx nx build cloud     # Angular app
+npx nx build humid     # NestJS API
+npx nx build platform  # Electron app
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+- Development/production configurations in respective `environment.ts` files
+- Database path: `resources/db/humid.db`
+- Image storage: `resources/images/`
+- Logs: `logs/Humid/`
+
+### API Documentation
+When running the humid backend, Swagger documentation is available at:
+```
+http://localhost:<port>/api
+```
+
+## 🎯 Comic Crawling Workflow
+
+1. **Input**: Provide a nettruyenrr.com comic URL
+2. **Extraction**: Parse comic metadata (title, chapters, images)
+3. **Storage**: Save comic information to SQLite database
+4. **Image Download**: Crawl and store comic images locally
+5. **API Access**: Serve comic data through RESTful endpoints
+
+### Supported Sites
+- **nettruyenrr.com**: Full crawling support with chapter and image extraction
+
+## 🧪 Testing
+
+**Run E2E tests**
+```powershell
+npx nx e2e cloud-e2e     # Frontend E2E tests
+npx nx e2e humid-e2e     # Backend E2E tests
+```
+
+**Run unit tests**
+```powershell
+npx nx test cloud        # Angular unit tests
+npx nx test humid        # NestJS unit tests
+npx nx test platform     # Electron unit tests
+```
+
+## 📝 Logging
+
+The system implements comprehensive logging:
+- **Backend**: Winston with daily rotate files
+- **Frontend**: Console logging with error notifications
+- **Electron**: Process logging for main and renderer
+- **Log Location**: `logs/Humid/dev-combined.log`
+
+## 🔄 IPC Communication
+
+The Electron app uses IPC for communication between processes:
+- **Comic Search**: `ipc/humid/comic-search`
+- **Comic Crawling**: `ipc/humid/pull-comic`
+- **Image Retrieval**: `ipc/humid/get-image`
+
+## 🎨 UI Features
+
+- Modern Material Design with Ant Design components
+- Responsive grid layout for comic browsing
+- Image lazy loading and optimization
+- Search functionality with real-time suggestions
+- Error handling with user-friendly notifications
+
+## 📦 Deployment
+
+The workspace is configured for multiple deployment scenarios:
+- **Web**: Angular build for web hosting
+- **Desktop**: Electron packaging for Windows, macOS, Linux
+- **API**: NestJS build for server deployment
+
+---
+
+## 🔗 Nx Workspace Commands
+
+**Visualize project dependencies**
+```powershell
+npx nx graph
+```
+
+**Show available targets for a project**
+```powershell
 npx nx show project cloud
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
+**Run multiple targets**
+```powershell
+npx nx run-many -t build -p humid cloud platform
 ```
 
-To generate a new library, use:
-
-```sh
-npx nx g @nx/angular:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+For more Nx commands and capabilities, visit the [Nx documentation](https://nx.dev).
 
 [Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 

@@ -1,2 +1,2 @@
-import { HumitIpcFunction } from './humit-ipc.types';
-export {HumitIpcFunction}
+import { HumidIpcFunction } from './humid-ipc.types';
+export {HumidIpcFunction}

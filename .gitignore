@@ -43,4 +43,10 @@ Thumbs.db
 
 .angular
 
-./assets/*
+/assets/*
+
+.nx
+logs
+
+resources/db/*
+resources/images/*

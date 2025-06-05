@@ -6,8 +6,16 @@ contextBridge.exposeInMainWorld('cloudIpcCommon', {
 });
 
 
-contextBridge.exposeInMainWorld('cloudIpcHumit', {
-  getComicByUrl: (comicUrl: string) => ipcRenderer.invoke('ipc/humit/get-comic', {comicUrl}),
-  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  platform: process.platform,
+contextBridge.exposeInMainWorld('cloudIpcHumid', {
+  pullComicByUrl(comicUrl: string){
+    return ipcRenderer.invoke('ipc/humid/pull-comic', {comicUrl});
+  },
+  searchComic(searchText?: string) {
+    return ipcRenderer.invoke('ipc/humid/comic-search', {searchText});
+  },
+  getImageFile(fileName: string) {
+    return ipcRenderer.invoke('ipc/humid/get-image', {fileName})
+  }
 });
+
+

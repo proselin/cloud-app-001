@@ -1,6 +1,23 @@
 <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-  <input type="text" nz-input placeholder="Input Nettruyen URL" (keydown.enter)="onSearch()"/>
+  <input type="text" nz-input placeholder="Input Nettruyen URL" [(ngModel)]="searchString" (keydown.enter)="onSearch()"/>
 </nz-input-group>
 <ng-template #suffixIconButton>
-  <button nz-button nzType="primary" nzSearch><nz-icon nzType="search" (click)="onSearch()"/></button>
+  <button nz-button nzType="primary" nzSearch (click)="onSearch()"><nz-icon nzType="search" /></button>
 </ng-template>
+
+<!--<nz-list nzGrid>-->
+<!--  <div nz-row [nzGutter]="16">-->
+<!--    @for (item of comics(); track item) {-->
+<!--      <div nz-col [nzSpan]="6">-->
+<!--        <nz-list-item>-->
+<!--          <nz-card [nzTitle]="item.title">-->
+<!--            <div>{{item.chapterCount}}</div>-->
+<!--            @if (imageUrl(); as src) {-->
+<!--              <img [src]="imageUrl()" alt="">-->
+<!--            }-->
+<!--          </nz-card>-->
+<!--        </nz-list-item>-->
+<!--      </div>-->
+<!--    }-->
+<!--  </div>-->
+<!--</nz-list>-->

@@ -1,9 +1,7 @@
 import SquirrelEvents from './app/events/squirrel.events';
 import ElectronEvents from './app/events/electron.events';
-import UpdateEvents from './app/events/update.events';
 import { app, BrowserWindow } from 'electron';
 import App from './app/app';
-import { HumitEvent } from './app/humit/humit.event';
 
 export default class Main {
   static initialize() {
@@ -19,7 +17,6 @@ export default class Main {
 
   static bootstrapAppEvents() {
     ElectronEvents.bootstrapElectronEvents();
-    HumitEvent.bootstrapHumitEvents();
 
     // initialize auto updater service
     if (!App.isDevelopmentMode()) {
@@ -28,7 +25,7 @@ export default class Main {
   }
 }
 
-// handle setup events as quickly as possible
+// handles setup events as quickly as possible
 Main.initialize();
 
 // bootstrap app
