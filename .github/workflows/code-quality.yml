@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -115,9 +115,7 @@ jobs:
         if: needs.code-quality.result == 'success'
         run: |
           echo "✅ Code quality checks passed successfully!"
-          echo "All linting, formatting, and build steps completed."
-
-      - name: Notify partial success
+          echo "All linting, formatting, and build steps completed."      - name: Notify partial success
         if: needs.code-quality.result == 'failure'
         run: |
           echo "⚠️ Code quality checks completed with some issues."
