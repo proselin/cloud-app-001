@@ -1,18 +1,28 @@
-name: Code Quality Check
+name: Cloud Project - Code Quality Check
 
 on:
   pull_request:
     types: [closed]
     branches: [main, master, develop]
+    paths:
+      - 'apps/cloud/**'
+      - 'libs/**'
+      - 'package.json'
+      - 'package-lock.json'
   push:
     branches: [main, master, develop]
+    paths:
+      - 'apps/cloud/**'
+      - 'libs/**'
+      - 'package.json'
+      - 'package-lock.json'
 
 jobs:
   quality-check:
-    name: Quality Check
+    name: Cloud Quality Check
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true || github.event_name == 'push'
-    timeout-minutes: 10
+    timeout-minutes: 8
 
     steps:
       - name: Checkout code
@@ -26,29 +36,17 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Lint check
-        run: npx nx run-many -t lint -p cloud humid --parallel=2
+      - name: Lint check (excluding humid - has dedicated pipeline)
+        run: npx nx run-many -t lint -p cloud --parallel=2
         continue-on-error: false
 
-      - name: Format check
-        run: npx prettier --check "apps/**/*.{ts,js}" --ignore-path .gitignore
-        continue-on-error: false      - name: Build check
-        run: npx nx build humid
+      - name: Format check (excluding humid)
+        run: npx prettier --check "apps/cloud/**/*.{ts,js}" "libs/**/*.{ts,js}" --ignore-path .gitignore
         continue-on-error: false
 
-      - name: Run humid tests
-        run: npx nx test humid --configuration=ci --maxWorkers=1
+      - name: Build check (cloud only)
+        run: npx nx build cloud
         continue-on-error: false
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: humid-test-coverage
-          path: coverage/apps/humid/
-          retention-days: 30
-
       - name: Optional cloud tests
         run: npx nx test cloud --watch=false --maxWorkers=1 || echo "⚠️ Cloud tests may have issues"
         continue-on-error: true
@@ -57,16 +55,12 @@ jobs:
         if: always()
         run: |
           echo "📊 Test Results Summary:"
-          if [ -f "coverage/apps/humid/coverage-summary.json" ]; then
-            echo "✅ Humid test coverage report generated"
-            cat coverage/apps/humid/coverage-summary.json | head -10
-          else
-            echo "❌ No coverage report found"
-          fi
-
+          echo "✅ Cloud-specific quality checks completed"
+          echo "ℹ️  Humid has dedicated CI/CD pipeline (humid-ci.yml)"
       - name: Summary
         if: always()
         run: |
           echo "🚀 Code quality check completed!"
-          echo "✅ Lint and format checks are required to pass"
-          echo "⚠️ Tests are optional and may fail without blocking"
+          echo "✅ Lint, format and build checks for cloud project"
+          echo "ℹ️  Humid project uses dedicated pipeline (humid-ci.yml)"
+          echo "⚠️ Cloud tests are optional and may fail without blocking"
