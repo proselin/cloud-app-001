@@ -48,13 +48,24 @@ describe('NettruyenComicService', () => {
       commitTransaction: jest.fn(),
       rollbackTransaction: jest.fn(),
       release: jest.fn(),
-      manager: mockEntityManager,    } as unknown;    // Reset the mock implementation for each test
-    mockEntityManager.save.mockImplementation((entityClass: unknown, entity: Record<string, unknown> | Record<string, unknown>[]) => {
-      if (Array.isArray(entity)) {
-        return Promise.resolve(entity.map((e: Record<string, unknown>, index: number) => ({ ...e, id: index + 1 })));
+      manager: mockEntityManager,
+    } as unknown as jest.Mocked<QueryRunner>; // Reset the mock implementation for each test
+    mockEntityManager.save.mockImplementation(
+      (
+        entityClass: unknown,
+        entity: Record<string, unknown> | Record<string, unknown>[]
+      ) => {
+        if (Array.isArray(entity)) {
+          return Promise.resolve(
+            entity.map((e: Record<string, unknown>, index: number) => ({
+              ...e,
+              id: index + 1,
+            }))
+          );
+        }
+        return Promise.resolve({ ...entity, id: 1 });
       }
-      return Promise.resolve({ ...entity, id: 1 });
-    });
+    );
 
     mockDataSource.createQueryRunner.mockReturnValue(mockQueryRunner);
 
@@ -86,14 +97,25 @@ describe('NettruyenComicService', () => {
 
     service = module.get<NettruyenComicService>(NettruyenComicService);
   });
-  afterEach(() => {    jest.clearAllMocks();
+  afterEach(() => {
+    jest.clearAllMocks();
     // Reset entity manager mock implementation
-    mockEntityManager.save.mockImplementation((entityClass: unknown, entity: Record<string, unknown> | Record<string, unknown>[]) => {
-      if (Array.isArray(entity)) {
-        return Promise.resolve(entity.map((e: Record<string, unknown>, index: number) => ({ ...e, id: index + 1 })));
+    mockEntityManager.save.mockImplementation(
+      (
+        entityClass: unknown,
+        entity: Record<string, unknown> | Record<string, unknown>[]
+      ) => {
+        if (Array.isArray(entity)) {
+          return Promise.resolve(
+            entity.map((e: Record<string, unknown>, index: number) => ({
+              ...e,
+              id: index + 1,
+            }))
+          );
+        }
+        return Promise.resolve({ ...entity, id: 1 });
       }
-      return Promise.resolve({ ...entity, id: 1 });
-    });
+    );
   });
 
   it('should be defined', () => {
@@ -139,7 +161,8 @@ describe('NettruyenComicService', () => {
       });
       expect(result).toBeDefined();
       expect(result.title).toBe('Test Comic');
-    });    it('should create new comic when not found by URL - triggers private methods pullNewComic, extractInfo', async () => {
+    });
+    it('should create new comic when not found by URL - triggers private methods pullNewComic, extractInfo', async () => {
       // Arrange
       const url = 'https://nettruyenrr.com/truyen-tranh/new-comic';
 
@@ -198,10 +221,18 @@ describe('NettruyenComicService', () => {
       const result = await service.getComicByUrl(url);
 
       // Assert
-      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({ originUrl: url });
-      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({ originId: 'comic-123' });
+      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({
+        originUrl: url,
+      });
+      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({
+        originId: 'comic-123',
+      });
       expect(mockNettruyenHttpService.get).toHaveBeenCalledWith(url);
-      expect(mockNettruyenHttpService.getChapterList).toHaveBeenCalledWith('https://nettruyenrr.com', 'new-comic', 'comic-123');
+      expect(mockNettruyenHttpService.getChapterList).toHaveBeenCalledWith(
+        'https://nettruyenrr.com',
+        'new-comic',
+        'comic-123'
+      );
       expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
       expect(mockEntityManager.save).toHaveBeenCalled();
       expect(mockImageService.handleCrawlThumb).toHaveBeenCalled();
@@ -217,15 +248,19 @@ describe('NettruyenComicService', () => {
       mockComicRepository.findOneBy.mockResolvedValue(null);
 
       // Mock HTTP service to fail extraction
-      mockNettruyenHttpService.get.mockRejectedValue(new Error('Network error'));
+      mockNettruyenHttpService.get.mockRejectedValue(
+        new Error('Network error')
+      );
 
       // Act & Assert
-      await expect(service.getComicByUrl(url)).rejects.toThrow(COMIC_NOT_FOUND_BY_URL);
+      await expect(service.getComicByUrl(url)).rejects.toThrow(
+        COMIC_NOT_FOUND_BY_URL
+      );
     });
 
     it('should handle transaction rollback on error during comic creation', async () => {
       // Arrange
-      const url = 'https://nettruyenrr.com/truyen-tranh/error-comic';      // Mock HTTP response for extraction with correct HTML structure
+      const url = 'https://nettruyenrr.com/truyen-tranh/error-comic'; // Mock HTTP response for extraction with correct HTML structure
       mockNettruyenHttpService.get.mockResolvedValue({
         data: `
           <html>
@@ -251,11 +286,9 @@ describe('NettruyenComicService', () => {
       // Mock chapter list API response
       mockNettruyenHttpService.getChapterList.mockResolvedValue({
         data: {
-          data: [
-            { chapter_num: 1, chapter_slug: 'chap-1' },
-          ],
+          data: [{ chapter_num: 1, chapter_slug: 'chap-1' }],
         },
-      });      // No existing comic found
+      }); // No existing comic found
       mockComicRepository.findOneBy
         .mockResolvedValueOnce(null) // originUrl
         .mockResolvedValueOnce(null); // originId
@@ -264,7 +297,9 @@ describe('NettruyenComicService', () => {
       mockEntityManager.save.mockRejectedValue(new Error('Database error'));
 
       // Act & Assert
-      await expect(service.getComicByUrl(url)).rejects.toThrow('Database error');
+      await expect(service.getComicByUrl(url)).rejects.toThrow(
+        'Database error'
+      );
       expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
       expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
       expect(mockQueryRunner.commitTransaction).not.toHaveBeenCalled();
@@ -293,7 +328,7 @@ describe('NettruyenComicService', () => {
         chapters: [],
         createdAt: new Date(),
         updatedAt: new Date(),
-      };      // Mock HTTP response for extraction with correct HTML structure
+      }; // Mock HTTP response for extraction with correct HTML structure
       mockNettruyenHttpService.get.mockResolvedValue({
         data: `
           <html>
@@ -336,8 +371,12 @@ describe('NettruyenComicService', () => {
       const result = await service.getComicByUrl(url);
 
       // Assert
-      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({ originUrl: url });
-      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({ originId: 'comic-789' });
+      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({
+        originUrl: url,
+      });
+      expect(mockComicRepository.findOneBy).toHaveBeenCalledWith({
+        originId: 'comic-789',
+      });
       expect(mockNettruyenHttpService.get).toHaveBeenCalledWith(url);
       expect(result).toBeDefined();
       expect(result.title).toBe('Existing Comic');

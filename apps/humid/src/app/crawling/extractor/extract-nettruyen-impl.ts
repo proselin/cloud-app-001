@@ -35,7 +35,7 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
       const scriptContent = $(element).html();
       if (scriptContent && scriptContent.includes('gOpts.comicSlug')) {
         const slugMatch = scriptContent.match(
-          /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"]s*;/
+          /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"];?\s*/
         );
         if (slugMatch && slugMatch[1]) {
           slug = slugMatch[1];
@@ -59,7 +59,7 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
       const scriptContent = $(element).html();
       if (scriptContent && scriptContent.includes('gOpts.comicName')) {
         const nameMatch = scriptContent.match(
-          /gOpts\.comicName\s*=\s*['"]([^'"]*)['"]s*;/
+          /gOpts\.comicName\s*=\s*['"]([^'"]*)['"];?\s*/
         );
         if (nameMatch && nameMatch[1]) {
           title = nameMatch[1];
