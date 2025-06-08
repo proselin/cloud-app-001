@@ -1,0 +1,48 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Humid",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/apps/humid/main.js",
+      "preLaunchTask": "humid:build",
+      "outFiles": ["${workspaceFolder}/dist/apps/humid/**/*.js"],
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "restart": true,
+      "runtimeArgs": ["--inspect"],
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Humid (No Build)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/apps/humid/main.js",
+      "outFiles": ["${workspaceFolder}/dist/apps/humid/**/*.js"],
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "restart": true,
+      "runtimeArgs": ["--inspect"]
+    },
+    {
+      "name": "Attach to Humid",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/apps/humid/**/*.js"]
+    }
+  ]
+}

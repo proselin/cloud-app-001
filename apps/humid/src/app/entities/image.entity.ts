@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { CommonEntity } from '../../common';
-import { ChapterEntity } from '../chapter';
-
+import { CommonEntity } from '../common';
+import { ImagePlainObject } from '../models/types/image-plain-object';
+import { ChapterEntity } from './chapter.entity';
 
 @Entity('image')
 export class ImageEntity extends CommonEntity {
@@ -35,16 +35,14 @@ export class ImageEntity extends CommonEntity {
   })
   chapter!: ChapterEntity | Partial<ChapterEntity>;
 
-  static toJSON(entity?: ImageEntity): object {
-    if(entity?.id) {
-      return {
-        ...CommonEntity.toJSON(entity),
-        fileName: entity?.fileName,
-        originUrls: entity?.originUrls,
-        position: entity?.position,
-        type: entity?.type,
-      }
-    }
-    return {}
+  static async toJSON(entity?: ImageEntity): Promise<ImagePlainObject> {
+    if (!entity) throw new Error('Entity is not an image');
+    return {
+      ...(await CommonEntity.toJSON(entity)),
+      fileName: entity?.fileName,
+      originUrls: entity?.originUrls,
+      position: entity?.position,
+      type: entity?.type,
+    };
   }
 }

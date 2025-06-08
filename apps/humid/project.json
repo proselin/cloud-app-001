@@ -8,37 +8,34 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "webpack-cli build",
-        "args": ["node-env=production"]
+        "command": "webpack-cli build"
       },
       "configurations": {
         "development": {
           "args": ["node-env=development"]
+        },
+        "production": {
+          "args": ["node-env=production"]
         }
       }
     },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": ["build"],
       "options": {
-        "buildTarget": "humid:build",
-        "runBuildTargetDependencies": false
+        "buildTarget": "humid:build:development",
+        "runBuildTargetDependencies": false,
+        "watch": false
       },
       "configurations": {
         "development": {
           "buildTarget": "humid:build:development"
-        },
-        "production": {
-          "buildTarget": "humid:build:production"
         }
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/humid/jest.config.ts",
         "passWithNoTests": true
@@ -51,14 +48,10 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "apps/humid/**/*.ts"
-        ]
+        "lintFilePatterns": ["apps/humid/**/*.ts"]
       }
     }
   }

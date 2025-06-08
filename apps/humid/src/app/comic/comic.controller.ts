@@ -1,29 +1,24 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Logger,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { FileIoService } from '../file-io/file-io.service';
 import { ComicService } from './comic.service';
 import { ResponseMapper } from '../utils/response-mapper';
+import { ComicPlainObject } from '../models/types/comic-plain-object';
 import {
   ApiOperation,
-  ApiProperty,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {ZodValidationPipe} from "../pipes/zod-validation.pipe";
-import {z} from "zod";
-import {firstValueFrom} from "rxjs";
-
-// Define the comic data structure for Swagger (adjust based on your actual comic data)
-class ComicDto {
-  @ApiProperty({ description: 'ID of the comic', example: 1 })
-  id!: number;
-
-  @ApiProperty({ description: 'Title of the comic', example: 'My Comic' })
-  title!: string;
-
-  @ApiProperty({ description: 'URL of the comic', example: 'https://example.com/comic' })
-  url!: string;
-}
+import { z } from 'zod';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @ApiTags('Comic')
 @Controller('/api/v1/comic')
@@ -47,14 +42,14 @@ export class ComicController {
   @ApiResponse({
     status: 200,
     description: 'List of comics retrieved successfully',
-    type: () => ResponseMapper<ComicDto[]>,
+    type: () => ResponseMapper<Omit<ComicPlainObject, 'chapters'>[]>,
   })
   @ApiResponse({
     status: 500,
     description: 'Internal server error',
     type: () => ResponseMapper<null>,
   })
-  public search(@Query('k') key?: string) {
+  public search() {
     return ResponseMapper.success(this.comicService.getAllComic());
   }
 
@@ -70,7 +65,7 @@ export class ComicController {
   @ApiResponse({
     status: 200,
     description: 'Comic suggestions retrieved successfully',
-    type: () => ResponseMapper<ComicDto[]>,
+    type: () => ResponseMapper<unknown[]>,
   })
   @ApiResponse({
     status: 400,
@@ -85,6 +80,38 @@ export class ComicController {
   async suggestSearch(
     @Query('q', new ZodValidationPipe(z.string().min(1))) q: string
   ) {
-    return this.comicService.searchComicsByKeyword(q, 'nettruyen')
+    return this.comicService.searchComicsByKeyword(q, 'nettruyen');
+  }
+
+  @Get('/:id')
+  @ApiOperation({
+    summary: 'Get comic details by ID including chapters (without images)',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the comic to retrieve',
+    required: true,
+    type: Number,
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Comic details retrieved successfully',
+    type: () => ResponseMapper<ComicPlainObject>,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Comic not found',
+    type: () => ResponseMapper<null>,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: () => ResponseMapper<null>,
+  })
+  async getComicById(@Param('id', ParseIntPipe) id: number) {
+    this.logger.log(`Fetching comic details for id: ${id}`);
+    const comicDetail = await this.comicService.getComicById(id);
+    return ResponseMapper.success(comicDetail);
   }
 }

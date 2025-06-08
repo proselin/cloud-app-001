@@ -6,7 +6,15 @@
     "postinstall": "electron-builder install-app-deps ",
     "humid:pack": "npx nx build humid && npm pack dist/apps/humid",
     "build": " nx run-many -t build -p humid cloud platform rain",
-    "serve": "npm run build && nx serve"
+    "serve": "npm run build && nx serve",
+    "test:humid": "npx nx test humid",
+    "test:humid:watch": "npx nx test humid --watch",
+    "test:humid:coverage": "npx nx test humid --configuration=ci",
+    "test:humid:ci": "pwsh -File scripts/test-humid.ps1",
+    "lint:humid": "npx nx lint humid",
+    "humid:dev": "npx nx serve humid",
+    "humid:build": "npx nx build humid",
+    "humid:build:prod": "npx nx build humid --configuration=production"
   },
   "private": true,
   "dependencies": {
@@ -26,11 +34,14 @@
     "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/typeorm": "11.0.0",
+    "@scalar/nestjs-api-reference": "^0.5.2",
     "axios": "^1.8.4",
     "better-sqlite3": "11.9.1",
     "cheerio": "^1.0.0",
     "finalhandler": "^2.1.0",
+    "nanoid": "^5.1.5",
     "nest-winston": "^1.10.2",
+    "nestjs-zod": "^4.3.1",
     "ng-zorro-antd": "^19.2.2",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
@@ -42,7 +53,7 @@
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "zod": "^3.24.2",
+    "zod": "^3.25.56",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

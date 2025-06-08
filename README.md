@@ -1,8 +1,32 @@
-# Comic Crawling & Management System
+# 📚 Comic Crawling & Management System
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+<p align="center">
+  <a href="https://nx.dev" target="_blank" rel="noreferrer">
+    <img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45" alt="Nx logo">
+  </a>
+</p>
 
-A comprehensive multi-application Nx workspace for comic crawling, management, and reading. This system provides web crawling capabilities for comic sites (specifically nettruyenrr.com), a modern Angular frontend, a robust NestJS backend, and an Electron desktop application for cross-platform functionality.
+<p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular">
+  <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS">
+  <img src="https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white" alt="Electron">
+  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
+</p>
+
+<p align="center">
+  <strong>A comprehensive multi-application Nx workspace for comic crawling, management, and reading.</strong>
+</p>
+
+<p align="center">
+  <em>Web crawling • Modern UI • Cross-platform desktop • RESTful API</em>
+</p>
+
+---
+
+## 🎯 Project Overview
+
+A complete solution for comic enthusiasts combining web scraping technology with modern user interfaces. This system provides automated comic crawling from nettruyenrr.com, intelligent data management, and cross-platform access through web, desktop, and API interfaces.
 
 ## 🏗️ Project Structure
 

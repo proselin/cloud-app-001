@@ -14,7 +14,7 @@ interface INettruyenChapterListResponseItem {
   data_cdn: number;
   data_error: number;
   image_num: number;
-  chapter_images: any;
+  chapter_images: unknown;
   webp: number;
   watermask: number;
   reported_at: string;

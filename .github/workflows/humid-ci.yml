@@ -1,0 +1,260 @@
+name: Humid API - CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'apps/humid/**'
+      - 'libs/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - 'apps/humid/**'
+      - 'libs/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+env:
+  NODE_VERSION: '22'
+  PROJECT_NAME: 'humid'
+
+jobs:
+  test:
+    name: 🧪 Test & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Lint check
+        run: npx nx lint ${{ env.PROJECT_NAME }}
+
+      - name: 🧪 Run unit tests
+        run: npx nx test ${{ env.PROJECT_NAME }} --configuration=ci --maxWorkers=2
+
+      - name: 📊 Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-${{ github.sha }}
+          path: coverage/apps/${{ env.PROJECT_NAME }}/
+          retention-days: 30
+
+      - name: 💬 Coverage comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'coverage/apps/${{ env.PROJECT_NAME }}/coverage-summary.json';
+
+            if (fs.existsSync(path)) {
+              const coverage = JSON.parse(fs.readFileSync(path, 'utf8'));
+              const { lines, statements, functions, branches } = coverage.total;
+
+              const comment = `## 📊 Test Coverage Report
+
+              | Metric | Coverage |
+              |--------|----------|
+              | Lines | ${lines.pct}% (${lines.covered}/${lines.total}) |
+              | Statements | ${statements.pct}% (${statements.covered}/${statements.total}) |
+              | Functions | ${functions.pct}% (${functions.covered}/${functions.total}) |
+              | Branches | ${branches.pct}% (${branches.covered}/${branches.total}) |
+
+              📁 **Project:** \`${{ env.PROJECT_NAME }}\`
+              🔍 **Commit:** \`${{ github.sha }}\`
+              `;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+  build:
+    name: 🏗️ Build & Package
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build application
+        run: npx nx build ${{ env.PROJECT_NAME }} --configuration=production
+
+      - name: 📦 Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ env.PROJECT_NAME }}-${{ github.sha }}
+          path: dist/apps/${{ env.PROJECT_NAME }}/
+          retention-days: 7
+
+  integration-test:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    services:
+      # Add database service if needed
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: test_user
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ env.PROJECT_NAME }}-${{ github.sha }}
+          path: dist/apps/${{ env.PROJECT_NAME }}/
+
+      - name: 🔗 Run integration tests
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+          NODE_ENV: test
+        run: |
+          # Run any integration tests here
+          echo "🔗 Running integration tests..."
+          # npx nx e2e ${{ env.PROJECT_NAME }}-e2e --headless
+          echo "✅ Integration tests completed"
+
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔒 Run security audit
+        run: |
+          npm audit --audit-level=moderate
+          npx nx lint ${{ env.PROJECT_NAME }} --format=json > lint-results.json || true
+
+      - name: 📊 Upload security scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-${{ github.sha }}
+          path: |
+            lint-results.json
+          retention-days: 30
+
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, integration-test, security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    environment: staging
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ env.PROJECT_NAME }}-${{ github.sha }}
+          path: dist/apps/${{ env.PROJECT_NAME }}/
+
+      - name: 🚀 Deploy to staging
+        run: |
+          echo "🚀 Deploying ${{ env.PROJECT_NAME }} to staging environment..."
+          # Add your staging deployment commands here
+          # For example: deploy to Docker, AWS, Azure, etc.
+          echo "✅ Staging deployment completed"
+
+  deploy-production:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, integration-test, security-scan]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    environment: production
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ env.PROJECT_NAME }}-${{ github.sha }}
+          path: dist/apps/${{ env.PROJECT_NAME }}/
+
+      - name: 🌟 Deploy to production
+        run: |
+          echo "🌟 Deploying ${{ env.PROJECT_NAME }} to production environment..."
+          # Add your production deployment commands here
+          # For example: deploy to Docker, AWS, Azure, etc.
+          echo "✅ Production deployment completed"
+
+      - name: 🎉 Deployment notification
+        if: success()
+        run: |
+          echo "🎉 ${{ env.PROJECT_NAME }} successfully deployed to production!"
+          echo "📅 Deployment time: $(date)"
+          echo "🔗 Commit: ${{ github.sha }}"

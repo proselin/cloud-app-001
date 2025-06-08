@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { PostProcessSchema } from '../validate/schemas';
 
-export type ProcessMessage<T = any> = z.infer<typeof PostProcessSchema> & {
+export type ProcessMessage<T = unknown> = z.infer<typeof PostProcessSchema> & {
   data: T;
 };
 
-export interface ProcessResponse<T = any> {
+export interface ProcessResponse<T = unknown> {
   id: string; // ID of the original message
   response?: T; // Response data
-  err?: any; // Error if one occurred
+  err?: unknown; // Error if one occurred
 }

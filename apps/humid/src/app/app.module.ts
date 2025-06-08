@@ -6,8 +6,11 @@ import { CrawlingModule } from './crawling/crawling.module';
 import { LoggerModule } from './config/logger';
 import { FileIoModule } from './file-io/file-io.module';
 import { ComicModule } from './comic/comic.module';
-import {loadConfig} from "./config/env/load-config";
-import {resolve} from "node:path";
+import { ChapterModule } from './chapter/chapter.module';
+import { loadConfig } from './config/env/load-config';
+import { resolve } from 'node:path';
+import { LoggingInterceptor, TimeoutInterceptor } from './intercept';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   controllers: [],
@@ -15,7 +18,7 @@ import {resolve} from "node:path";
     ConfigModule.forRoot({
       envFilePath: resolve('resources', 'config', '.env.humid'),
       isGlobal: true,
-      validate: loadConfig
+      validate: loadConfig,
     }),
     HttpModule.register({
       global: true,
@@ -24,7 +27,19 @@ import {resolve} from "node:path";
     LoggerModule,
     FileIoModule,
     ComicModule,
+    ChapterModule,
     CrawlingModule,
+  ],
+  providers: [
+    LoggingInterceptor,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TimeoutInterceptor,
+    },
   ],
 })
 export class AppModule {}

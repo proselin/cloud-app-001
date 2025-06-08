@@ -5,13 +5,13 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import {
-  LoggingInterceptor,
-  TimeoutInterceptor,
-  TransformInterceptor,
-} from './app/intercept';
+import { TransformInterceptor } from './app/intercept';
 import { ConfigService } from '@nestjs/config';
 import { setupOpenApi } from './app/config/openapi/swagger.config';
+import { nanoid } from 'nanoid';
+import { patchNestJsSwagger } from 'nestjs-zod';
+
+patchNestJsSwagger();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -20,11 +20,7 @@ async function bootstrap() {
 
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
-  app.useGlobalInterceptors(new LoggingInterceptor());
-
   app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
-
-  app.useGlobalInterceptors(new TimeoutInterceptor());
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -36,10 +32,13 @@ async function bootstrap() {
   const port = +configService.getOrThrow('humid.server.port');
   const host = configService.getOrThrow('humid.server.host');
 
+  // Set hash for each instance of the service
+  configService.set('services.hash', nanoid(8));
+
   setupOpenApi(app);
 
-  app.listen(port, host, () => {
-    Logger.log('🚀 Application is running on: ' + host + ':' + port);
+  app.listen(port, host, async () => {
+    Logger.log('🚀 Application is running on: ' + (await app.getUrl()));
   });
 }
 

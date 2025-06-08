@@ -1,15 +1,15 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { NettruyenHttpService } from '../../http/nettruyen-http.service';
-import { ImageEntity } from '../../entities/image';
+import { ImageEntity } from '../../entities/image.entity';
 import { QueryRunner } from 'typeorm';
 import { CrawlImageJobData } from '../../common';
 import { ImageType } from '../../common/constant/image';
 import { FileIoService } from '../../file-io/file-io.service';
-import { ChapterEntity } from '../../entities/chapter';
+import { ChapterEntity } from '../../entities/chapter.entity';
 
 @Injectable()
-export class ImageService {
-  private logger = new Logger(ImageService.name);
+export class NettruyenImageService {
+  private logger = new Logger(NettruyenImageService.name);
 
   constructor(
     private storeService: FileIoService,
@@ -31,7 +31,6 @@ export class ImageService {
           originUrls: data.dataUrls,
           type: data.type,
         },
-        data.comicId,
         undefined,
         queryRunner
       );
@@ -62,7 +61,6 @@ export class ImageService {
               originUrls: data.dataUrls,
               type: data.type,
             },
-            undefined,
             data.chapterId,
             queryRunner
           );
@@ -81,7 +79,6 @@ export class ImageService {
       position: number;
       type: ImageType;
     },
-    comicId?: number,
     chapterId?: number,
     queryRunner?: QueryRunner
   ) {
@@ -96,13 +93,9 @@ export class ImageService {
       image.position = storedImage.position;
       image.type = storedImage.type as number;
 
+      await image.save();
+
       switch (true) {
-        // case !!comicId: {
-        //   const comic = new ComicEntity();
-        //   comic.id = comicId;
-        //   image.comic = comic;
-        //   break;
-        // }
         case !!chapterId: {
           const chapter = new ChapterEntity();
           chapter.id = chapterId;
@@ -111,13 +104,12 @@ export class ImageService {
         }
       }
 
-      await queryRunner?.manager.save(image);
+      await queryRunner?.manager.save(ImageEntity, image);
 
       this.logger.log(
         `DONE [${this.createImage.name}]: create image with file name ${storedImage.fileName}`
       );
       return image;
-
     } catch (e) {
       this.logger.error(
         `ERROR [${this.createImage.name}]: Failed to create image with uploaded url `
@@ -145,8 +137,11 @@ export class ImageService {
         buffer = response.data;
         contentType = response.headers['content-type'];
         if (buffer) break;
-      }      if (!buffer) {
-        throw new BadRequestException(`Not result found on ${JSON.stringify(imageUrls)}`);
+      }
+      if (!buffer) {
+        throw new BadRequestException(
+          `Not result found on ${JSON.stringify(imageUrls)}`
+        );
       }
 
       this.logger.log(
@@ -201,4 +196,3 @@ export class ImageService {
     }
   }
 }
-

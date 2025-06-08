@@ -33,17 +33,36 @@ jobs:
 
       - name: Format check
         run: npx prettier --check "apps/**/*.{ts,js}" --ignore-path .gitignore
-        continue-on-error: false
-
-      - name: Build check
+        continue-on-error: false      - name: Build check
         run: npx nx build humid
         continue-on-error: false
 
-      - name: Optional tests
-        run: |
-          npx nx test humid --passWithNoTests --maxWorkers=1 || echo "⚠️ Tests may have issues"
-          npx nx test cloud --watch=false --maxWorkers=1 || echo "⚠️ Tests may have issues"
+      - name: Run humid tests
+        run: npx nx test humid --configuration=ci --maxWorkers=1
+        continue-on-error: false
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: humid-test-coverage
+          path: coverage/apps/humid/
+          retention-days: 30
+
+      - name: Optional cloud tests
+        run: npx nx test cloud --watch=false --maxWorkers=1 || echo "⚠️ Cloud tests may have issues"
         continue-on-error: true
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "📊 Test Results Summary:"
+          if [ -f "coverage/apps/humid/coverage-summary.json" ]; then
+            echo "✅ Humid test coverage report generated"
+            cat coverage/apps/humid/coverage-summary.json | head -10
+          else
+            echo "❌ No coverage report found"
+          fi
 
       - name: Summary
         if: always()

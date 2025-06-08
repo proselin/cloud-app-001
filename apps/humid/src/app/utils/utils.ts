@@ -20,9 +20,11 @@ export abstract class Utils {
     "image/tiff": "tiff",
     "image/svg+xml": "svg",
   };
-
   public static getFileExtensionFromContentType(contentType: string): string | null {
-    return Utils.contentTypeMap[contentType] || null;
+    // Handle content type with parameters (e.g., "image/jpeg; charset=utf-8")
+    // and trim whitespace
+    const cleanContentType = contentType.trim().split(';')[0].trim();
+    return Utils.contentTypeMap[cleanContentType] || null;
   }
 
   public static fromConfigToPath(pathInConfig: string) {

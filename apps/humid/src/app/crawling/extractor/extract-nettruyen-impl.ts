@@ -35,7 +35,7 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
       const scriptContent = $(element).html();
       if (scriptContent && scriptContent.includes('gOpts.comicSlug')) {
         const slugMatch = scriptContent.match(
-          /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"];/
+          /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"]s*;/
         );
         if (slugMatch && slugMatch[1]) {
           slug = slugMatch[1];
@@ -59,7 +59,7 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
       const scriptContent = $(element).html();
       if (scriptContent && scriptContent.includes('gOpts.comicName')) {
         const nameMatch = scriptContent.match(
-          /gOpts\.comicName\s*=\s*['"]([^'"]*)['"];/
+          /gOpts\.comicName\s*=\s*['"]([^'"]*)['"]s*;/
         );
         if (nameMatch && nameMatch[1]) {
           title = nameMatch[1];
@@ -82,11 +82,12 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
     $('script').each((_, element) => {
       const scriptContent = $(element).html();
       if (scriptContent && scriptContent.includes('gOpts.comicId')) {
+        // Match both quoted strings and numeric values with flexible whitespace
         const idMatch = scriptContent.match(
-          /gOpts\.comicId\s*=\s*['"]([^'"]*)['"];/
+          /gOpts\.comicId\s*=\s*(?:['"]([^'"]*)['"]|(\d+))\s*;/
         );
-        if (idMatch && idMatch[1]) {
-          id = idMatch[1];
+        if (idMatch && (idMatch[1] || idMatch[2])) {
+          id = idMatch[1] || idMatch[2];
           return false; // Break the loop
         }
       }
@@ -100,7 +101,12 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
 
   private extractThumb() {
     const $ = cheerio.load(this.htmlContent);
-    const thumbUrl = $('img[data-src]').first().attr('data-src');
+    let thumbUrl = $('.detail-content-image img').first().attr('data-src');
+
+    // Fallback to src attribute if data-src is not found
+    if (!thumbUrl) {
+      thumbUrl = $('.detail-content-image img').first().attr('src');
+    }
 
     if (!thumbUrl) {
       throw new Error('Not found thumb url !!');

@@ -1,23 +1,28 @@
 import {
   CallHandler,
   ExecutionContext,
+  Injectable,
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
 import { tap } from 'rxjs/operators';
-import { v7 } from 'uuid';
+import { nanoid } from 'nanoid';
+import { ConfigService } from '@nestjs/config';
 
+@Injectable()
 export class LoggingInterceptor implements NestInterceptor {
+  constructor(private configService: ConfigService) {}
+
   intercept(context: ExecutionContext, next: CallHandler) {
     const request = context.getArgs()[0];
-    const uuid = request?.cookies?.['msgid'] ?? v7();
-    const frsys = request?.cookies?.['frsys'] ?? '';
+    const uuid = request?.cookies?.['msgid'] ?? nanoid(8);
+    const serviceHash = this.configService.getOrThrow('services.hash');
     const handler = context.getHandler().name;
     const type = context.getType();
     const className = context.getClass().name;
 
     Logger.log(
-      `[${uuid}:${frsys}][${handler}]:[${type}]::Request on \n Params ${JSON.stringify(
+      `[${uuid}:${serviceHash}][${handler}]:[${type}]::Request on \n Params ${JSON.stringify(
         request.params
       )} \n  Body ${JSON.stringify(request.body)} \n`,
       className
@@ -27,7 +32,7 @@ export class LoggingInterceptor implements NestInterceptor {
       tap({
         next: () => {
           Logger.log(
-            `[${uuid}:${frsys}][${handler}]:[${type}]::Complete in ${
+            `[${uuid}:${serviceHash}][${handler}]:[${type}]::Complete in ${
               Date.now() - now
             } ms`,
             className
@@ -35,7 +40,7 @@ export class LoggingInterceptor implements NestInterceptor {
         },
         error: (err) => {
           Logger.error(
-            `[${uuid}:${frsys}][${handler}]:[${type}]:: Request error`,
+            `[${uuid}:${serviceHash}][${handler}]:[${type}]:: Request error`,
             className
           );
           Logger.error(err, className);

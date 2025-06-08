@@ -6,7 +6,7 @@ const NODE_ENV = {
   PRODUCTION: 'production',
 } as const;
 
-export function loadConfig(config: Record<string, any>): Record<string, any> {
+export function loadConfig(config: Record<string, unknown>): Record<string, unknown> {
   const appEnv = {
     node_env: z.enum([NODE_ENV.DEVELOPMENT, NODE_ENV.PRODUCTION]),
     'humid.server.host': z.string(),

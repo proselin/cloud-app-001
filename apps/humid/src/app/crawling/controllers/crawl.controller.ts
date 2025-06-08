@@ -1,40 +1,42 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
-import { ComicService } from '../services/comic.service';
-import { ZodValidationPipe } from '../../pipes/zod-validation.pipe';
-import { z } from 'zod';
 import {
-  ApiBody,
-  ApiOperation,
-  ApiProperty,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+  Body,
+  Controller,
+  Logger,
+  Post,
+  Query,
+  Sse,
+  UsePipes,
+} from '@nestjs/common';
+import { NettruyenComicService } from '../services/nettruyen-comic.service';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseMapper } from '../../utils/response-mapper';
-
-
-// Define the input DTO for Swagger
-class CrawlByUrlDto {
-  @ApiProperty({ description: 'URL of the comic to crawl', example: 'https://example.com/comic' })
-  url: string;
-
-  @ApiProperty({ description: 'A Check that should crawling chapter after done crawling comics', example: false })
-  isCrawlChapter: string;
-}
+import { CrawlByUrlRequestDto } from '../dto/crawl-by-url-request.dto';
+import { CrawlComicByUrlResponseDto } from '../dto/crawl-by-url-response.dto';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { map, Observable } from 'rxjs';
+import { NettruyenChapterService } from '../services/nettruyen-chapter.service';
+import { z } from 'zod';
 
 @ApiTags('Crawl')
 @Controller('/api/v1/crawl')
 export class CrawlController {
   private logger = new Logger('CrawlController');
 
-  constructor(private comicService: ComicService) {}
+  constructor(
+    private comicService: NettruyenComicService,
+    private chapterService: NettruyenChapterService
+  ) {}
 
   @Post('/by-url')
   @ApiOperation({ summary: 'Crawl comic data by URL' })
-  @ApiBody({ type: CrawlByUrlDto, description: 'URL of the comic to crawl' })
+  @ApiBody({
+    type: CrawlByUrlRequestDto,
+    description: 'URL of the comic to crawl',
+  })
   @ApiResponse({
     status: 200,
     description: 'Comic data retrieved successfully',
-    type: () => ResponseMapper<any>,
+    type: () => ResponseMapper<CrawlComicByUrlResponseDto>,
   })
   @ApiResponse({
     status: 400,
@@ -46,19 +48,32 @@ export class CrawlController {
     description: 'Internal server error',
     type: () => ResponseMapper<null>,
   })
+  @UsePipes(ZodValidationPipe)
   async crawlingByComicUrl(
-    @Body(
-      new ZodValidationPipe(
-        z.object({
-          url: z.string().url(),
-          isCrawlChapter: z.boolean().optional().default(false),
-        })
-      )
-    )
-    data: { url: string, isCrawlChapter: boolean }
-  ) {
+    @Body() data: CrawlByUrlRequestDto
+  ): Promise<ResponseMapper<unknown>> {
     this.logger.log(`START crawling-by-url comicUrl=${JSON.stringify(data)}`);
-    const comicData = await this.comicService.getComicByUrl(data.url, data.isCrawlChapter);
+    const comicData = await this.comicService.getComicByUrl(data.url);
     return ResponseMapper.success(comicData, 'Comic retrieved successfully');
+  }
+
+  @Sse('/crawl-chapter-by-id-sse')
+  @ApiOperation({
+    summary: 'Crawl chapter data by URL with SSE',
+    description: 'Only crawl chapter which  have not been crawled yet',
+  })
+  async crawlComicByUrlSSE(
+    @Query('comicId', new ZodValidationPipe(z.coerce.number().int()))
+    comicId: number
+  ): Promise<Observable<unknown>> {
+    this.logger.log(`START crawling-by-url sse with comicId=${comicId}`);
+    const chapterObservable = await this.chapterService.handleChapterByComicId(
+      comicId
+    );
+    return chapterObservable.pipe(
+      map((data) =>
+        ResponseMapper.success(data, 'Comic chapter data streaming')
+      )
+    );
   }
 }
