@@ -74,9 +74,22 @@ cloud-app-001/
   - Comprehensive logging with Winston
 
 #### API Endpoints
-- `GET /api/v1/comic` - Search and retrieve comics
-- `GET /api/v1/comic/suggest?q={query}` - Comic suggestions by keyword
-- `POST /api/v1/crawl/by-url` - Crawl comic data by URL
+
+**Comic Management**
+- `GET /api/v1/comic` - List all comics
+- `GET /api/v1/comic/suggest?q={query}` - Get comic suggestions for autocomplete
+- `GET /api/v1/comic/:id` - Get comic details by ID
+
+**Chapter Management**
+- `GET /api/v1/chapter/:id` - Get chapter details
+- `GET /api/v1/chapter/navigation/:comicId` - Get chapter navigation for a comic
+- `GET /api/v1/chapter/by-comic/:comicId` - Get all chapters for a comic
+
+**Crawling Operations**
+- `POST /api/v1/crawl/by-url` - Crawl comic by URL
+
+**Static File Serving**
+- `GET /static/imgs/*` - Serve image files
 
 ### 🖥️ Platform (Electron Desktop)
 - **Technology**: Electron with TypeScript

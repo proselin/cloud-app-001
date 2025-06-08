@@ -135,30 +135,29 @@ export class ImageEntity {
 ### Comic Management
 
 ```http
-GET    /api/v1/comic              # List comics with pagination
-GET    /api/v1/comic/:id          # Get comic details
-GET    /api/v1/comic/suggest      # Search suggestions
-POST   /api/v1/comic              # Create new comic
-PUT    /api/v1/comic/:id          # Update comic
-DELETE /api/v1/comic/:id          # Delete comic
+GET    /api/v1/comic              # List all comics
+GET    /api/v1/comic/suggest?q={query} # Get comic suggestions for autocomplete
+GET    /api/v1/comic/:id          # Get comic details by ID
 ```
 
 ### Chapter Management
 
 ```http
-GET    /api/v1/chapter/:id        # Get chapter details
-GET    /api/v1/chapter/:id/images # Get chapter images
-POST   /api/v1/chapter            # Create chapter
-PUT    /api/v1/chapter/:id        # Update chapter
-DELETE /api/v1/chapter/:id        # Delete chapter
+GET    /api/v1/chapter/:id                # Get chapter details
+GET    /api/v1/chapter/navigation/:comicId # Get chapter navigation for a comic
+GET    /api/v1/chapter/by-comic/:comicId   # Get all chapters for a comic
 ```
 
 ### Crawling Operations
 
 ```http
 POST   /api/v1/crawl/by-url       # Crawl comic by URL
-GET    /api/v1/crawl/status/:id   # Get crawling status
-POST   /api/v1/crawl/chapter      # Crawl specific chapter
+```
+
+### Static File Serving
+
+```http
+GET    /static/imgs/*             # Serve image files
 ```
 
 ## 🚀 Getting Started
