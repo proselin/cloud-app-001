@@ -8,12 +8,19 @@ import { BaseComponent } from '../../../common/components';
 
 @Component({
   selector: 'cloud-layout',
-  imports: [HeaderComponent, FooterComponent, NzLayoutComponent, NzContentComponent, BreadcrumbComponent, NzSpinComponent],
+  imports: [
+    HeaderComponent,
+    FooterComponent,
+    NzLayoutComponent,
+    NzContentComponent,
+    BreadcrumbComponent,
+    NzSpinComponent,
+  ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
-  standalone : true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LayoutComponent  extends BaseComponent {
-  isSpinning =  computed(() => this.loadingGlobalService.count() > 0);
+export class LayoutComponent extends BaseComponent {
+  isSpinning = computed(() => this.loadingGlobalService.count() > 0);
 }

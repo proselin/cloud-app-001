@@ -100,12 +100,8 @@ export default {
   setupFiles: ['<rootDir>/src/support/test-setup.ts'],
   testEnvironment: 'node',
   testTimeout: 30000,
-  collectCoverageFrom: [
-    '../humid/src/**/*.ts',
-    '!**/*.spec.ts',
-    '!**/*.e2e-spec.ts'
-  ],
-  coverageDirectory: '../../coverage/humid-e2e'
+  collectCoverageFrom: ['../humid/src/**/*.ts', '!**/*.spec.ts', '!**/*.e2e-spec.ts'],
+  coverageDirectory: '../../coverage/humid-e2e',
 };
 ```
 
@@ -180,10 +176,7 @@ describe('Comic API (e2e)', () => {
 
   describe('/api/v1/comics (GET)', () => {
     it('should return paginated comics list', async () => {
-      const response = await request(httpServer)
-        .get('/api/v1/comics')
-        .query({ page: 1, limit: 10 })
-        .expect(200);
+      const response = await request(httpServer).get('/api/v1/comics').query({ page: 1, limit: 10 }).expect(200);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body).toHaveProperty('pagination');
@@ -195,10 +188,7 @@ describe('Comic API (e2e)', () => {
       await createTestComic({ genres: ['Action', 'Adventure'] });
       await createTestComic({ genres: ['Romance', 'Comedy'] });
 
-      const response = await request(httpServer)
-        .get('/api/v1/comics')
-        .query({ genre: 'Action' })
-        .expect(200);
+      const response = await request(httpServer).get('/api/v1/comics').query({ genre: 'Action' }).expect(200);
 
       expect(response.body.data).toHaveLength(1);
       expect(response.body.data[0].genres).toContain('Action');
@@ -230,17 +220,14 @@ describe('Comic Entity Operations', () => {
       title: 'Test Comic',
       description: 'A test comic',
       status: 'ongoing',
-      genres: ['Action']
+      genres: ['Action'],
     };
 
-    const response = await request(httpServer)
-      .post('/api/v1/comics')
-      .send(comicData)
-      .expect(201);
+    const response = await request(httpServer).post('/api/v1/comics').send(comicData).expect(201);
 
     const comic = await comicRepository.findOne({
       where: { id: response.body.id },
-      relations: ['chapters']
+      relations: ['chapters'],
     });
 
     expect(comic).toBeDefined();
@@ -250,13 +237,10 @@ describe('Comic Entity Operations', () => {
 
   it('should handle duplicate comic titles', async () => {
     const comicData = { title: 'Duplicate Comic' };
-    
+
     await createTestComic(comicData);
-    
-    const response = await request(httpServer)
-      .post('/api/v1/comics')
-      .send(comicData)
-      .expect(409);
+
+    const response = await request(httpServer).post('/api/v1/comics').send(comicData).expect(409);
 
     expect(response.body.message).toContain('already exists');
   });
@@ -274,12 +258,12 @@ describe('Comic Crawling Service (e2e)', () => {
     const module = await Test.createTestingModule({
       imports: [CrawlingModule],
     })
-    .overrideProvider(HttpService)
-    .useValue({
-      get: jest.fn(),
-      post: jest.fn(),
-    })
-    .compile();
+      .overrideProvider(HttpService)
+      .useValue({
+        get: jest.fn(),
+        post: jest.fn(),
+      })
+      .compile();
 
     crawlingService = module.get<CrawlingService>(CrawlingService);
     mockHttpService = module.get(HttpService);
@@ -300,14 +284,9 @@ describe('Comic Crawling Service (e2e)', () => {
       </html>
     `;
 
-    mockHttpService.get.mockReturnValue(
-      of({ data: mockHtmlResponse }) as any
-    );
+    mockHttpService.get.mockReturnValue(of({ data: mockHtmlResponse }) as any);
 
-    const result = await request(httpServer)
-      .post('/api/v1/crawling/comic')
-      .send({ url: 'https://nettruyenrr.com/truyen-tranh/test-comic' })
-      .expect(201);
+    const result = await request(httpServer).post('/api/v1/crawling/comic').send({ url: 'https://nettruyenrr.com/truyen-tranh/test-comic' }).expect(201);
 
     expect(result.body).toHaveProperty('title', 'Test Comic Title');
     expect(result.body).toHaveProperty('chapters');
@@ -315,14 +294,9 @@ describe('Comic Crawling Service (e2e)', () => {
   });
 
   it('should handle crawling errors gracefully', async () => {
-    mockHttpService.get.mockReturnValue(
-      throwError({ response: { status: 404 } }) as any
-    );
+    mockHttpService.get.mockReturnValue(throwError({ response: { status: 404 } }) as any);
 
-    await request(httpServer)
-      .post('/api/v1/crawling/comic')
-      .send({ url: 'https://invalid-url.com' })
-      .expect(404);
+    await request(httpServer).post('/api/v1/crawling/comic').send({ url: 'https://invalid-url.com' }).expect(404);
   });
 });
 ```
@@ -343,7 +317,7 @@ export class DatabaseHelper {
         database: ':memory:',
         entities: [Comic, Chapter, Image],
         synchronize: true,
-        logging: false
+        logging: false,
       });
     }
     return this.connection;
@@ -361,20 +335,20 @@ export class DatabaseHelper {
 
   static async seedTestData(): Promise<void> {
     const comicRepository = (await this.getConnection()).getRepository(Comic);
-    
+
     const testComics = [
       {
         title: 'One Piece',
         description: 'Adventure manga',
         status: 'ongoing',
-        genres: ['Adventure', 'Comedy']
+        genres: ['Adventure', 'Comedy'],
       },
       {
         title: 'Naruto',
         description: 'Ninja manga',
         status: 'completed',
-        genres: ['Action', 'Adventure']
-      }
+        genres: ['Action', 'Adventure'],
+      },
     ];
 
     await comicRepository.save(testComics);
@@ -390,44 +364,30 @@ export class ApiHelper {
   constructor(private httpServer: any) {}
 
   async createComic(comicData: Partial<Comic>): Promise<Comic> {
-    const response = await request(this.httpServer)
-      .post('/api/v1/comics')
-      .send(comicData)
-      .expect(201);
-    
+    const response = await request(this.httpServer).post('/api/v1/comics').send(comicData).expect(201);
+
     return response.body;
   }
 
   async getComics(query: any = {}): Promise<any> {
-    const response = await request(this.httpServer)
-      .get('/api/v1/comics')
-      .query(query)
-      .expect(200);
-    
+    const response = await request(this.httpServer).get('/api/v1/comics').query(query).expect(200);
+
     return response.body;
   }
 
   async crawlComic(url: string): Promise<any> {
-    const response = await request(this.httpServer)
-      .post('/api/v1/crawling/comic')
-      .send({ url })
-      .expect(201);
-    
+    const response = await request(this.httpServer).post('/api/v1/crawling/comic').send({ url }).expect(201);
+
     return response.body;
   }
 
-  async expectError(
-    method: 'get' | 'post' | 'put' | 'delete',
-    endpoint: string,
-    expectedStatus: number,
-    data?: any
-  ): Promise<any> {
+  async expectError(method: 'get' | 'post' | 'put' | 'delete', endpoint: string, expectedStatus: number, data?: any): Promise<any> {
     const req = request(this.httpServer)[method](endpoint);
-    
+
     if (data) {
       req.send(data);
     }
-    
+
     const response = await req.expect(expectedStatus);
     return response.body;
   }
@@ -451,7 +411,7 @@ export class MockFactory {
       createdAt: faker.date.past(),
       updatedAt: faker.date.recent(),
       chapters: [],
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -465,7 +425,7 @@ export class MockFactory {
       images: [],
       createdAt: faker.date.past(),
       updatedAt: faker.date.recent(),
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -477,8 +437,8 @@ export class MockFactory {
       chapters: Array.from({ length: 10 }, (_, i) => ({
         number: i + 1,
         title: `Chapter ${i + 1}`,
-        url: faker.internet.url()
-      }))
+        url: faker.internet.url(),
+      })),
     };
   }
 }
@@ -492,7 +452,7 @@ export class MockFactory {
 describe('Database Transactions', () => {
   it('should rollback on service error', async () => {
     const initialCount = await comicRepository.count();
-    
+
     try {
       await request(httpServer)
         .post('/api/v1/comics')
@@ -515,13 +475,13 @@ describe('Database Transactions', () => {
         .post('/api/v1/comics')
         .send({
           title: `Concurrent Comic ${i}`,
-          description: 'Test comic'
+          description: 'Test comic',
         })
     );
 
     const responses = await Promise.all(promises);
-    
-    responses.forEach(response => {
+
+    responses.forEach((response) => {
       expect(response.status).toBe(201);
     });
 
@@ -540,13 +500,15 @@ describe('Database Schema', () => {
     const queryRunner = connection.createQueryRunner();
 
     // Test migration up
-    await queryRunner.createTable(new Table({
-      name: 'test_migration',
-      columns: [
-        { name: 'id', type: 'uuid', isPrimary: true },
-        { name: 'name', type: 'varchar' }
-      ]
-    }));
+    await queryRunner.createTable(
+      new Table({
+        name: 'test_migration',
+        columns: [
+          { name: 'id', type: 'uuid', isPrimary: true },
+          { name: 'name', type: 'varchar' },
+        ],
+      })
+    );
 
     const hasTable = await queryRunner.hasTable('test_migration');
     expect(hasTable).toBe(true);
@@ -578,7 +540,7 @@ on:
 jobs:
   api-e2e-tests:
     runs-on: ubuntu-latest
-    
+
     services:
       sqlite:
         image: nouchka/sqlite3:latest
@@ -590,30 +552,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Setup test database
         run: |
           npm run test:db:setup
           npm run test:db:migrate
-      
+
       - name: Build Humid application
         run: nx build humid
-      
+
       - name: Run E2E tests
         run: nx e2e humid-e2e --coverage
         env:
           NODE_ENV: test
           DATABASE_URL: sqlite::memory:
-      
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
@@ -649,38 +611,32 @@ CMD ["npm", "run", "test:e2e"]
 describe('API Performance', () => {
   it('should handle concurrent requests', async () => {
     const startTime = Date.now();
-    
-    const promises = Array.from({ length: 100 }, () =>
-      request(httpServer)
-        .get('/api/v1/comics')
-        .expect(200)
-    );
+
+    const promises = Array.from({ length: 100 }, () => request(httpServer).get('/api/v1/comics').expect(200));
 
     await Promise.all(promises);
-    
+
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
+
     // Should handle 100 requests within 5 seconds
     expect(duration).toBeLessThan(5000);
   });
 
   it('should maintain response time under load', async () => {
     const measurements: number[] = [];
-    
+
     for (let i = 0; i < 10; i++) {
       const start = Date.now();
-      
-      await request(httpServer)
-        .get('/api/v1/comics/1')
-        .expect(200);
-      
+
+      await request(httpServer).get('/api/v1/comics/1').expect(200);
+
       const duration = Date.now() - start;
       measurements.push(duration);
     }
 
     const averageResponseTime = measurements.reduce((a, b) => a + b) / measurements.length;
-    
+
     // Average response time should be under 100ms
     expect(averageResponseTime).toBeLessThan(100);
   });
@@ -700,7 +656,7 @@ beforeEach(async () => {
 
 // Use transactions for rollback
 beforeEach(async () => {
-  await getConnection().transaction(async manager => {
+  await getConnection().transaction(async (manager) => {
     // Test operations within transaction
   });
 });
@@ -715,7 +671,7 @@ describe('Error Handling', () => {
     await request(httpServer)
       .get('/api/v1/comics/non-existent-id')
       .expect(404)
-      .expect(res => {
+      .expect((res) => {
         expect(res.body.message).toContain('not found');
       });
   });
@@ -723,9 +679,11 @@ describe('Error Handling', () => {
   it('should validate request payload', async () => {
     await request(httpServer)
       .post('/api/v1/comics')
-      .send({ /* invalid data */ })
+      .send({
+        /* invalid data */
+      })
       .expect(400)
-      .expect(res => {
+      .expect((res) => {
         expect(res.body.errors).toBeDefined();
       });
   });
@@ -737,13 +695,11 @@ describe('Error Handling', () => {
 ```typescript
 // Handle async operations properly
 it('should process crawling queue', async () => {
-  const crawlPromise = request(httpServer)
-    .post('/api/v1/crawling/comic')
-    .send({ url: 'https://example.com' });
+  const crawlPromise = request(httpServer).post('/api/v1/crawling/comic').send({ url: 'https://example.com' });
 
   // Wait for async processing
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   const response = await crawlPromise;
   expect(response.status).toBe(201);
 });
@@ -756,7 +712,7 @@ it('should process crawling queue', async () => {
 afterEach(async () => {
   // Clear uploaded files
   await fs.rmdir('./uploads/test', { recursive: true });
-  
+
   // Reset mocks
   jest.clearAllMocks();
 });
@@ -764,7 +720,7 @@ afterEach(async () => {
 afterAll(async () => {
   // Close database connections
   await getConnection().close();
-  
+
   // Stop test servers
   await app.close();
 });

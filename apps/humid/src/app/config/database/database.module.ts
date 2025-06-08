@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import "better-sqlite3"
+import 'better-sqlite3';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService:ConfigService) => {
+      useFactory: (configService: ConfigService) => {
         return {
           type: 'better-sqlite3',
           appName: 'Humid',
@@ -15,7 +15,7 @@ import "better-sqlite3"
           synchronize: true, // only for dev! turns models into tables
           retryAttempts: 1,
           timeout: 30000,
-        } ;
+        };
       },
     }),
   ],

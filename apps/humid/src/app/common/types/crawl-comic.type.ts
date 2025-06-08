@@ -1,5 +1,5 @@
-import { RawCrawledChapter } from "./craw.type";
-import { ImageType } from "../constant/image";
+import { RawCrawledChapter } from './craw.type';
+import { ImageType } from '../constant/image';
 
 export interface CrawlComicJobData {
   href: string;

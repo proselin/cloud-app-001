@@ -91,9 +91,7 @@ import * as nestWinston from 'nest-winston';
 
 // In your NestJS module
 @Module({
-  imports: [
-    WinstonModule.forRoot(getLoggerConfig('MyApp', nestWinston))
-  ],
+  imports: [WinstonModule.forRoot(getLoggerConfig('MyApp', nestWinston))],
 })
 export class AppModule {}
 ```
@@ -186,14 +184,14 @@ export class PlatformLogger {
 
 The logger supports standard Winston log levels:
 
-| Level   | Priority | Description |
-|---------|----------|-------------|
-| error   | 0        | Error conditions |
-| warn    | 1        | Warning conditions |
-| info    | 2        | Informational messages |
+| Level   | Priority | Description                    |
+| ------- | -------- | ------------------------------ |
+| error   | 0        | Error conditions               |
+| warn    | 1        | Warning conditions             |
+| info    | 2        | Informational messages         |
 | verbose | 3        | Verbose informational messages |
-| debug   | 4        | Debug-level messages |
-| silly   | 5        | Silly debug messages |
+| debug   | 4        | Debug-level messages           |
+| silly   | 5        | Silly debug messages           |
 
 ### Usage Examples
 
@@ -236,6 +234,7 @@ logs/
 Creates a Winston logger instance with standard configuration.
 
 **Parameters:**
+
 - `name`: Service or application name for log labeling
 
 **Returns:** Winston Logger instance
@@ -245,6 +244,7 @@ Creates a Winston logger instance with standard configuration.
 Gets the Winston configuration object for manual logger creation.
 
 **Parameters:**
+
 - `name`: Service name for log labeling
 - `nestWinstonUtil`: Optional NestJS Winston utilities
 
@@ -255,6 +255,7 @@ Gets the Winston configuration object for manual logger creation.
 Creates a logger specifically configured for child processes.
 
 **Parameters:**
+
 - `name`: Process name for log labeling
 
 **Returns:** Winston Logger instance
@@ -290,14 +291,14 @@ logger.info('Comic crawled successfully', {
   comicId: '123',
   title: 'Sample Comic',
   chapters: 50,
-  duration: 1500
+  duration: 1500,
 });
 
 logger.error('Failed to process request', {
   requestId: 'req-456',
   userId: '789',
   error: error.message,
-  stack: error.stack
+  stack: error.stack,
 });
 ```
 
@@ -310,7 +311,7 @@ try {
   logger.error('Data processing failed', {
     error: error.message,
     stack: error.stack,
-    input: sanitizedInput
+    input: sanitizedInput,
   });
   throw error;
 }
@@ -326,7 +327,7 @@ const duration = Date.now() - startTime;
 logger.info('Operation completed', {
   operation: 'dataProcessing',
   duration,
-  recordsProcessed: count
+  recordsProcessed: count,
 });
 ```
 
@@ -352,19 +353,19 @@ export class ComicService {
 
   async crawlComic(url: string) {
     this.logger.info('Starting comic crawl', { url });
-    
+
     try {
       const result = await this.performCrawl(url);
       this.logger.info('Comic crawl completed', {
         url,
         chapters: result.chapters.length,
-        duration: result.duration
+        duration: result.duration,
       });
       return result;
     } catch (error) {
       this.logger.error('Comic crawl failed', {
         url,
-        error: error.message
+        error: error.message,
       });
       throw error;
     }

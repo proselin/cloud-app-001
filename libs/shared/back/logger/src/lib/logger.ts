@@ -5,11 +5,10 @@ export function getLoggerConfig(
   name: string,
   nestWinstonUtil?: {
     format: {
-      nestLike: any
-    }
+      nestLike: any;
+    };
   }
 ): LoggerOptions {
-
   if (process.env['NODE_ENV'] === 'development') {
     if (!nestWinstonUtil) {
       return {
@@ -120,9 +119,8 @@ export function getLoggerConfig(
   };
 }
 
-
 export function createChildProcessOptions(name: string) {
-  if(process.env['NODE_ENV'] === 'development') {
+  if (process.env['NODE_ENV'] === 'development') {
     return {
       format: format.combine(
         format.simple(),

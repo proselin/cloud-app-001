@@ -1,1 +1,1 @@
-export {validateProcessMessageData} from "./validate-process-message.data"
+export { validateProcessMessageData } from './validate-process-message.data';

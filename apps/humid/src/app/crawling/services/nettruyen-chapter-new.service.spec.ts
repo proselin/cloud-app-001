@@ -36,7 +36,7 @@ describe('NettruyenChapterService', () => {
       rollbackTransaction: jest.fn(),
       release: jest.fn(),
       manager: {
-        save: jest.fn().mockImplementation(entity => entity),
+        save: jest.fn().mockImplementation((entity) => entity),
       },
     }),
   };

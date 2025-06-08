@@ -95,13 +95,13 @@ export default defineConfig({
     baseUrl: 'http://localhost:4200',
     webServerCommands: {
       default: 'npx nx run cloud:serve',
-      production: 'npx nx run cloud:serve-static'
+      production: 'npx nx run cloud:serve-static',
     },
     supportFile: 'src/support/e2e.ts',
     specPattern: 'src/e2e/**/*.cy.{js,jsx,ts,tsx}',
     videosFolder: '../../dist/cypress/cloud-e2e/videos',
-    screenshotsFolder: '../../dist/cypress/cloud-e2e/screenshots'
-  }
+    screenshotsFolder: '../../dist/cypress/cloud-e2e/screenshots',
+  },
 });
 ```
 
@@ -159,25 +159,18 @@ describe('Comic Search', () => {
   });
 
   it('should search for comics by title', () => {
-    cy.get('[data-cy=search-input]')
-      .type('One Piece');
-    
-    cy.get('[data-cy=search-button]')
-      .click();
-    
-    cy.get('[data-cy=comic-results]')
-      .should('be.visible')
-      .and('contain', 'One Piece');
+    cy.get('[data-cy=search-input]').type('One Piece');
+
+    cy.get('[data-cy=search-button]').click();
+
+    cy.get('[data-cy=comic-results]').should('be.visible').and('contain', 'One Piece');
   });
 
   it('should filter search results', () => {
     cy.searchComics('naruto');
     cy.applyFilter('genre', 'action');
-    
-    cy.get('[data-cy=comic-card]')
-      .should('have.length.greaterThan', 0)
-      .first()
-      .should('contain', 'Action');
+
+    cy.get('[data-cy=comic-card]').should('have.length.greaterThan', 0).first().should('contain', 'Action');
   });
 });
 ```
@@ -190,23 +183,21 @@ describe('API Integration', () => {
     // Mock API failure
     cy.intercept('GET', '/api/comics/search*', {
       statusCode: 500,
-      body: { error: 'Internal Server Error' }
+      body: { error: 'Internal Server Error' },
     }).as('searchError');
 
     cy.searchComics('test');
     cy.wait('@searchError');
-    
-    cy.get('[data-cy=error-message]')
-      .should('be.visible')
-      .and('contain', 'Failed to load comics');
+
+    cy.get('[data-cy=error-message]').should('be.visible').and('contain', 'Failed to load comics');
   });
 
   it('should cache search results', () => {
     cy.intercept('GET', '/api/comics/search*').as('searchAPI');
-    
+
     cy.searchComics('one piece');
     cy.wait('@searchAPI');
-    
+
     // Second search should use cache
     cy.searchComics('one piece');
     cy.get('@searchAPI.all').should('have.length', 1);
@@ -240,10 +231,7 @@ export class ComicSearchPage {
   }
 
   selectFirstResult() {
-    this.getComicResults()
-      .find('[data-cy=comic-card]')
-      .first()
-      .click();
+    this.getComicResults().find('[data-cy=comic-card]').first().click();
     return new ComicDetailPage();
   }
 }
@@ -258,9 +246,7 @@ export class ComicDetailPage {
   }
 
   openChapter(chapterNumber: number) {
-    this.getChapterList()
-      .find(`[data-cy=chapter-${chapterNumber}]`)
-      .click();
+    this.getChapterList().find(`[data-cy=chapter-${chapterNumber}]`).click();
     return new ComicReaderPage();
   }
 }
@@ -274,22 +260,16 @@ import { ComicSearchPage } from '../support/app.po';
 describe('Comic Navigation', () => {
   it('should navigate through comic chapters', () => {
     const searchPage = new ComicSearchPage();
-    
+
     cy.visit('/');
-    
-    const detailPage = searchPage
-      .searchForComic('One Piece')
-      .selectFirstResult();
-    
-    detailPage
-      .getComicTitle()
-      .should('contain', 'One Piece');
-    
+
+    const detailPage = searchPage.searchForComic('One Piece').selectFirstResult();
+
+    detailPage.getComicTitle().should('contain', 'One Piece');
+
     const readerPage = detailPage.openChapter(1);
-    
-    readerPage
-      .getPageImage()
-      .should('be.visible');
+
+    readerPage.getPageImage().should('be.visible');
   });
 });
 ```
@@ -349,11 +329,11 @@ Cypress.Commands.add('checkAccessibility', () => {
 
 Cypress.Commands.add('mockComicsAPI', () => {
   cy.intercept('GET', '/api/comics/search*', {
-    fixture: 'comics.json'
+    fixture: 'comics.json',
   }).as('searchComics');
-  
+
   cy.intercept('GET', '/api/comics/*/chapters', {
-    fixture: 'chapters.json'
+    fixture: 'chapters.json',
   }).as('getChapters');
 });
 ```
@@ -375,31 +355,31 @@ on:
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         browser: [chrome, firefox]
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build application
         run: nx build cloud --prod
-      
+
       - name: Run E2E tests
         run: nx e2e cloud-e2e --browser ${{ matrix.browser }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-      
+
       - name: Upload test artifacts
         uses: actions/upload-artifact@v3
         if: failure()
@@ -420,9 +400,9 @@ export default defineConfig({
       reportDir: 'dist/cypress/cloud-e2e/reports',
       overwrite: false,
       html: true,
-      json: true
-    }
-  }
+      json: true,
+    },
+  },
 });
 ```
 
@@ -444,7 +424,7 @@ export default defineConfig({
       "thumbnail": "/images/one-piece-thumb.jpg"
     },
     {
-      "id": "2", 
+      "id": "2",
       "title": "Naruto",
       "author": "Masashi Kishimoto",
       "genres": ["Action", "Adventure", "Drama"],
@@ -485,7 +465,7 @@ describe('Comic Management', () => {
     it('should search by author');
     it('should filter results');
   });
-  
+
   context('Reading Interface', () => {
     it('should display comic pages');
     it('should navigate between chapters');
@@ -498,9 +478,7 @@ describe('Comic Management', () => {
 
 ```html
 <!-- Use data-cy attributes for test stability -->
-<button data-cy="search-button" class="btn btn-primary">
-  Search Comics
-</button>
+<button data-cy="search-button" class="btn btn-primary">Search Comics</button>
 
 <div data-cy="comic-card" *ngFor="let comic of comics">
   <h3 data-cy="comic-title">{{ comic.title }}</h3>
@@ -527,11 +505,9 @@ cy.get('[data-cy=modal]').should('have.class', 'fade-in-complete');
 // Test error scenarios
 it('should handle network errors', () => {
   cy.intercept('GET', '/api/comics*', { networkError: true });
-  
+
   cy.visit('/');
-  cy.get('[data-cy=error-banner]')
-    .should('be.visible')
-    .and('contain', 'Network error');
+  cy.get('[data-cy=error-banner]').should('be.visible').and('contain', 'Network error');
 });
 ```
 

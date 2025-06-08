@@ -3,7 +3,6 @@ import { ApplyPipe } from './apply.pipe';
 describe('ApplyPipe', () => {
   const pipe = new ApplyPipe();
 
-
   it('create an instance', () => {
     expect(pipe).toBeTruthy();
   });
@@ -17,8 +16,10 @@ describe('ApplyPipe', () => {
   });
 
   it('return the result of the function call with arguments', () => {
-    const mockFn = (a: number, b: string) => {return `ages ${a} and be ${b}`};
-    const result = pipe.transform(mockFn,42, 'test');
+    const mockFn = (a: number, b: string) => {
+      return `ages ${a} and be ${b}`;
+    };
+    const result = pipe.transform(mockFn, 42, 'test');
     expect(result).toBe(`ages 42 and be test`);
   });
 
@@ -29,9 +30,8 @@ describe('ApplyPipe', () => {
   });
 
   it('should throw an error if the first argument is not a function', () => {
-    expect(() => pipe.transform(null as any)).toThrowError('First argument must be a function');
+    expect(() => pipe.transform(null as any)).toThrowError(
+      'First argument must be a function'
+    );
   });
-
 });
-
-

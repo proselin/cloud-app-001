@@ -26,10 +26,10 @@ describe('NettruyenImageService', () => {
   const mockNettruyenHttpService = {
     get: jest.fn(),
     getImages: jest.fn(),
-  };  // Mock query runner for transaction tests
+  }; // Mock query runner for transaction tests
   const mockQueryRunner = {
     manager: {
-      save: jest.fn().mockImplementation(entity => entity),
+      save: jest.fn().mockImplementation((entity) => entity),
     },
   } as unknown as QueryRunner;
 
@@ -50,7 +50,8 @@ describe('NettruyenImageService', () => {
           useValue: mockNettruyenHttpService,
         },
       ],
-    }).compile();    service = module.get<NettruyenImageService>(NettruyenImageService);
+    }).compile();
+    service = module.get<NettruyenImageService>(NettruyenImageService);
 
     // Set up spies for private methods using proper typing
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,7 +86,7 @@ describe('NettruyenImageService', () => {
         fileName: 'thumb-1-123.jpg',
         type: ImageType.THUMB,
         position: 0,
-      });      // Call the method
+      }); // Call the method
       const result = await service.handleCrawlThumb(imageData, mockQueryRunner);
 
       // Assertions
@@ -111,8 +112,10 @@ describe('NettruyenImageService', () => {
       };
 
       // Mock crawl to throw error
-      crawlAndSaveImageSpy.mockRejectedValue(new Error('Crawl failed'));      // Call the method and expect it to throw
-      await expect(service.handleCrawlThumb(imageData, mockQueryRunner)).rejects.toThrow('Crawl failed');
+      crawlAndSaveImageSpy.mockRejectedValue(new Error('Crawl failed')); // Call the method and expect it to throw
+      await expect(
+        service.handleCrawlThumb(imageData, mockQueryRunner)
+      ).rejects.toThrow('Crawl failed');
     });
   });
 
@@ -135,7 +138,7 @@ describe('NettruyenImageService', () => {
           domain: 'example.com',
           dataUrls: ['https://example.com/page2.jpg'],
           position: 1,
-        }
+        },
       ];
 
       // Mock private method implementations
@@ -155,11 +158,14 @@ describe('NettruyenImageService', () => {
           fileName: 'page2.jpg',
           type: ImageType.CHAPTER_IMAGE,
           position: 1,
-        });      // Call the method with array
-      const result = await service.handleCrawlImages(imagesData, mockQueryRunner);
+        }); // Call the method with array
+      const result = await service.handleCrawlImages(
+        imagesData,
+        mockQueryRunner
+      );
 
       // Assertions - filter out undefined results
-      const validResults = result.filter(item => !!item);
+      const validResults = result.filter((item) => !!item);
       expect(validResults).toHaveLength(2);
       expect(crawlAndSaveImageSpy).toHaveBeenCalledTimes(2);
       expect(validResults[0]?.position).toEqual(0);
@@ -177,12 +183,15 @@ describe('NettruyenImageService', () => {
           domain: 'example.com',
           dataUrls: [],
           position: 0,
-        }
+        },
       ];
 
       // Mock crawl to throw error for empty URLs
-      crawlAndSaveImageSpy.mockRejectedValue(new Error('No URLs provided'));      // Call the method
-      const result = await service.handleCrawlImages(imagesData, mockQueryRunner);
+      crawlAndSaveImageSpy.mockRejectedValue(new Error('No URLs provided')); // Call the method
+      const result = await service.handleCrawlImages(
+        imagesData,
+        mockQueryRunner
+      );
 
       // Assertions - result may contain undefined due to error handling
       expect(result).toHaveLength(1);

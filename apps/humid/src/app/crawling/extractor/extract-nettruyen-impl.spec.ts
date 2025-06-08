@@ -70,9 +70,9 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 2,
               chapter_slug: 'chapter-2',
-            }
-          ]
-        }
+            },
+          ],
+        },
       };
 
       mockHttpService.getChapterList.mockResolvedValue(mockChapterResponse);
@@ -92,16 +92,16 @@ describe('ExtractNettruyenImpl', () => {
         chapters: [
           {
             href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-1',
-            chapterNumber: '1'
+            chapterNumber: '1',
           },
           {
             href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-2',
-            chapterNumber: '2'
-          }
+            chapterNumber: '2',
+          },
         ],
         slug: 'test-comic-slug',
         comicId: '12345',
-        domain: 'https://example.com'
+        domain: 'https://example.com',
       });
     });
 
@@ -142,16 +142,16 @@ describe('ExtractNettruyenImpl', () => {
         chapters: [
           {
             href: 'https://example.com//truyen-tranh/numeric-id-comic/chapter-1',
-            chapterNumber: '1'
+            chapterNumber: '1',
           },
           {
             href: 'https://example.com//truyen-tranh/numeric-id-comic/chapter-2',
-            chapterNumber: '2'
-          }
+            chapterNumber: '2',
+          },
         ],
         slug: 'numeric-id-comic',
         comicId: '98765',
-        domain: 'https://example.com'
+        domain: 'https://example.com',
       });
     });
 
@@ -250,16 +250,18 @@ describe('ExtractNettruyenImpl', () => {
         .setHtmlContent(mockHtmlContent)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(newExtractor.extract()).rejects.toThrow('Missing HTTP Service');
+      await expect(newExtractor.extract()).rejects.toThrow(
+        'Missing HTTP Service'
+      );
     });
 
     it('should throw error when url is missing', async () => {
       const newExtractor = new ExtractNettruyenImpl();
-      newExtractor
-        .setHttp(mockHttpService)
-        .setHtmlContent(mockHtmlContent);
+      newExtractor.setHttp(mockHttpService).setHtmlContent(mockHtmlContent);
 
-      await expect(newExtractor.extract()).rejects.toThrow('Missing URL content');
+      await expect(newExtractor.extract()).rejects.toThrow(
+        'Missing URL content'
+      );
     });
 
     it('should throw error when html content is missing', async () => {
@@ -268,11 +270,14 @@ describe('ExtractNettruyenImpl', () => {
         .setHttp(mockHttpService)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(newExtractor.extract()).rejects.toThrow('Missing Html content');
+      await expect(newExtractor.extract()).rejects.toThrow(
+        'Missing Html content'
+      );
     });
 
     it('should throw error when slug is not found in html', async () => {
-      const htmlWithoutSlug = '<html><script>var gOpts = {}; gOpts.comicId = "12345"; gOpts.comicName = "Test";</script></html>';
+      const htmlWithoutSlug =
+        '<html><script>var gOpts = {}; gOpts.comicId = "12345"; gOpts.comicName = "Test";</script></html>';
       extractor
         .setHttp(mockHttpService)
         .setHtmlContent(htmlWithoutSlug)
@@ -282,37 +287,48 @@ describe('ExtractNettruyenImpl', () => {
     });
 
     it('should throw error when title is not found in html', async () => {
-      const htmlWithoutTitle = '<html><script>var gOpts = {}; gOpts.comicId = "12345"; gOpts.comicSlug = "test-slug";</script></html>';
+      const htmlWithoutTitle =
+        '<html><script>var gOpts = {}; gOpts.comicId = "12345"; gOpts.comicSlug = "test-slug";</script></html>';
       extractor
         .setHttp(mockHttpService)
         .setHtmlContent(htmlWithoutTitle)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(extractor.extract()).rejects.toThrow('Header is not found !!');
+      await expect(extractor.extract()).rejects.toThrow(
+        'Header is not found !!'
+      );
     });
 
     it('should throw error when comic ID is not found in html', async () => {
-      const htmlWithoutId = '<html><script>var gOpts = {}; gOpts.comicSlug = "test-slug"; gOpts.comicName = "Test";</script></html>';
+      const htmlWithoutId =
+        '<html><script>var gOpts = {}; gOpts.comicSlug = "test-slug"; gOpts.comicName = "Test";</script></html>';
       extractor
         .setHttp(mockHttpService)
         .setHtmlContent(htmlWithoutId)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(extractor.extract()).rejects.toThrow('comicId is not found !!');
+      await expect(extractor.extract()).rejects.toThrow(
+        'comicId is not found !!'
+      );
     });
 
     it('should throw error when thumb image is not found', async () => {
-      const htmlWithoutThumb = '<html><script>var gOpts = {}; gOpts.comicId = "12345"; gOpts.comicSlug = "test-slug"; gOpts.comicName = "Test";</script><body></body></html>';
+      const htmlWithoutThumb =
+        '<html><script>var gOpts = {}; gOpts.comicId = "12345"; gOpts.comicSlug = "test-slug"; gOpts.comicName = "Test";</script><body></body></html>';
       extractor
         .setHttp(mockHttpService)
         .setHtmlContent(htmlWithoutThumb)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(extractor.extract()).rejects.toThrow('Not found thumb url !!');
+      await expect(extractor.extract()).rejects.toThrow(
+        'Not found thumb url !!'
+      );
     });
 
     it('should handle HTTP service errors during chapter extraction', async () => {
-      mockHttpService.getChapterList.mockRejectedValue(new Error('Network error'));
+      mockHttpService.getChapterList.mockRejectedValue(
+        new Error('Network error')
+      );
 
       extractor
         .setHttp(mockHttpService)
@@ -325,7 +341,9 @@ describe('ExtractNettruyenImpl', () => {
 
   describe('individual extraction methods', () => {
     beforeEach(() => {
-      extractor.setHtmlContent(mockHtmlContent).setUrl('https://example.com/comic/test-comic');
+      extractor
+        .setHtmlContent(mockHtmlContent)
+        .setUrl('https://example.com/comic/test-comic');
     });
 
     describe('extractSlug', () => {
@@ -335,10 +353,13 @@ describe('ExtractNettruyenImpl', () => {
       });
 
       it('should throw error when slug is not found', () => {
-        const htmlWithoutSlug = '<html><script>var gOpts = {}; gOpts.comicId = "12345";</script></html>';
+        const htmlWithoutSlug =
+          '<html><script>var gOpts = {}; gOpts.comicId = "12345";</script></html>';
         extractor.setHtmlContent(htmlWithoutSlug);
 
-        expect(() => extractor['extractSlug']()).toThrow('slug is not found !!');
+        expect(() => extractor['extractSlug']()).toThrow(
+          'slug is not found !!'
+        );
       });
 
       it('should handle multiple script tags and find the right one', () => {
@@ -363,14 +384,18 @@ describe('ExtractNettruyenImpl', () => {
       });
 
       it('should throw error when title is not found', () => {
-        const htmlWithoutTitle = '<html><script>var gOpts = {}; gOpts.comicId = "12345";</script></html>';
+        const htmlWithoutTitle =
+          '<html><script>var gOpts = {}; gOpts.comicId = "12345";</script></html>';
         extractor.setHtmlContent(htmlWithoutTitle);
 
-        expect(() => extractor['extractTitle']()).toThrow('Header is not found !!');
+        expect(() => extractor['extractTitle']()).toThrow(
+          'Header is not found !!'
+        );
       });
 
       it('should handle title with special characters', () => {
-        const htmlWithSpecialTitle = '<html><script>var gOpts = {}; gOpts.comicName = "Tên Truyện Đặc Biệt";</script></html>';
+        const htmlWithSpecialTitle =
+          '<html><script>var gOpts = {}; gOpts.comicName = "Tên Truyện Đặc Biệt";</script></html>';
         extractor.setHtmlContent(htmlWithSpecialTitle);
 
         const result = extractor['extractTitle']();
@@ -385,12 +410,17 @@ describe('ExtractNettruyenImpl', () => {
       });
 
       it('should throw error when ID is not found', () => {
-        const htmlWithoutId = '<html><script>var gOpts = {}; gOpts.comicSlug = "test";</script></html>';
+        const htmlWithoutId =
+          '<html><script>var gOpts = {}; gOpts.comicSlug = "test";</script></html>';
         extractor.setHtmlContent(htmlWithoutId);
 
-        expect(() => extractor['extractId']()).toThrow('comicId is not found !!');
-      });      it('should handle numeric ID correctly', () => {
-        const htmlWithNumericId = '<html><script>var gOpts = {}; gOpts.comicId = 67890;</script></html>';
+        expect(() => extractor['extractId']()).toThrow(
+          'comicId is not found !!'
+        );
+      });
+      it('should handle numeric ID correctly', () => {
+        const htmlWithNumericId =
+          '<html><script>var gOpts = {}; gOpts.comicId = 67890;</script></html>';
         extractor.setHtmlContent(htmlWithNumericId);
 
         const result = extractor['extractId']();
@@ -405,10 +435,13 @@ describe('ExtractNettruyenImpl', () => {
       });
 
       it('should throw error when thumb is not found', () => {
-        const htmlWithoutThumb = '<html><body><div class="detail-info"></div></body></html>';
+        const htmlWithoutThumb =
+          '<html><body><div class="detail-info"></div></body></html>';
         extractor.setHtmlContent(htmlWithoutThumb);
 
-        expect(() => extractor['extractThumb']()).toThrow('Not found thumb url !!');
+        expect(() => extractor['extractThumb']()).toThrow(
+          'Not found thumb url !!'
+        );
       });
 
       it('should handle img with src attribute instead of data-src', () => {
@@ -448,17 +481,19 @@ describe('ExtractNettruyenImpl', () => {
               {
                 chapter_num: 10,
                 chapter_slug: 'chapter-10',
-              }
-            ]
-          }
+              },
+            ],
+          },
         };
 
         mockHttpService.getChapterList.mockResolvedValue(mockChapterResponse);
         extractor.setHttp(mockHttpService);
-      });      it('should extract chapters with correct URLs and numbers', async () => {
+      });
+      it('should extract chapters with correct URLs and numbers', async () => {
         // Set up the extractor with all necessary data
-        extractor.setHtmlContent(mockHtmlContent)
-                 .setUrl('https://example.com/comic/test-comic');
+        extractor
+          .setHtmlContent(mockHtmlContent)
+          .setUrl('https://example.com/comic/test-comic');
 
         // Manually set the properties that would be set during extract()
         extractor['domain'] = 'https://example.com';
@@ -469,16 +504,16 @@ describe('ExtractNettruyenImpl', () => {
         expect(result).toEqual([
           {
             href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-1',
-            chapterNumber: '1'
+            chapterNumber: '1',
           },
           {
             href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-2',
-            chapterNumber: '2'
+            chapterNumber: '2',
           },
           {
             href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-10',
-            chapterNumber: '10'
-          }
+            chapterNumber: '10',
+          },
         ]);
       });
 
@@ -497,48 +532,57 @@ describe('ExtractNettruyenImpl', () => {
               {
                 chapter_num: 1.5,
                 chapter_slug: 'chapter-1-5',
-              }
-            ]
-          }
+              },
+            ],
+          },
         };
         mockHttpService.getChapterList.mockResolvedValue(chapterWithDecimals);
 
         const result = await extractor['extractChapter']();
         expect(result[0].chapterNumber).toBe('1.5');
       });
-    });    describe('validateInput', () => {
+    });
+    describe('validateInput', () => {
       beforeEach(() => {
         // Reset extractor for each validateInput test
         extractor = new ExtractNettruyenImpl();
       });
 
       it('should validate successfully when all inputs are present', () => {
-        extractor.setHttp(mockHttpService)
-                 .setHtmlContent(mockHtmlContent)
-                 .setUrl('https://example.com/comic/test');
+        extractor
+          .setHttp(mockHttpService)
+          .setHtmlContent(mockHtmlContent)
+          .setUrl('https://example.com/comic/test');
 
         expect(() => extractor['validateInput']()).not.toThrow();
       });
 
       it('should throw error when HTTP service is missing', () => {
-        extractor.setHtmlContent(mockHtmlContent)
-                 .setUrl('https://example.com/comic/test');
+        extractor
+          .setHtmlContent(mockHtmlContent)
+          .setUrl('https://example.com/comic/test');
 
-        expect(() => extractor['validateInput']()).toThrow('Missing HTTP Service');
+        expect(() => extractor['validateInput']()).toThrow(
+          'Missing HTTP Service'
+        );
       });
 
       it('should throw error when HTML content is missing', () => {
-        extractor.setHttp(mockHttpService)
-                 .setUrl('https://example.com/comic/test');
+        extractor
+          .setHttp(mockHttpService)
+          .setUrl('https://example.com/comic/test');
 
-        expect(() => extractor['validateInput']()).toThrow('Missing Html content');
+        expect(() => extractor['validateInput']()).toThrow(
+          'Missing Html content'
+        );
       });
 
       it('should throw error when URL is missing', () => {
-        extractor.setHttp(mockHttpService)
-                 .setHtmlContent(mockHtmlContent);
+        extractor.setHttp(mockHttpService).setHtmlContent(mockHtmlContent);
 
-        expect(() => extractor['validateInput']()).toThrow('Missing URL content');
+        expect(() => extractor['validateInput']()).toThrow(
+          'Missing URL content'
+        );
       });
     });
   });
@@ -556,9 +600,9 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 2,
               chapter_slug: 'chapter-2',
-            }
-          ]
-        }
+            },
+          ],
+        },
       };
 
       mockHttpService.getChapterList.mockResolvedValue(mockChapterResponse);
@@ -751,9 +795,9 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 3,
               chapter_slug: 'custom-chapter-3',
-            }
-          ]
-        }
+            },
+          ],
+        },
       };
 
       mockHttpService.getChapterList.mockResolvedValue(customChapterResponse);
@@ -776,9 +820,9 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 99,
               chapter_slug: 'special-chapter-slug',
-            }
-          ]
-        }
+            },
+          ],
+        },
       };
 
       mockHttpService.getChapterList.mockResolvedValue(specialChapterResponse);
@@ -789,7 +833,9 @@ describe('ExtractNettruyenImpl', () => {
         .setUrl('https://example.com/comic/test-comic');
 
       const result = await extractor.extract();
-      expect(result.chapters[0].href).toBe('https://example.com//truyen-tranh/test-comic-slug/special-chapter-slug');
+      expect(result.chapters[0].href).toBe(
+        'https://example.com//truyen-tranh/test-comic-slug/special-chapter-slug'
+      );
     });
 
     it('should test validateInput method through missing http', async () => {
@@ -798,16 +844,18 @@ describe('ExtractNettruyenImpl', () => {
         .setHtmlContent(mockHtmlContent)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(newExtractor.extract()).rejects.toThrow('Missing HTTP Service');
+      await expect(newExtractor.extract()).rejects.toThrow(
+        'Missing HTTP Service'
+      );
     });
 
     it('should test validateInput method through missing url', async () => {
       const newExtractor = new ExtractNettruyenImpl();
-      newExtractor
-        .setHttp(mockHttpService)
-        .setHtmlContent(mockHtmlContent);
+      newExtractor.setHttp(mockHttpService).setHtmlContent(mockHtmlContent);
 
-      await expect(newExtractor.extract()).rejects.toThrow('Missing URL content');
+      await expect(newExtractor.extract()).rejects.toThrow(
+        'Missing URL content'
+      );
     });
 
     it('should test validateInput method through missing html', async () => {
@@ -816,7 +864,9 @@ describe('ExtractNettruyenImpl', () => {
         .setHttp(mockHttpService)
         .setUrl('https://example.com/comic/test-comic');
 
-      await expect(newExtractor.extract()).rejects.toThrow('Missing Html content');
+      await expect(newExtractor.extract()).rejects.toThrow(
+        'Missing Html content'
+      );
     });
 
     it('should test domain extraction from URL', async () => {
@@ -827,7 +877,8 @@ describe('ExtractNettruyenImpl', () => {
 
       const result = await extractor.extract();
       expect(result.domain).toBe('https://test-domain.com');
-    });    it('should test complex script parsing with extra whitespace', async () => {
+    });
+    it('should test complex script parsing with extra whitespace', async () => {
       const htmlWithWhitespace = `
         <html>
           <head>

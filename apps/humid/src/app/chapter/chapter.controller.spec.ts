@@ -6,7 +6,8 @@ import { ResponseMapper } from '../utils/response-mapper';
 import { CrawlingStatus } from '../common';
 import { ChapterPlainObject } from '../models/types/chapter-plain-object';
 
-describe('ChapterController', () => {  let controller: ChapterController;
+describe('ChapterController', () => {
+  let controller: ChapterController;
 
   const mockChapterService = {
     getDetail: jest.fn(),
@@ -22,7 +23,8 @@ describe('ChapterController', () => {  let controller: ChapterController;
     position: 1,
     crawlStatus: CrawlingStatus.READY_FOR_CRAWL,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),    images: [
+    updatedAt: new Date().toISOString(),
+    images: [
       {
         id: 1,
         fileName: 'image1.jpg',
@@ -74,7 +76,8 @@ describe('ChapterController', () => {  let controller: ChapterController;
           useValue: mockChapterService,
         },
       ],
-    }).compile();    controller = module.get<ChapterController>(ChapterController);
+    }).compile();
+    controller = module.get<ChapterController>(ChapterController);
   });
 
   afterEach(() => {
@@ -220,7 +223,7 @@ describe('ChapterController', () => {  let controller: ChapterController;
       );
 
       // Act
-      const result = await controller.getChaptersByComicId(comicId);      // Assert
+      const result = await controller.getChaptersByComicId(comicId); // Assert
       expect(result.data).toHaveLength(3);
       expect(result.data[0].crawlStatus).toBe(CrawlingStatus.READY_FOR_CRAWL);
       expect(result.data[1].crawlStatus).toBe(CrawlingStatus.ON_CRAWL);

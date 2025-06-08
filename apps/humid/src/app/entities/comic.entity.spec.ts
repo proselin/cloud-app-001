@@ -47,7 +47,9 @@ jest.mock('../common/entity/common.entity', () => {
     createdAt!: Date | string;
     updatedAt!: Date | string;
 
-    static async toJSON(entity: MockComicEntity | MockChapterEntity | MockImageEntity) {
+    static async toJSON(
+      entity: MockComicEntity | MockChapterEntity | MockImageEntity
+    ) {
       if (!entity) throw new Error('Entity is not common');
       return {
         id: entity.id,
@@ -141,7 +143,9 @@ describe('ComicEntity', () => {
   });
   describe('toJSONWithoutChapter', () => {
     it('should convert entity to JSON without chapters', async () => {
-      const result = await ComicEntity.toJSONWithoutChapter(mockComicEntity as unknown as ComicEntity);
+      const result = await ComicEntity.toJSONWithoutChapter(
+        mockComicEntity as unknown as ComicEntity
+      );
 
       expect(result).toHaveProperty('id', 1);
       expect(result).toHaveProperty('title', 'Test Comic');
@@ -163,16 +167,21 @@ describe('ComicEntity', () => {
         thumbImage: null,
       };
 
-      const result = await ComicEntity.toJSONWithoutChapter(entityWithoutThumb as unknown as ComicEntity);
+      const result = await ComicEntity.toJSONWithoutChapter(
+        entityWithoutThumb as unknown as ComicEntity
+      );
 
       expect(result.thumbImage).toBeNull();
-    });    it('should handle entity with undefined title', async () => {
+    });
+    it('should handle entity with undefined title', async () => {
       const entityWithUndefinedTitle = {
         ...mockComicEntity,
         title: undefined as unknown as string,
       };
 
-      const result = await ComicEntity.toJSONWithoutChapter(entityWithUndefinedTitle as unknown as ComicEntity);
+      const result = await ComicEntity.toJSONWithoutChapter(
+        entityWithUndefinedTitle as unknown as ComicEntity
+      );
 
       expect(result.title).toBeUndefined();
     });
@@ -183,7 +192,9 @@ describe('ComicEntity', () => {
         description: undefined as unknown as string,
       };
 
-      const result = await ComicEntity.toJSONWithoutChapter(entityWithUndefinedDescription as unknown as ComicEntity);
+      const result = await ComicEntity.toJSONWithoutChapter(
+        entityWithUndefinedDescription as unknown as ComicEntity
+      );
 
       expect(result.description).toBeUndefined();
     });
@@ -194,14 +205,18 @@ describe('ComicEntity', () => {
         status: undefined as unknown as string,
       };
 
-      const result = await ComicEntity.toJSONWithoutChapter(entityWithUndefinedStatus as unknown as ComicEntity);
+      const result = await ComicEntity.toJSONWithoutChapter(
+        entityWithUndefinedStatus as unknown as ComicEntity
+      );
 
       expect(result.status).toBeUndefined();
     });
   });
   describe('toJSON', () => {
     it('should convert entity to full JSON with chapters', async () => {
-      const result = await ComicEntity.toJSON(mockComicEntity as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        mockComicEntity as unknown as ComicEntity
+      );
 
       expect(result).toHaveProperty('id', 1);
       expect(result).toHaveProperty('title', 'Test Comic');
@@ -232,7 +247,9 @@ describe('ComicEntity', () => {
         chapters: Promise.resolve([mockChapterEntity, secondChapter]),
       };
 
-      const result = await ComicEntity.toJSON(entityWithMultipleChapters as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        entityWithMultipleChapters as unknown as ComicEntity
+      );
 
       expect(result.chapters).toHaveLength(2);
       expect(result.chapters[0]).toHaveProperty('id', 1);
@@ -245,7 +262,9 @@ describe('ComicEntity', () => {
         chapters: Promise.resolve([]),
       };
 
-      const result = await ComicEntity.toJSON(entityWithNoChapters as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        entityWithNoChapters as unknown as ComicEntity
+      );
 
       expect(result.chapters).toEqual([]);
     });
@@ -256,7 +275,9 @@ describe('ComicEntity', () => {
         thumbImage: null,
       };
 
-      const result = await ComicEntity.toJSON(entityWithoutThumb as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        entityWithoutThumb as unknown as ComicEntity
+      );
 
       expect(result.thumbImage).toBeNull();
     });
@@ -267,7 +288,9 @@ describe('ComicEntity', () => {
         title: undefined as unknown as string,
       };
 
-      const result = await ComicEntity.toJSON(entityWithUndefinedProps as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        entityWithUndefinedProps as unknown as ComicEntity
+      );
 
       expect(result.title).toBeUndefined();
     });
@@ -278,7 +301,9 @@ describe('ComicEntity', () => {
         description: undefined as unknown as string,
       };
 
-      const result = await ComicEntity.toJSON(entityWithUndefinedProps as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        entityWithUndefinedProps as unknown as ComicEntity
+      );
 
       expect(result.description).toBeUndefined();
     });
@@ -289,7 +314,9 @@ describe('ComicEntity', () => {
         status: undefined as unknown as string,
       };
 
-      const result = await ComicEntity.toJSON(entityWithUndefinedProps as unknown as ComicEntity);
+      const result = await ComicEntity.toJSON(
+        entityWithUndefinedProps as unknown as ComicEntity
+      );
 
       expect(result.status).toBeUndefined();
     });

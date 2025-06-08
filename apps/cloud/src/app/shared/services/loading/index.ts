@@ -1,4 +1,1 @@
-export {LoadingGlobalService} from "./loading-global.service"
-
-
-
+export { LoadingGlobalService } from './loading-global.service';

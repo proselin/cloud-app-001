@@ -7,7 +7,7 @@ import {
   OnChanges,
   SecurityContext,
   signal,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -21,7 +21,7 @@ import { MimeTypes } from '../../../common/variables/mimetype';
   imports: [NgOptimizedImage],
   templateUrl: './image.component.html',
   styleUrl: './image.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImageComponent extends BaseComponent implements OnChanges {
   // -----------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ export class ImageComponent extends BaseComponent implements OnChanges {
   /**
    * Source of image
    */
-  @Input({ required: true  })
+  @Input({ required: true })
   fileName?: string;
 
   @Input()
@@ -67,9 +67,8 @@ export class ImageComponent extends BaseComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     // Load File match with filename
     if ('fileName' in changes) {
-
-      if(!this.fileName) {
-        this.bufferSource.set("")
+      if (!this.fileName) {
+        this.bufferSource.set('');
       } else {
         this.humidIpcService.getImageFile(this.fileName).subscribe({
           next: (result) => {
@@ -83,7 +82,6 @@ export class ImageComponent extends BaseComponent implements OnChanges {
           },
         });
       }
-
     }
   }
 }

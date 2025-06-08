@@ -16,11 +16,19 @@ export class ResponseMapper<T> {
     this.data = data;
   }
 
-  static success<T>(data: T, message = 'Success', statusCode = 200): ResponseMapper<T> {
+  static success<T>(
+    data: T,
+    message = 'Success',
+    statusCode = 200
+  ): ResponseMapper<T> {
     return new ResponseMapper<T>(statusCode, message, data);
   }
 
-  static error<T>(message: string, statusCode = 400, error: T): ResponseMapper<T> {
+  static error<T>(
+    message: string,
+    statusCode = 400,
+    error: T
+  ): ResponseMapper<T> {
     return new ResponseMapper<T>(statusCode, message, error);
   }
 }

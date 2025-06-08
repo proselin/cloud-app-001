@@ -45,7 +45,7 @@ jobs:
         run: npx nx lint ${{ env.PROJECT_NAME }}
 
       - name: 📝 Format check
-        run: npx prettier --check "apps/${{ env.PROJECT_NAME }}/**/*.{ts,js}" --ignore-path .gitignore
+        run: npx nx format --check "apps/${{ env.PROJECT_NAME }}/**/*.{ts,js}" --ignore-path .gitignore
 
       - name: 🧪 Run unit tests
         run: npx nx test ${{ env.PROJECT_NAME }} --configuration=ci --maxWorkers=2

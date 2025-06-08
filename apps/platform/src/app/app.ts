@@ -13,7 +13,7 @@ export default class App {
   static BrowserWindow;
 
   //Services
-  static AppHumid: HumidServiceProcess
+  static AppHumid: HumidServiceProcess;
 
   public static isDevelopmentMode() {
     const isEnvironmentSet: boolean = 'ELECTRON_IS_DEV' in process.env;
@@ -77,7 +77,7 @@ export default class App {
         contextIsolation: true,
         backgroundThrottling: false,
         preload: join(__dirname, 'main.preload.js'),
-        sandbox: true
+        sandbox: true,
       },
     });
     // App.mainWindow.setMenu(null);
@@ -110,7 +110,11 @@ export default class App {
     if (!App.application.isPackaged) {
       App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
     } else {
-      App.mainWindow.loadURL(pathToFileURL( join(__dirname, '..', rendererAppName,'browser', 'index.html')).toString());
+      App.mainWindow.loadURL(
+        pathToFileURL(
+          join(__dirname, '..', rendererAppName, 'browser', 'index.html')
+        ).toString()
+      );
     }
   }
 

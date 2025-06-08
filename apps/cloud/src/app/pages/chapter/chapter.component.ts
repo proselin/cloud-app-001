@@ -6,9 +6,7 @@ import { BasePagesComponent } from '../../common/components';
   imports: [],
   templateUrl: './chapter.component.html',
   styleUrl: './chapter.component.scss',
-  standalone : true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChapterComponent extends BasePagesComponent {
-
-}
+export class ChapterComponent extends BasePagesComponent {}

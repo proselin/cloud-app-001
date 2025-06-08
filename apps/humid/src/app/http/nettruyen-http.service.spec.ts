@@ -124,7 +124,9 @@ describe('NettruyenHttpService', () => {
 
       (httpService.get as jest.Mock).mockReturnValue(throwError(() => error));
 
-      await expect(service.getImages(url, domain)).rejects.toThrow('Image fetch failed');
+      await expect(service.getImages(url, domain)).rejects.toThrow(
+        'Image fetch failed'
+      );
     });
   });
 
@@ -160,7 +162,9 @@ describe('NettruyenHttpService', () => {
         statusText: 'OK',
         headers: {},
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        config: { url: `${domain}/Comic/Services/ComicService.asmx/ChapterList` } as any,
+        config: {
+          url: `${domain}/Comic/Services/ComicService.asmx/ChapterList`,
+        } as any,
       };
 
       (httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
@@ -192,7 +196,9 @@ describe('NettruyenHttpService', () => {
 
       (httpService.get as jest.Mock).mockReturnValue(throwError(() => error));
 
-      await expect(service.getChapterList(domain, slug, comicId)).rejects.toThrow('Chapter list fetch failed');
+      await expect(
+        service.getChapterList(domain, slug, comicId)
+      ).rejects.toThrow('Chapter list fetch failed');
     });
 
     it('should log the correct URL when fetching chapter list', async () => {
@@ -353,7 +359,9 @@ describe('NettruyenHttpService', () => {
 
       (httpService.get as jest.Mock).mockReturnValue(throwError(() => error));
 
-      await expect(service.suggestSearch(query, domain)).rejects.toThrow('Search request failed');
+      await expect(service.suggestSearch(query, domain)).rejects.toThrow(
+        'Search request failed'
+      );
     });
 
     it('should log the correct URL when searching', async () => {
@@ -409,7 +417,12 @@ describe('NettruyenHttpService', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].genres).toEqual([
-        'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Romance'
+        'Action',
+        'Adventure',
+        'Comedy',
+        'Drama',
+        'Fantasy',
+        'Romance',
       ]);
     });
   });
@@ -490,8 +503,8 @@ describe('NettruyenHttpService', () => {
             reported_at: '',
             cdn_sv: 1,
             image_type: 'jpg',
-          }
-        ]
+          },
+        ],
       };
       const mockResponse: AxiosResponse = {
         data: mockChapterData,
@@ -499,7 +512,9 @@ describe('NettruyenHttpService', () => {
         statusText: 'OK',
         headers: {},
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        config: { url: `${domain}/Comic/Services/ComicService.asmx/ChapterList` } as any,
+        config: {
+          url: `${domain}/Comic/Services/ComicService.asmx/ChapterList`,
+        } as any,
       };
 
       (httpService.get as jest.Mock).mockReturnValue(of(mockResponse));

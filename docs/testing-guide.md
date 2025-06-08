@@ -47,6 +47,7 @@ apps/humid/src/
 ### Local Development
 
 #### Using npm scripts:
+
 ```bash
 # Run all tests
 npm run test:humid
@@ -62,6 +63,7 @@ npm run test:humid:ci
 ```
 
 #### Using Nx directly:
+
 ```bash
 # Basic test run
 npx nx test humid
@@ -77,6 +79,7 @@ npx nx test humid --testNamePattern="ChapterController"
 ```
 
 #### Using custom scripts:
+
 ```bash
 # PowerShell (Windows)
 .\scripts\test-humid.ps1
@@ -100,6 +103,7 @@ npx nx test humid --testNamePattern="ChapterController"
 The project includes two CI/CD workflows:
 
 ### 1. Code Quality Check (`.github/workflows/code-quality.yml`)
+
 - **Triggers**: Push/PR to main branches
 - **Scope**: All projects (humid, cloud)
 - **Steps**:
@@ -109,48 +113,59 @@ The project includes two CI/CD workflows:
   - Optional cloud tests
 
 ### 2. Humid-Specific Pipeline (`.github/workflows/humid-ci.yml`)
+
 - **Triggers**: Changes to humid app or shared libs
 - **Comprehensive pipeline**:
 
 #### 🧪 Test & Coverage Job
+
 - Unit tests with Jest
 - Coverage report generation
 - Coverage comment on PRs
 - Artifact upload
 
 #### 🏗️ Build & Package Job
+
 - Production build
 - Artifact archiving
 
 #### 🔗 Integration Tests Job
+
 - Database service setup
 - Integration test execution
 - Environment-specific testing
 
 #### 🔒 Security Scan Job
+
 - Dependency audit
 - Lint security checks
 - Security report generation
 
 #### 🚀 Deployment Jobs
+
 - **Staging**: Deploy on `develop` branch
 - **Production**: Deploy on `main`/`master` branch
 
 ## 📊 Coverage Reports
 
 ### Local Coverage
+
 Coverage reports are generated in `coverage/apps/humid/`:
+
 - **HTML Report**: `coverage/apps/humid/lcov-report/index.html`
 - **JSON Summary**: `coverage/apps/humid/coverage-summary.json`
 - **LCOV**: `coverage/apps/humid/lcov.info`
 
 ### CI Coverage
+
 - Reports uploaded as GitHub artifacts
 - Coverage comments on pull requests
 - **Threshold**: 80% line coverage recommended
 
 ### Coverage Metrics
+
 The pipeline tracks:
+
 - **Lines**: Executed code lines
 - **Statements**: JavaScript statements
 - **Functions**: Function coverage
@@ -159,6 +174,7 @@ The pipeline tracks:
 ## 🎯 Testing Best Practices
 
 ### 1. Test Organization
+
 ```typescript
 // Group related tests
 describe('ChapterController', () => {
@@ -166,7 +182,7 @@ describe('ChapterController', () => {
     it('should create a new chapter', async () => {
       // Test implementation
     });
-    
+
     it('should validate required fields', async () => {
       // Test implementation
     });
@@ -175,6 +191,7 @@ describe('ChapterController', () => {
 ```
 
 ### 2. Mock External Dependencies
+
 ```typescript
 // Mock HTTP services
 jest.mock('../http/nettruyen-http.service');
@@ -184,6 +201,7 @@ jest.mock('fs/promises');
 ```
 
 ### 3. Use Descriptive Test Names
+
 ```typescript
 // ✅ Good
 it('should return 404 when chapter not found', () => {});
@@ -193,12 +211,13 @@ it('should work', () => {});
 ```
 
 ### 4. Test Both Success and Error Cases
+
 ```typescript
 describe('crawlChapter', () => {
   it('should successfully crawl valid chapter URL', async () => {
     // Success case
   });
-  
+
   it('should throw error for invalid URL', async () => {
     // Error case
   });
@@ -206,14 +225,15 @@ describe('crawlChapter', () => {
 ```
 
 ### 5. Use Setup and Cleanup
+
 ```typescript
 describe('ChapterService', () => {
   let service: ChapterService;
-  
+
   beforeEach(async () => {
     // Setup test module
   });
-  
+
   afterEach(() => {
     // Cleanup mocks
     jest.clearAllMocks();
@@ -224,6 +244,7 @@ describe('ChapterService', () => {
 ## 🔧 Configuration
 
 ### Jest Configuration (`jest.config.ts`)
+
 ```typescript
 export default {
   displayName: 'humid',
@@ -238,7 +259,9 @@ export default {
 ```
 
 ### Coverage Thresholds
+
 To enforce coverage thresholds, add to `jest.config.ts`:
+
 ```typescript
 coverageThreshold: {
   global: {
@@ -255,18 +278,21 @@ coverageThreshold: {
 ### Common Issues
 
 1. **Tests timing out**
+
    ```bash
    # Increase timeout
    npx nx test humid --testTimeout=10000
    ```
 
 2. **Memory issues**
+
    ```bash
    # Limit workers
    npx nx test humid --maxWorkers=1
    ```
 
 3. **Mock not working**
+
    ```typescript
    // Clear mocks between tests
    afterEach(() => {
@@ -283,6 +309,7 @@ coverageThreshold: {
 ## 📝 Contributing
 
 When adding new features:
+
 1. Write tests first (TDD approach)
 2. Ensure all tests pass locally
 3. Maintain coverage above 80%

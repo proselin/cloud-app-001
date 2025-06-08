@@ -31,4 +31,3 @@ Main.initialize();
 // bootstrap app
 Main.bootstrapApp();
 Main.bootstrapAppEvents();
-

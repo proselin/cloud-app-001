@@ -1,6 +1,5 @@
 import { ChannelType } from '../../shared/models/ipc/channel.type';
 
-
 function validChannel(channelName: string) {
   if (!channelName) {
     throw new Error('Channel name is required');
@@ -18,12 +17,12 @@ function validChannel(channelName: string) {
     throw new Error('Channel name can only contain alphanumeric characters');
   }
   //eslint-disable-next-line
-  if(!(window as Record<string, any>)?.[channelName]) {
+  if (!(window as Record<string, any>)?.[channelName]) {
     throw new Error(`Channel ${channelName} does not exist`);
   }
 }
 
-export function getChannel(channelName: string): ChannelType  {
+export function getChannel(channelName: string): ChannelType {
   validChannel(channelName);
   //eslint-disable-next-line
   return (window as Record<string, any>)[channelName];

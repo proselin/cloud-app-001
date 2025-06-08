@@ -8,7 +8,12 @@
 
 <ng-template #cardDisplay let-info>
   <a [routerLink]="info.url" class="card">
-    <img [ngSrc]="info.url" alt="{{info.title}} Thumb Image" width="210" height="210">
+    <img
+      [ngSrc]="info.url"
+      alt="{{ info.title }} Thumb Image"
+      width="210"
+      height="210"
+    />
     <div class="info">
       <p class="title">{{ info.title }}</p>
       <p class="author">{{ info.author }}</p>
@@ -16,4 +21,8 @@
   </a>
 </ng-template>
 
-<ng-template [ngIf]="comicInfo" [ngIfThen]="cardDisplay" [ngIfElse]="loading"></ng-template>
+<ng-template
+  [ngIf]="comicInfo"
+  [ngIfThen]="cardDisplay"
+  [ngIfElse]="loading"
+></ng-template>

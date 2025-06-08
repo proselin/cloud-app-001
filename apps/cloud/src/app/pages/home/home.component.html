@@ -12,24 +12,24 @@
 
 <nz-divider nzOrientation="left" nzText="Vertical"></nz-divider>
 <div class="container">
-    <nz-list nzGrid>
-      <div nz-row [nzGutter]="16">
-        @for (item of comics(); track item) {
-          <div nz-col [nzSpan]="6">
-            <nz-list-item>
-              <nz-card [nzTitle]="item.title">
-                <div>{{item.chapterCount}}</div>
-                <cloud-image [fileName]="item.thumbImage?.fileName"></cloud-image>
-              </nz-card>
-            </nz-list-item>
-          </div>
-        }
+  <nz-list nzGrid>
+    <div nz-row [nzGutter]="16">
+      @for (item of comics(); track item) {
+      <div nz-col [nzSpan]="6">
+        <nz-list-item>
+          <nz-card [nzTitle]="item.title">
+            <div>{{ item.chapterCount }}</div>
+            <cloud-image [fileName]="item.thumbImage?.fileName"></cloud-image>
+          </nz-card>
+        </nz-list-item>
       </div>
-    </nz-list>
-<!--    @for (item of [1,2,3,4]; track item) {-->
-<!--      <div nz-col nzSpan="4">-->
-<!--        <cloud-comic-card [comicInfo]="mockComicInfo"></cloud-comic-card>-->
-<!--      </div>-->
-<!--    }-->
-<!--  </div>-->
+      }
+    </div>
+  </nz-list>
+  <!--    @for (item of [1,2,3,4]; track item) {-->
+  <!--      <div nz-col nzSpan="4">-->
+  <!--        <cloud-comic-card [comicInfo]="mockComicInfo"></cloud-comic-card>-->
+  <!--      </div>-->
+  <!--    }-->
+  <!--  </div>-->
 </div>

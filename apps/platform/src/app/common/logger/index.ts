@@ -1,1 +1,1 @@
-export {PlatformLogger} from './logger';
+export { PlatformLogger } from './logger';

@@ -64,6 +64,8 @@ export class ChapterService {
       where: { comic: { id: comicId }, crawlStatus: CrawlingStatus.DONE },
       order: { position: 'ASC' },
     });
-    return Promise.all(chapters.map((chapter) => ChapterEntity.toJSONWithoutImage(chapter)));
+    return Promise.all(
+      chapters.map((chapter) => ChapterEntity.toJSONWithoutImage(chapter))
+    );
   }
 }

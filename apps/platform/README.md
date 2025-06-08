@@ -53,16 +53,16 @@ src/
 
 ## 🛠️ Technology Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Framework** | Electron | Desktop application framework |
-| **Language** | TypeScript | Type-safe development |
-| **Frontend** | Angular (Cloud app) | Web UI integration |
-| **Backend** | NestJS (Humid app) | API service integration |
-| **IPC** | Electron IPC | Inter-process communication |
-| **Packaging** | electron-builder | Application packaging |
-| **Auto-Updater** | electron-updater | Automatic updates |
-| **Testing** | Jest | Unit testing |
+| Component        | Technology          | Purpose                       |
+| ---------------- | ------------------- | ----------------------------- |
+| **Framework**    | Electron            | Desktop application framework |
+| **Language**     | TypeScript          | Type-safe development         |
+| **Frontend**     | Angular (Cloud app) | Web UI integration            |
+| **Backend**      | NestJS (Humid app)  | API service integration       |
+| **IPC**          | Electron IPC        | Inter-process communication   |
+| **Packaging**    | electron-builder    | Application packaging         |
+| **Auto-Updater** | electron-updater    | Automatic updates             |
+| **Testing**      | Jest                | Unit testing                  |
 
 ## 🔧 Main Process Architecture
 
@@ -101,7 +101,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   Main.bootstrapAppEvents();
-  
+
   app.on('ready', () => {
     Main.bootstrapApp();
   });
@@ -142,20 +142,15 @@ export default class App {
     const template = [
       {
         label: 'File',
-        submenu: [
-          { label: 'New Comic', accelerator: 'CmdOrCtrl+N' },
-          { label: 'Open', accelerator: 'CmdOrCtrl+O' },
-          { type: 'separator' },
-          { label: 'Exit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }
-        ]
+        submenu: [{ label: 'New Comic', accelerator: 'CmdOrCtrl+N' }, { label: 'Open', accelerator: 'CmdOrCtrl+O' }, { type: 'separator' }, { label: 'Exit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }],
       },
       {
         label: 'View',
         submenu: [
           { label: 'Reload', accelerator: 'CmdOrCtrl+R' },
-          { label: 'Toggle DevTools', accelerator: 'F12' }
-        ]
-      }
+          { label: 'Toggle DevTools', accelerator: 'F12' },
+        ],
+      },
     ];
 
     const menu = Menu.buildFromTemplate(template);
@@ -190,11 +185,11 @@ export class MainWindow {
         contextIsolation: true,
         enableRemoteModule: false,
         allowRunningInsecureContent: false,
-        preload: join(__dirname, 'preload.js')
+        preload: join(__dirname, 'preload.js'),
       },
       icon: join(__dirname, '../assets/icon.png'),
       show: false, // Don't show until ready
-      titleBarStyle: 'default'
+      titleBarStyle: 'default',
     });
 
     // Load the Angular application
@@ -208,7 +203,7 @@ export class MainWindow {
     // Show window when ready
     win.once('ready-to-show', () => {
       win.show();
-      
+
       if (process.env['NODE_ENV'] === 'development') {
         win.webContents.openDevTools();
       }
@@ -232,22 +227,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
   searchComics: (query: string) => ipcRenderer.invoke('ipc/humid/comic-search', query),
   getComic: (id: number) => ipcRenderer.invoke('ipc/humid/get-comic', id),
   crawlComic: (url: string) => ipcRenderer.invoke('ipc/humid/pull-comic', url),
-  
+
   // Image management
   getImage: (path: string) => ipcRenderer.invoke('ipc/humid/get-image', path),
-  
+
   // Window controls
   minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
   maximizeWindow: () => ipcRenderer.invoke('window-maximize'),
   closeWindow: () => ipcRenderer.invoke('window-close'),
-  
+
   // Application events
   onUpdateAvailable: (callback: () => void) => {
     ipcRenderer.on('update-available', callback);
   },
   onUpdateDownloaded: (callback: () => void) => {
     ipcRenderer.on('update-downloaded', callback);
-  }
+  },
 });
 
 // TypeScript declaration for the exposed API
@@ -368,7 +363,7 @@ export class HumidService {
       // Start the Humid backend service
       this.humidProcess = spawn('node', [this.humidPath], {
         cwd: join(__dirname, '../humid'),
-        stdio: 'pipe'
+        stdio: 'pipe',
       });
 
       this.humidProcess.stdout?.on('data', (data) => {
@@ -398,7 +393,7 @@ export class HumidService {
         return;
       } catch (error) {
         console.log(`Waiting for Humid service... (${i + 1}/${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
     throw new Error('Humid service failed to start');
@@ -406,7 +401,7 @@ export class HumidService {
 
   async searchComics(query: string): Promise<any[]> {
     const response = await axios.get(`${this.humidUrl}/api/v1/comic/suggest`, {
-      params: { q: query }
+      params: { q: query },
     });
     return response.data;
   }
@@ -422,7 +417,7 @@ export class HumidService {
 
   async getImage(path: string): Promise<string> {
     const response = await axios.get(`${this.humidUrl}/api/v1/image/${path}`, {
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
     });
     const base64 = Buffer.from(response.data).toString('base64');
     return `data:image/jpeg;base64,${base64}`;
@@ -472,6 +467,7 @@ npx nx serve platform
 ```
 
 This will:
+
 - Build the Electron application
 - Start the Humid backend service
 - Launch the Angular frontend
@@ -517,12 +513,7 @@ This creates platform-specific installers in `dist/executables/`
     "directories": {
       "output": "dist/executables"
     },
-    "files": [
-      "dist/apps/platform/**/*",
-      "dist/apps/cloud/**/*",
-      "dist/apps/humid/**/*",
-      "resources/**/*"
-    ],
+    "files": ["dist/apps/platform/**/*", "dist/apps/cloud/**/*", "dist/apps/humid/**/*", "resources/**/*"],
     "mac": {
       "category": "public.app-category.entertainment",
       "target": [
@@ -645,26 +636,28 @@ export class AutoUpdaterService {
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
-      let log_message = "Download speed: " + progressObj.bytesPerSecond;
+      let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
       log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-      log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+      log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
       console.log(log_message);
     });
 
     autoUpdater.on('update-downloaded', (info) => {
       console.log('Update downloaded');
       this.mainWindow.webContents.send('update-downloaded');
-      
-      dialog.showMessageBox(this.mainWindow, {
-        type: 'info',
-        title: 'Update ready',
-        message: 'Update downloaded. Application will restart to apply the update.',
-        buttons: ['Restart', 'Later']
-      }).then((result) => {
-        if (result.response === 0) {
-          autoUpdater.quitAndInstall();
-        }
-      });
+
+      dialog
+        .showMessageBox(this.mainWindow, {
+          type: 'info',
+          title: 'Update ready',
+          message: 'Update downloaded. Application will restart to apply the update.',
+          buttons: ['Restart', 'Later'],
+        })
+        .then((result) => {
+          if (result.response === 0) {
+            autoUpdater.quitAndInstall();
+          }
+        });
     });
   }
 
@@ -709,7 +702,7 @@ describe('App', () => {
   beforeEach(() => {
     mockApp = {
       on: jest.fn(),
-      quit: jest.fn()
+      quit: jest.fn(),
     };
     mockBrowserWindow = jest.fn();
   });
@@ -729,14 +722,14 @@ describe('App', () => {
 // Secure BrowserWindow configuration
 const secureDefaults = {
   webPreferences: {
-    nodeIntegration: false,          // Don't expose Node.js APIs
-    contextIsolation: true,          // Isolate context
-    enableRemoteModule: false,       // Disable remote module
+    nodeIntegration: false, // Don't expose Node.js APIs
+    contextIsolation: true, // Isolate context
+    enableRemoteModule: false, // Disable remote module
     allowRunningInsecureContent: false, // Don't allow insecure content
-    webSecurity: true,               // Enable web security
-    sandbox: true,                   // Enable sandbox
-    preload: join(__dirname, 'preload.js') // Use preload script
-  }
+    webSecurity: true, // Enable web security
+    sandbox: true, // Enable sandbox
+    preload: join(__dirname, 'preload.js'), // Use preload script
+  },
 };
 ```
 

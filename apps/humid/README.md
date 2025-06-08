@@ -49,15 +49,15 @@ src/
 
 ## 🛠️ Technology Stack
 
-| Component | Technology | Version | Purpose |
-|-----------|------------|---------|---------|
-| **Framework** | NestJS | 11.0.17 | REST API framework |
-| **Database** | TypeORM + SQLite | 0.3.21 | Data persistence |
-| **Web Scraping** | Cheerio + Axios | Latest | Content extraction |
-| **Logging** | Winston + nest-winston | Latest | Application logging |
-| **Documentation** | Swagger/OpenAPI | Latest | API documentation |
-| **Validation** | nestjs-zod | Latest | Request validation |
-| **Testing** | Jest | Latest | Unit & integration tests |
+| Component         | Technology             | Version | Purpose                  |
+| ----------------- | ---------------------- | ------- | ------------------------ |
+| **Framework**     | NestJS                 | 11.0.17 | REST API framework       |
+| **Database**      | TypeORM + SQLite       | 0.3.21  | Data persistence         |
+| **Web Scraping**  | Cheerio + Axios        | Latest  | Content extraction       |
+| **Logging**       | Winston + nest-winston | Latest  | Application logging      |
+| **Documentation** | Swagger/OpenAPI        | Latest  | API documentation        |
+| **Validation**    | nestjs-zod             | Latest  | Request validation       |
+| **Testing**       | Jest                   | Latest  | Unit & integration tests |
 
 ## 📊 Database Schema
 
@@ -84,7 +84,7 @@ export class ComicEntity {
   @JoinColumn()
   thumbnail: ImageEntity;
 
-  @OneToMany(() => ChapterEntity, chapter => chapter.comic)
+  @OneToMany(() => ChapterEntity, (chapter) => chapter.comic)
   chapters: ChapterEntity[];
 }
 ```
@@ -103,10 +103,10 @@ export class ChapterEntity {
   @Column({ default: 'pending' })
   crawlStatus: string;
 
-  @ManyToOne(() => ComicEntity, comic => comic.chapters)
+  @ManyToOne(() => ComicEntity, (comic) => comic.chapters)
   comic: ComicEntity;
 
-  @OneToMany(() => ImageEntity, image => image.chapter)
+  @OneToMany(() => ImageEntity, (image) => image.chapter)
   images: ImageEntity[];
 }
 ```
@@ -190,12 +190,12 @@ The application uses default configurations, but you can customize:
 export const environment = {
   production: false,
   database: {
-    path: 'resources/db/humid.db'
+    path: 'resources/db/humid.db',
   },
   logging: {
     level: 'debug',
-    dir: 'logs/Humid'
-  }
+    dir: 'logs/Humid',
+  },
 };
 ```
 
@@ -231,12 +231,12 @@ npx nx build humid
 
 ### Test Coverage Status
 
-| Metric | Coverage | Status |
-|--------|----------|--------|
-| **Statements** | 51.32% | 🟡 Needs Improvement |
-| **Branches** | 27.60% | 🔴 Low Coverage |
-| **Functions** | 36.28% | 🟡 Needs Improvement |
-| **Lines** | 50.47% | 🟡 Needs Improvement |
+| Metric         | Coverage | Status               |
+| -------------- | -------- | -------------------- |
+| **Statements** | 51.32%   | 🟡 Needs Improvement |
+| **Branches**   | 27.60%   | 🔴 Low Coverage      |
+| **Functions**  | 36.28%   | 🟡 Needs Improvement |
+| **Lines**      | 50.47%   | 🟡 Needs Improvement |
 
 ### Running Tests
 
@@ -305,8 +305,8 @@ const result = await fetch('/api/v1/crawl/by-url', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    url: 'https://www.nettruyenrr.com/truyen-tranh/comic-name'
-  })
+    url: 'https://www.nettruyenrr.com/truyen-tranh/comic-name',
+  }),
 });
 ```
 
@@ -362,7 +362,7 @@ TypeOrmModule.forRoot({
   database: 'resources/db/humid.db',
   entities: [ComicEntity, ChapterEntity, ImageEntity],
   synchronize: true, // Auto-create tables
-  logging: process.env.NODE_ENV === 'development'
+  logging: process.env.NODE_ENV === 'development',
 });
 ```
 
@@ -372,7 +372,7 @@ TypeOrmModule.forRoot({
 app.enableCors({
   origin: ['http://localhost:4200'], // Angular dev server
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
 });
 ```
 

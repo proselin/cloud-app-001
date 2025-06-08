@@ -25,9 +25,12 @@ async function handlePromiseResponse(response: Promise<any>) {
   }
 }
 
-function responseNormalize<Res = any>(response: Nullable<Res>, error: Nullable<any>) {
-    return {
-      response,
-      error
-    }
+function responseNormalize<Res = any>(
+  response: Nullable<Res>,
+  error: Nullable<any>
+) {
+  return {
+    response,
+    error,
+  };
 }

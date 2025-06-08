@@ -20,7 +20,8 @@ describe('CrawlController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CrawlController],      providers: [
+      controllers: [CrawlController],
+      providers: [
         {
           provide: NettruyenComicService,
           useValue: mockComicService,
@@ -28,7 +29,8 @@ describe('CrawlController', () => {
         {
           provide: NettruyenChapterService,
           useValue: mockChapterService,
-        },      ],
+        },
+      ],
     }).compile();
 
     controller = module.get<CrawlController>(CrawlController);
@@ -145,7 +147,9 @@ describe('CrawlController', () => {
       const mockSubject = new Subject();
       const mockObservable = mockSubject.asObservable();
 
-      mockChapterService.handleChapterByComicId.mockResolvedValue(mockObservable);
+      mockChapterService.handleChapterByComicId.mockResolvedValue(
+        mockObservable
+      );
 
       // Act
       const result = await controller.crawlComicByUrlSSE(comicId);
@@ -165,7 +169,9 @@ describe('CrawlController', () => {
       });
 
       // Assert
-      expect(mockChapterService.handleChapterByComicId).toHaveBeenCalledWith(comicId);
+      expect(mockChapterService.handleChapterByComicId).toHaveBeenCalledWith(
+        comicId
+      );
       expect(resultValue).toEqual(
         ResponseMapper.success(mockChapter, 'Comic chapter data streaming')
       );
@@ -177,7 +183,9 @@ describe('CrawlController', () => {
       const mockSubject = new Subject();
       const mockObservable = mockSubject.asObservable();
 
-      mockChapterService.handleChapterByComicId.mockResolvedValue(mockObservable);
+      mockChapterService.handleChapterByComicId.mockResolvedValue(
+        mockObservable
+      );
 
       // Act
       const result = await controller.crawlComicByUrlSSE(comicId);
@@ -185,7 +193,7 @@ describe('CrawlController', () => {
       // Simulate completing without emitting data
       setTimeout(() => {
         mockSubject.complete();
-      }, 0);      // Convert Observable to Promise to test completion
+      }, 0); // Convert Observable to Promise to test completion
       const completed = await new Promise((resolve) => {
         result.subscribe({
           next: (data) => {
@@ -198,7 +206,9 @@ describe('CrawlController', () => {
 
       // Assert
       expect(completed).toBe(true);
-      expect(mockChapterService.handleChapterByComicId).toHaveBeenCalledWith(comicId);
+      expect(mockChapterService.handleChapterByComicId).toHaveBeenCalledWith(
+        comicId
+      );
     });
 
     it('should handle errors in the SSE stream', async () => {
@@ -209,8 +219,12 @@ describe('CrawlController', () => {
       mockChapterService.handleChapterByComicId.mockRejectedValue(error);
 
       // Act & Assert
-      await expect(controller.crawlComicByUrlSSE(comicId)).rejects.toThrow(error);
-      expect(mockChapterService.handleChapterByComicId).toHaveBeenCalledWith(comicId);
+      await expect(controller.crawlComicByUrlSSE(comicId)).rejects.toThrow(
+        error
+      );
+      expect(mockChapterService.handleChapterByComicId).toHaveBeenCalledWith(
+        comicId
+      );
     });
 
     it('should handle chapter processing errors in stream', async () => {
@@ -219,7 +233,9 @@ describe('CrawlController', () => {
       const mockSubject = new Subject();
       const mockObservable = mockSubject.asObservable();
 
-      mockChapterService.handleChapterByComicId.mockResolvedValue(mockObservable);
+      mockChapterService.handleChapterByComicId.mockResolvedValue(
+        mockObservable
+      );
 
       // Act
       const result = await controller.crawlComicByUrlSSE(comicId);
@@ -228,7 +244,7 @@ describe('CrawlController', () => {
       const streamError = new Error('Chapter processing failed');
       setTimeout(() => {
         mockSubject.error(streamError);
-      }, 0);      // Convert Observable to Promise to test error handling
+      }, 0); // Convert Observable to Promise to test error handling
       const errorResult = await new Promise((resolve) => {
         result.subscribe({
           next: (data) => {

@@ -34,18 +34,18 @@ export abstract class BaseIpcService<Channel extends ChannelType> {
       tap({
         next: (response) => {
           console.log(`Receive Data api=${api as string} response=`, response);
-          if(response.error) {
+          if (response.error) {
             const error = response.error;
-            if(typeof error === 'string') {
-              this.notificationService.error("Lỗi", error)
+            if (typeof error === 'string') {
+              this.notificationService.error('Lỗi', error);
               return;
             }
-            if(typeof error === 'object' && "message" in error) {
-              this.notificationService.error("Lỗi", error.message as string)
+            if (typeof error === 'object' && 'message' in error) {
+              this.notificationService.error('Lỗi', error.message as string);
               return;
             }
           }
-        }
+        },
       })
     ) as Observable<ChannelResponse<R>>;
   }
@@ -67,7 +67,7 @@ export abstract class BaseIpcService<Channel extends ChannelType> {
         return from(apiUnknown as Promise<ChannelResponse<R>>);
       }
       if (typeof apiUnknown == 'object') {
-        if ('response' in apiUnknown && "error" in apiUnknown) {
+        if ('response' in apiUnknown && 'error' in apiUnknown) {
           return of(apiUnknown) as Observable<ChannelResponse<R>>;
         }
       }
@@ -78,5 +78,4 @@ export abstract class BaseIpcService<Channel extends ChannelType> {
     }
     return of({ error: new Error('NotFound API'), response: null });
   }
-
 }

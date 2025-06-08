@@ -1,2 +1,2 @@
 import { SettingsComponent } from './settings.component';
-export {SettingsComponent}
+export { SettingsComponent };

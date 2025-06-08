@@ -54,6 +54,7 @@ cloud-app-001/
 ## 🚀 Applications Overview
 
 ### 📱 Cloud (Angular Frontend)
+
 - **Technology**: Angular 19 with Ant Design (ng-zorro-antd)
 - **Purpose**: Modern web interface for comic browsing and management
 - **Features**:
@@ -63,6 +64,7 @@ cloud-app-001/
   - IPC communication with Electron backend
 
 ### 🔧 Humid (NestJS Backend)
+
 - **Technology**: NestJS 11 with TypeORM and SQLite
 - **Purpose**: Core API server handling comic crawling and data management
 - **Features**:
@@ -76,22 +78,27 @@ cloud-app-001/
 #### API Endpoints
 
 **Comic Management**
+
 - `GET /api/v1/comic` - List all comics
 - `GET /api/v1/comic/suggest?q={query}` - Get comic suggestions for autocomplete
 - `GET /api/v1/comic/:id` - Get comic details by ID
 
 **Chapter Management**
+
 - `GET /api/v1/chapter/:id` - Get chapter details
 - `GET /api/v1/chapter/navigation/:comicId` - Get chapter navigation for a comic
 - `GET /api/v1/chapter/by-comic/:comicId` - Get all chapters for a comic
 
 **Crawling Operations**
+
 - `POST /api/v1/crawl/by-url` - Crawl comic by URL
 
 **Static File Serving**
+
 - `GET /static/imgs/*` - Serve image files
 
 ### 🖥️ Platform (Electron Desktop)
+
 - **Technology**: Electron with TypeScript
 - **Purpose**: Cross-platform desktop application
 - **Features**:
@@ -105,63 +112,71 @@ cloud-app-001/
 The system uses SQLite with TypeORM for data persistence:
 
 ### Entities
+
 - **ComicEntity**: Core comic information (title, origin URL, chapter count, thumbnails)
 - **ChapterEntity**: Individual comic chapters with position and crawl status
 - **ImageEntity**: Image storage with file references and metadata
 
 ### Relationships
+
 - Comic → Thumbnail (One-to-One with ImageEntity)
 - Comic → Chapters (One-to-Many)
 - Chapter → Images (One-to-Many)
 
 ## 🛠️ Technology Stack
 
-| Component | Technology | Version |
-|-----------|------------|---------|
-| **Monorepo** | Nx | 20.7.2 |
-| **Frontend** | Angular | 19.2.6 |
-| **UI Library** | Ant Design (ng-zorro-antd) | 19.2.2 |
-| **Backend** | NestJS | 11.0.17 |
-| **Database** | SQLite with TypeORM | 0.3.21 |
-| **Desktop** | Electron | 33.4.9 |
-| **Web Scraping** | Cheerio + Axios | Latest |
-| **Logging** | Winston + Pino | Latest |
+| Component        | Technology                 | Version |
+| ---------------- | -------------------------- | ------- |
+| **Monorepo**     | Nx                         | 20.7.2  |
+| **Frontend**     | Angular                    | 19.2.6  |
+| **UI Library**   | Ant Design (ng-zorro-antd) | 19.2.2  |
+| **Backend**      | NestJS                     | 11.0.17 |
+| **Database**     | SQLite with TypeORM        | 0.3.21  |
+| **Desktop**      | Electron                   | 33.4.9  |
+| **Web Scraping** | Cheerio + Axios            | Latest  |
+| **Logging**      | Winston + Pino             | Latest  |
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
+
 ```powershell
 git clone <repository-url>
 cd cloud-app-001
 ```
 
 2. **Install dependencies**
+
 ```powershell
 npm install
 ```
 
 3. **Database Setup**
-The SQLite database is automatically created in `resources/db/humid.db`
+   The SQLite database is automatically created in `resources/db/humid.db`
 
 ### Development
 
 1. **Start the backend server**
+
 ```powershell
 npx nx serve humid
 ```
 
 2. **Start the Angular frontend**
+
 ```powershell
 npx nx serve cloud
 ```
 
 3. **Run the Electron desktop app**
+
 ```powershell
 npx nx serve platform
 ```
@@ -169,11 +184,13 @@ npx nx serve platform
 ### Production Build
 
 **Build all applications**
+
 ```powershell
 npm run build
 ```
 
 **Build specific application**
+
 ```powershell
 npx nx build cloud     # Angular app
 npx nx build humid     # NestJS API
@@ -183,13 +200,16 @@ npx nx build platform  # Electron app
 ## 🔧 Configuration
 
 ### Environment Variables
+
 - Development/production configurations in respective `environment.ts` files
 - Database path: `resources/db/humid.db`
 - Image storage: `resources/images/`
 - Logs: `logs/Humid/`
 
 ### API Documentation
+
 When running the humid backend, Swagger documentation is available at:
+
 ```
 http://localhost:<port>/api
 ```
@@ -203,17 +223,20 @@ http://localhost:<port>/api
 5. **API Access**: Serve comic data through RESTful endpoints
 
 ### Supported Sites
+
 - **nettruyenrr.com**: Full crawling support with chapter and image extraction
 
 ## 🧪 Testing
 
 **Run E2E tests**
+
 ```powershell
 npx nx e2e cloud-e2e     # Frontend E2E tests
 npx nx e2e humid-e2e     # Backend E2E tests
 ```
 
 **Run unit tests**
+
 ```powershell
 npx nx test cloud        # Angular unit tests
 npx nx test humid        # NestJS unit tests
@@ -223,6 +246,7 @@ npx nx test platform     # Electron unit tests
 ## 📝 Logging
 
 The system implements comprehensive logging:
+
 - **Backend**: Winston with daily rotate files
 - **Frontend**: Console logging with error notifications
 - **Electron**: Process logging for main and renderer
@@ -231,6 +255,7 @@ The system implements comprehensive logging:
 ## 🔄 IPC Communication
 
 The Electron app uses IPC for communication between processes:
+
 - **Comic Search**: `ipc/humid/comic-search`
 - **Comic Crawling**: `ipc/humid/pull-comic`
 - **Image Retrieval**: `ipc/humid/get-image`
@@ -246,6 +271,7 @@ The Electron app uses IPC for communication between processes:
 ## 📦 Deployment
 
 The workspace is configured for multiple deployment scenarios:
+
 - **Web**: Angular build for web hosting
 - **Desktop**: Electron packaging for Windows, macOS, Linux
 - **API**: NestJS build for server deployment
@@ -255,16 +281,19 @@ The workspace is configured for multiple deployment scenarios:
 ## 🔗 Nx Workspace Commands
 
 **Visualize project dependencies**
+
 ```powershell
 npx nx graph
 ```
 
 **Show available targets for a project**
+
 ```powershell
 npx nx show project cloud
 ```
 
 **Run multiple targets**
+
 ```powershell
 npx nx run-many -t build -p humid cloud platform
 ```
@@ -310,12 +339,13 @@ Nx Console is an editor extension that enriches your developer experience. It le
 
 Learn more:
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
+- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
 And join the Nx community:
+
 - [Discord](https://go.nx.dev/community)
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)

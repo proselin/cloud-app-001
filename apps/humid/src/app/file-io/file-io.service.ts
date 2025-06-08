@@ -2,7 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import fs from 'node:fs';
 import { Utils } from '../utils';
 import { ConfigService } from '@nestjs/config';
-import {resolve} from "node:path";
+import { resolve } from 'node:path';
 
 @Injectable()
 export class FileIoService {
@@ -25,7 +25,8 @@ export class FileIoService {
   }
 
   generateFileName(prefixFileName: string, contentType: string | null) {
-    if (!contentType) throw new BadRequestException('Content type must be a string');
+    if (!contentType)
+      throw new BadRequestException('Content type must be a string');
     const extension = Utils.getFileExtensionFromContentType(contentType);
     if (!extension) {
       throw new BadRequestException('Unsupported content type');

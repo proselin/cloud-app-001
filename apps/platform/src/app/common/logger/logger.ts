@@ -3,7 +3,6 @@ import { createLoggerInstant } from '@cloud/libs/logger';
 const logger = createLoggerInstant('Platform');
 
 export class PlatformLogger {
-
   log(...args: any[]) {
     //eslint-disable-next-line
     // @ts-ignore

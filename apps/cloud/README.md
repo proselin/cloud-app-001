@@ -54,16 +54,16 @@ src/
 
 ## 🛠️ Technology Stack
 
-| Component | Technology | Version | Purpose |
-|-----------|------------|---------|---------|
-| **Framework** | Angular | 19.2.6 | Frontend framework |
-| **UI Library** | ng-zorro-antd | 19.2.2 | Component library |
-| **Language** | TypeScript | Latest | Type-safe development |
-| **Styling** | SCSS + Less | Latest | Advanced styling |
-| **HTTP Client** | Angular HTTP | Built-in | API communication |
-| **Router** | Angular Router | Built-in | Client-side routing |
-| **Forms** | Angular Reactive Forms | Built-in | Form management |
-| **Testing** | Jest + Testing Library | Latest | Unit & integration tests |
+| Component       | Technology             | Version  | Purpose                  |
+| --------------- | ---------------------- | -------- | ------------------------ |
+| **Framework**   | Angular                | 19.2.6   | Frontend framework       |
+| **UI Library**  | ng-zorro-antd          | 19.2.2   | Component library        |
+| **Language**    | TypeScript             | Latest   | Type-safe development    |
+| **Styling**     | SCSS + Less            | Latest   | Advanced styling         |
+| **HTTP Client** | Angular HTTP           | Built-in | API communication        |
+| **Router**      | Angular Router         | Built-in | Client-side routing      |
+| **Forms**       | Angular Reactive Forms | Built-in | Form management          |
+| **Testing**     | Jest + Testing Library | Latest   | Unit & integration tests |
 
 ## 📱 Component Architecture
 
@@ -78,12 +78,9 @@ All components are built using Angular's standalone component architecture for b
   imports: [CommonModule, NzCardModule, NzImageModule],
   template: `
     <nz-card [nzCover]="coverTemplate" [nzActions]="[actionSetting]">
-      <nz-card-meta 
-        [nzTitle]="comic.title" 
-        [nzDescription]="comic.description">
-      </nz-card-meta>
+      <nz-card-meta [nzTitle]="comic.title" [nzDescription]="comic.description"> </nz-card-meta>
     </nz-card>
-  `
+  `,
 })
 export class ComicCardComponent {
   @Input() comic!: Comic;
@@ -118,7 +115,7 @@ export class ComicCardComponent {
 
 ```typescript
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ComicService {
   private readonly apiUrl = 'http://localhost:3000/api/v1';
@@ -135,7 +132,7 @@ export class ComicService {
 
   searchComics(query: string): Observable<Comic[]> {
     return this.http.get<Comic[]>(`${this.apiUrl}/comic/suggest`, {
-      params: { q: query }
+      params: { q: query },
     });
   }
 }
@@ -152,8 +149,8 @@ export class AuthInterceptor implements HttpInterceptor {
     const authReq = req.clone({
       setHeaders: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        Accept: 'application/json',
+      },
     });
     return next.handle(authReq);
   }
@@ -358,7 +355,7 @@ describe('ComicCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ComicCardComponent, NzCardModule]
+      imports: [ComicCardComponent, NzCardModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ComicCardComponent);
@@ -368,7 +365,7 @@ describe('ComicCardComponent', () => {
   it('should display comic title', () => {
     component.comic = { id: 1, title: 'Test Comic' };
     fixture.detectChanges();
-    
+
     const titleElement = fixture.debugElement.query(By.css('.ant-card-meta-title'));
     expect(titleElement.nativeElement.textContent).toBe('Test Comic');
   });
@@ -385,7 +382,7 @@ describe('ComicService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ComicService]
+      providers: [ComicService],
     });
     service = TestBed.inject(ComicService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -394,7 +391,7 @@ describe('ComicService', () => {
   it('should fetch comics', () => {
     const mockComics = [{ id: 1, title: 'Test Comic' }];
 
-    service.getComics().subscribe(comics => {
+    service.getComics().subscribe((comics) => {
       expect(comics).toEqual(mockComics);
     });
 
@@ -414,12 +411,12 @@ describe('ComicService', () => {
 const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
   },
   {
     path: 'comic/:id',
-    loadComponent: () => import('./pages/comic-detail/comic-detail.component').then(m => m.ComicDetailComponent)
-  }
+    loadComponent: () => import('./pages/comic-detail/comic-detail.component').then((m) => m.ComicDetailComponent),
+  },
 ];
 ```
 
@@ -429,12 +426,7 @@ const routes: Routes = [
 @Component({
   selector: 'app-comic-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-comic-card 
-      *ngFor="let comic of comics$ | async; trackBy: trackByComicId"
-      [comic]="comic">
-    </app-comic-card>
-  `
+  template: ` <app-comic-card *ngFor="let comic of comics$ | async; trackBy: trackByComicId" [comic]="comic"> </app-comic-card> `,
 })
 export class ComicListComponent {
   comics$ = this.comicService.getComics();
@@ -451,12 +443,9 @@ export class ComicListComponent {
 @Component({
   template: `
     <cdk-virtual-scroll-viewport itemSize="200" class="comic-viewport">
-      <app-comic-card 
-        *cdkVirtualFor="let comic of comics"
-        [comic]="comic">
-      </app-comic-card>
+      <app-comic-card *cdkVirtualFor="let comic of comics" [comic]="comic"> </app-comic-card>
     </cdk-virtual-scroll-viewport>
-  `
+  `,
 })
 export class VirtualComicListComponent {
   comics = this.comicService.getAllComics();
@@ -473,8 +462,8 @@ const cspDirectives = {
   'default-src': ["'self'"],
   'script-src': ["'self'", "'unsafe-eval'"],
   'style-src': ["'self'", "'unsafe-inline'"],
-  'img-src': ["'self'", "data:", "https:"],
-  'connect-src': ["'self'", "http://localhost:3000"]
+  'img-src': ["'self'", 'data:', 'https:'],
+  'connect-src': ["'self'", 'http://localhost:3000'],
 };
 ```
 
@@ -482,9 +471,7 @@ const cspDirectives = {
 
 ```typescript
 @Component({
-  template: `
-    <div [innerHTML]="sanitizedContent"></div>
-  `
+  template: ` <div [innerHTML]="sanitizedContent"></div> `,
 })
 export class SafeContentComponent {
   constructor(private sanitizer: DomSanitizer) {}
@@ -537,14 +524,14 @@ CMD ["nginx", "-g", "daemon off;"]
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api/v1',
-  enableDevTools: true
+  enableDevTools: true,
 };
 
 // environment.prod.ts
 export const environment = {
   production: true,
   apiUrl: 'https://api.yourserver.com/api/v1',
-  enableDevTools: false
+  enableDevTools: false,
 };
 ```
 
@@ -562,10 +549,10 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(
       ServiceWorkerModule.register('ngsw-worker.js', {
         enabled: !isDevMode(),
-        registrationStrategy: 'registerWhenStable:30000'
+        registrationStrategy: 'registerWhenStable:30000',
       })
-    )
-  ]
+    ),
+  ],
 };
 ```
 

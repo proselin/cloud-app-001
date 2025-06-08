@@ -18,7 +18,7 @@ export class TransformInputUtils {
    */
   static bufferSource(value: ResponseBuffer): string | null {
     try {
-      return ConvertUtils.BufferToObjectUrl(value, 'image/jpg')
+      return ConvertUtils.BufferToObjectUrl(value, 'image/jpg');
     } catch {
       return null;
     }

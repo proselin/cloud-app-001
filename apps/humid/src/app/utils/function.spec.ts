@@ -33,7 +33,8 @@ describe('Utils Functions', () => {
       const hash2 = createShake256Hash(data2, len);
 
       expect(hash1).not.toBe(hash2);
-    });    it('should create different length hashes', () => {
+    });
+    it('should create different length hashes', () => {
       const data = 'test';
       const len1 = 8;
       const len2 = 16;
@@ -61,10 +62,11 @@ describe('Utils Functions', () => {
   describe('runWithConcurrency', () => {
     it('should execute all tasks with concurrency limit', async () => {
       const taskResults = ['result1', 'result2', 'result3', 'result4'];
-      const tasks = taskResults.map(result =>
-        new Promise<string>(resolve =>
-          setTimeout(() => resolve(result), 10)
-        )
+      const tasks = taskResults.map(
+        (result) =>
+          new Promise<string>((resolve) =>
+            setTimeout(() => resolve(result), 10)
+          )
       );
       const limit = 2;
 
@@ -72,7 +74,8 @@ describe('Utils Functions', () => {
 
       expect(results).toHaveLength(taskResults.length);
       expect(results).toEqual(taskResults);
-    });    it('should handle empty task array', async () => {
+    });
+    it('should handle empty task array', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tasks: Promise<any>[] = [];
       const limit = 2;
@@ -94,18 +97,21 @@ describe('Utils Functions', () => {
 
     it('should handle tasks that complete in different orders', async () => {
       const tasks = [
-        new Promise<string>(resolve => setTimeout(() => resolve('slow'), 50)),
-        new Promise<string>(resolve => setTimeout(() => resolve('fast'), 10)),
-        new Promise<string>(resolve => setTimeout(() => resolve('medium'), 30))
+        new Promise<string>((resolve) => setTimeout(() => resolve('slow'), 50)),
+        new Promise<string>((resolve) => setTimeout(() => resolve('fast'), 10)),
+        new Promise<string>((resolve) =>
+          setTimeout(() => resolve('medium'), 30)
+        ),
       ];
       const limit = 2;
 
       const results = await runWithConcurrency(tasks, limit);
 
       expect(results).toEqual(['slow', 'fast', 'medium']);
-    });    it('should execute tasks with controlled concurrency', async () => {
+    });
+    it('should execute tasks with controlled concurrency', async () => {
       const taskResults = ['result1', 'result2', 'result3'];
-      const tasks = taskResults.map(result => Promise.resolve(result));
+      const tasks = taskResults.map((result) => Promise.resolve(result));
       const limit = 2;
 
       const results = await runWithConcurrency(tasks, limit);
@@ -117,7 +123,7 @@ describe('Utils Functions', () => {
       const tasks = [
         Promise.resolve('success'),
         Promise.reject(new Error('failure')),
-        Promise.resolve('success2')
+        Promise.resolve('success2'),
       ];
       const limit = 2;
 
@@ -127,7 +133,7 @@ describe('Utils Functions', () => {
 
     it('should handle limit greater than task count', async () => {
       const taskResults = ['result1', 'result2'];
-      const tasks = taskResults.map(result => Promise.resolve(result));
+      const tasks = taskResults.map((result) => Promise.resolve(result));
       const limit = 5; // limit > task count
 
       const results = await runWithConcurrency(tasks, limit);

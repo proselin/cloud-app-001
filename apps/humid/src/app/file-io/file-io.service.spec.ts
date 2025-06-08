@@ -47,7 +47,8 @@ describe('FileIoService', () => {
           },
         },
       ],
-    }).compile();    service = module.get<FileIoService>(FileIoService);
+    }).compile();
+    service = module.get<FileIoService>(FileIoService);
     configService = module.get<ConfigService>(ConfigService);
 
     // Ensure the service is properly instantiated and config is called
@@ -82,7 +83,10 @@ describe('FileIoService', () => {
       expect(mockFs.existsSync).toHaveBeenCalledWith('/test/images');
       expect(mockFs.promises.mkdir).not.toHaveBeenCalled();
       expect(mockResolve).toHaveBeenCalledWith('/test/images', fileName);
-      expect(mockFs.promises.writeFile).toHaveBeenCalledWith(resolvedPath, buffer);
+      expect(mockFs.promises.writeFile).toHaveBeenCalledWith(
+        resolvedPath,
+        buffer
+      );
     });
 
     it('should create directory and save file when directory does not exist', async () => {
@@ -100,7 +104,10 @@ describe('FileIoService', () => {
       expect(mockFs.existsSync).toHaveBeenCalledWith('/test/images');
       expect(mockFs.promises.mkdir).toHaveBeenCalledWith('/test/images');
       expect(mockResolve).toHaveBeenCalledWith('/test/images', fileName);
-      expect(mockFs.promises.writeFile).toHaveBeenCalledWith(resolvedPath, buffer);
+      expect(mockFs.promises.writeFile).toHaveBeenCalledWith(
+        resolvedPath,
+        buffer
+      );
     });
 
     it('should handle write file errors', async () => {
@@ -112,7 +119,9 @@ describe('FileIoService', () => {
       mockResolve.mockReturnValue('/test/images/test-image.jpg');
       mockFs.promises.writeFile.mockRejectedValue(error);
 
-      await expect(service.saveImageFile(fileName, buffer)).rejects.toThrow('Write failed');
+      await expect(service.saveImageFile(fileName, buffer)).rejects.toThrow(
+        'Write failed'
+      );
     });
 
     it('should handle mkdir errors', async () => {
@@ -123,7 +132,9 @@ describe('FileIoService', () => {
       mockFs.existsSync.mockReturnValue(false);
       mockFs.promises.mkdir.mockRejectedValue(error);
 
-      await expect(service.saveImageFile(fileName, buffer)).rejects.toThrow('Mkdir failed');
+      await expect(service.saveImageFile(fileName, buffer)).rejects.toThrow(
+        'Mkdir failed'
+      );
     });
   });
   describe('readImageFile', () => {
@@ -140,7 +151,9 @@ describe('FileIoService', () => {
 
       const result = await service.readImageFile(fileName);
 
-      expect(mockFs.promises.readFile).toHaveBeenCalledWith('/test/images' + fileName);
+      expect(mockFs.promises.readFile).toHaveBeenCalledWith(
+        '/test/images' + fileName
+      );
       expect(result).toBe(expectedBuffer);
     });
 
@@ -150,7 +163,9 @@ describe('FileIoService', () => {
 
       mockFs.promises.readFile.mockRejectedValue(error);
 
-      await expect(service.readImageFile(fileName)).rejects.toThrow('Read failed');
+      await expect(service.readImageFile(fileName)).rejects.toThrow(
+        'Read failed'
+      );
     });
   });
 
@@ -168,11 +183,15 @@ describe('FileIoService', () => {
       const prefixFileName = 'test-image';
       const contentType = 'image/jpeg';
 
-      (Utils.getFileExtensionFromContentType as jest.Mock).mockReturnValue('jpg');
+      (Utils.getFileExtensionFromContentType as jest.Mock).mockReturnValue(
+        'jpg'
+      );
 
       const result = service.generateFileName(prefixFileName, contentType);
 
-      expect(Utils.getFileExtensionFromContentType).toHaveBeenCalledWith(contentType);
+      expect(Utils.getFileExtensionFromContentType).toHaveBeenCalledWith(
+        contentType
+      );
       expect(result).toMatch(/^test-image-\w+\.jpg$/);
     });
 
@@ -180,27 +199,31 @@ describe('FileIoService', () => {
       const prefixFileName = 'test-image';
       const contentType = null;
 
-      expect(() => service.generateFileName(prefixFileName, contentType)).toThrow(
-        new BadRequestException('Content type must be a string')
-      );
+      expect(() =>
+        service.generateFileName(prefixFileName, contentType)
+      ).toThrow(new BadRequestException('Content type must be a string'));
     });
 
     it('should throw BadRequestException when extension is not supported', () => {
       const prefixFileName = 'test-image';
       const contentType = 'unsupported/type';
 
-      (Utils.getFileExtensionFromContentType as jest.Mock).mockReturnValue(null);
-
-      expect(() => service.generateFileName(prefixFileName, contentType)).toThrow(
-        new BadRequestException('Unsupported content type')
+      (Utils.getFileExtensionFromContentType as jest.Mock).mockReturnValue(
+        null
       );
+
+      expect(() =>
+        service.generateFileName(prefixFileName, contentType)
+      ).toThrow(new BadRequestException('Unsupported content type'));
     });
 
     it('should generate different hash for different timestamps', () => {
       const prefixFileName = 'test-image';
       const contentType = 'image/png';
 
-      (Utils.getFileExtensionFromContentType as jest.Mock).mockReturnValue('png');
+      (Utils.getFileExtensionFromContentType as jest.Mock).mockReturnValue(
+        'png'
+      );
 
       // First call
       jest.spyOn(Date, 'now').mockReturnValue(1234567890);
@@ -212,6 +235,7 @@ describe('FileIoService', () => {
 
       expect(result1).not.toBe(result2);
       expect(result1).toMatch(/^test-image-\w+\.png$/);
-      expect(result2).toMatch(/^test-image-\w+\.png$/);    });
+      expect(result2).toMatch(/^test-image-\w+\.png$/);
+    });
   });
 });

@@ -1,2 +1,2 @@
 import { ComicComponent } from './comic.component';
-export {ComicComponent}
+export { ComicComponent };

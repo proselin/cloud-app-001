@@ -1,4 +1,4 @@
 export interface ResponseBuffer {
-  type: "Buffer",
-  data: number[]
+  type: 'Buffer';
+  data: number[];
 }

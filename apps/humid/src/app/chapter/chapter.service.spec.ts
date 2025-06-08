@@ -65,7 +65,8 @@ describe('ChapterService', () => {
           useValue: mockChapterRepository,
         },
       ],
-    }).compile();    service = module.get<ChapterService>(ChapterService);
+    }).compile();
+    service = module.get<ChapterService>(ChapterService);
   });
 
   afterEach(() => {
@@ -78,7 +79,9 @@ describe('ChapterService', () => {
       mockChapterRepository.findOne.mockResolvedValue(mockChapter);
 
       // Mock the expected result
-      const expectedResult = await ChapterEntity.toJSON(mockChapter as unknown as ChapterEntity);
+      const expectedResult = await ChapterEntity.toJSON(
+        mockChapter as unknown as ChapterEntity
+      );
 
       // Act
       const result = await service.getDetail(chapterId);

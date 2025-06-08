@@ -60,12 +60,16 @@ describe('Utils', () => {
     });
 
     it('should handle content type with charset parameter', () => {
-      const result = Utils.getFileExtensionFromContentType('image/jpeg; charset=utf-8');
+      const result = Utils.getFileExtensionFromContentType(
+        'image/jpeg; charset=utf-8'
+      );
       expect(result).toBe('jpg');
     });
 
     it('should handle content type with additional parameters', () => {
-      const result = Utils.getFileExtensionFromContentType('image/png; boundary=something');
+      const result = Utils.getFileExtensionFromContentType(
+        'image/png; boundary=something'
+      );
       expect(result).toBe('png');
     });
 
@@ -147,25 +151,25 @@ describe('Utils', () => {
   describe('static properties', () => {
     it('should have correct extensionMap', () => {
       expect(Utils.extensionMap).toEqual({
-        jpg: "image/jpeg",
-        png: "image/png",
-        gif: "image/gif",
-        webp: "image/webp",
-        bmp: "image/bmp",
-        tiff: "image/tiff",
-        svg: "image/svg+xml",
+        jpg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif',
+        webp: 'image/webp',
+        bmp: 'image/bmp',
+        tiff: 'image/tiff',
+        svg: 'image/svg+xml',
       });
     });
 
     it('should have correct contentTypeMap', () => {
       expect(Utils.contentTypeMap).toEqual({
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/gif": "gif",
-        "image/webp": "webp",
-        "image/bmp": "bmp",
-        "image/tiff": "tiff",
-        "image/svg+xml": "svg",
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'image/bmp': 'bmp',
+        'image/tiff': 'tiff',
+        'image/svg+xml': 'svg',
       });
     });
 
@@ -178,5 +182,6 @@ describe('Utils', () => {
       Object.entries(Utils.contentTypeMap).forEach(([contentType, ext]) => {
         expect(Utils.extensionMap[ext]).toBe(contentType);
       });
-    });  });
+    });
+  });
 });
