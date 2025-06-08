@@ -6,15 +6,20 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { tap } from 'rxjs/operators';
-import { nanoid } from 'nanoid';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   constructor(private configService: ConfigService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler) {
+  private async getNanoid(): Promise<(size?: number) => string> {
+    const { nanoid } = await import('nanoid');
+    return nanoid;
+  }
+
+  async intercept(context: ExecutionContext, next: CallHandler) {
     const request = context.getArgs()[0];
+    const nanoid = await this.getNanoid();
     const uuid = request?.cookies?.['msgid'] ?? nanoid(8);
     const serviceHash = this.configService.getOrThrow('services.hash');
     const handler = context.getHandler().name;

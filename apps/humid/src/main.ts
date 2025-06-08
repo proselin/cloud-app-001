@@ -8,7 +8,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { TransformInterceptor } from './app/intercept';
 import { ConfigService } from '@nestjs/config';
 import { setupOpenApi } from './app/config/openapi/swagger.config';
-import { nanoid } from 'nanoid';
 import { patchNestJsSwagger } from 'nestjs-zod';
 
 patchNestJsSwagger();
@@ -32,7 +31,8 @@ async function bootstrap() {
   const port = +configService.getOrThrow('humid.server.port');
   const host = configService.getOrThrow('humid.server.host');
 
-  // Set hash for each instance of the service
+  // Set hash for each instance of the service - using dynamic import for ES module
+  const { nanoid } = await import('nanoid');
   configService.set('services.hash', nanoid(8));
 
   setupOpenApi(app);
