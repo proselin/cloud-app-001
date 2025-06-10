@@ -1,2 +1,2 @@
-import { BaseIpcService } from './base-ipc.service';
-export { BaseIpcService };
+// Common services exports
+// No services to export at this time

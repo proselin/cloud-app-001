@@ -1,1 +1,149 @@
-<p>comic works!</p>
+<!-- Loading State -->
+@if (loading()) {
+<div class="flex justify-center items-center min-h-screen">
+  <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+</div>
+}
+
+<!-- Error State -->
+@if (error() && !loading()) {
+<div class="flex flex-col justify-center items-center min-h-screen">
+  <div class="text-red-600 text-xl mb-4">{{ error() }}</div>
+  <button
+    (click)="goBack()"
+    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+    Go Back
+  </button>
+</div>
+}
+
+<!-- Comic Detail Content -->
+@if (comic() && !loading() && !error()) {
+<div class="max-w-6xl mx-auto p-6 space-y-8">
+  <!-- Header with Back Button -->
+  <div class="flex items-center justify-between">
+    <button
+      (click)="goBack()"
+      class="flex items-center text-blue-600 hover:text-blue-800 transition-colors back-button">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Back to Comics
+    </button>
+  </div>
+
+  <!-- Comic Information -->
+  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="md:flex">
+      <!-- Cover Image -->
+      <div class="md:w-1/3 lg:w-1/4 cover-image">
+        <div class="aspect-[3/4] bg-gray-200 flex items-center justify-center">
+          <cloud-image
+            [fileName]="comic()!.thumbImage?.fileName"
+            class="w-full h-full object-cover">
+          </cloud-image>
+        </div>
+      </div>
+
+      <!-- Comic Details -->
+      <div class="md:w-2/3 lg:w-3/4 p-6 comic-info">
+        <div class="space-y-4">
+          <h1 class="text-3xl font-bold text-gray-900">{{ comic()!.title }}</h1>
+
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-600">By {{ comic()!.author }}</span>
+            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
+                  [class]="getStatusColor(comic()!.status)">
+              {{ comic()!.status | titlecase }}
+            </span>
+          </div>
+
+          <p class="text-gray-700 leading-relaxed">{{ comic()!.description }}</p>
+
+          <!-- Tags -->
+          @if (comic()!.tags && comic()!.tags.length > 0) {
+          <div class="flex flex-wrap gap-2">
+            @for (tag of comic()!.tags; track tag) {
+            <span class="inline-flex px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+              {{ tag }}
+            </span>
+            }
+          </div>
+          }
+
+          <!-- Stats -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-gray-900">{{ comic()!.chapterCount }}</div>
+              <div class="text-sm text-gray-600">Chapters</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-gray-900">
+                {{ getCrawledChaptersCount() }}
+              </div>
+              <div class="text-sm text-gray-600">Crawled</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-gray-900">
+                {{ getTotalPagesCount() }}
+              </div>
+              <div class="text-sm text-gray-600">Pages</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chapter List -->
+  <div class="bg-white rounded-lg shadow-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-900">Chapters</h2>
+    </div>
+
+    <div class="divide-y divide-gray-200">
+      @for (chapter of comic()!.chapters; track chapter.id) {
+      <div class="p-4 hover:bg-gray-50 transition-colors chapter-item"
+           [class.cursor-pointer]="chapter.isCrawled"
+           [class.opacity-60]="!chapter.isCrawled"
+           (click)="navigateToChapter(chapter)"
+           (keydown.enter)="navigateToChapter(chapter)"
+           (keydown.space)="navigateToChapter(chapter)"
+           (mouseenter)="onChapterHover($event, true)"
+           (mouseleave)="onChapterHover($event, false)"
+           [tabindex]="chapter.isCrawled ? 0 : -1"
+           role="button"
+           [attr.aria-label]="'Open chapter: ' + chapter.title + (chapter.isCrawled ? '' : ' (not available)')">>
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <div class="flex items-center space-x-3">
+              <h3 class="font-medium text-gray-900">{{ chapter.title }}</h3>
+              @if (!chapter.isCrawled) {
+              <span class="inline-flex px-2 py-1 text-xs font-medium text-orange-600 bg-orange-100 rounded-full">
+                Not Crawled
+              </span>
+              }
+            </div>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ getCrawlStatusText(chapter) }}
+              @if (chapter.isCrawled) {
+              • Updated {{ chapter.updatedAt | date:'short' }}
+              }
+            </p>
+          </div>
+
+          @if (chapter.isCrawled) {
+          <div class="flex items-center text-blue-600">
+            <span class="text-sm mr-2">Read</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}

@@ -1,31 +1,33 @@
-<nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-  <input
-    type="text"
-    nz-input
-    placeholder="Input Nettruyen URL"
-    [(ngModel)]="searchString"
-    (keydown.enter)="onSearch()"
-  />
-</nz-input-group>
-<ng-template #suffixIconButton>
-  <button nz-button nzType="primary" nzSearch (click)="onSearch()">
-    <nz-icon nzType="search" />
-  </button>
-</ng-template>
+<div class="max-w-2xl mx-auto">
+  <div class="flex rounded-md shadow-sm">
+    <input
+      type="text"
+      class="flex-1 rounded-l-md border border-gray-300 px-3 py-2 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      placeholder="Input Nettruyen URL"
+      [(ngModel)]="searchString"
+      (keydown.enter)="onSearch()"
+    />
+    <button
+      class="rounded-r-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+      (click)="onSearch()">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+    </button>
+  </div>
+</div>
 
-<!--<nz-list nzGrid>-->
-<!--  <div nz-row [nzGutter]="16">-->
-<!--    @for (item of comics(); track item) {-->
-<!--      <div nz-col [nzSpan]="6">-->
-<!--        <nz-list-item>-->
-<!--          <nz-card [nzTitle]="item.title">-->
-<!--            <div>{{item.chapterCount}}</div>-->
-<!--            @if (imageUrl(); as src) {-->
-<!--              <img [src]="imageUrl()" alt="">-->
-<!--            }-->
-<!--          </nz-card>-->
-<!--        </nz-list-item>-->
+<!-- Grid layout for comics would go here when implemented -->
+<!--<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">-->
+<!--  @for (item of comics(); track item) {-->
+<!--    <div class="bg-white rounded-lg shadow-md overflow-hidden">-->
+<!--      <div class="p-4">-->
+<!--        <h3 class="font-semibold text-gray-900 truncate">{{item.title}}</h3>-->
+<!--        <p class="text-sm text-gray-600 mt-1">Chapters: {{item.chapterCount}}</p>-->
+<!--        @if (imageUrl(); as src) {-->
+<!--          <img [src]="imageUrl()" alt="{{item.title}}" class="w-full h-32 object-cover mt-2 rounded">-->
+<!--        }-->
 <!--      </div>-->
-<!--    }-->
-<!--  </div>-->
-<!--</nz-list>-->
+<!--    </div>-->
+<!--  }-->
+<!--</div>-->

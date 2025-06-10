@@ -9,23 +9,20 @@ import { BasePagesComponent } from '../../common/components';
 import { FormsModule } from '@angular/forms';
 
 import {
-  HumidIpcService,
+  MockDataService,
   SearchComicRes,
-} from '../../shared/services/ipc/humid-ipc.service';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzIconModule } from 'ng-zorro-antd/icon';
+} from '../../shared/services/mock';
 
 @Component({
   selector: 'cloud-comic',
-  imports: [FormsModule, NzButtonModule, NzInputModule, NzIconModule],
+  imports: [FormsModule],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent extends BasePagesComponent {
-  private humidIpcService = inject(HumidIpcService);
+  private mockDataService = inject(MockDataService);
   searchString = signal('');
   comics = signal<SearchComicRes>([]);
   imageRaw = signal<Blob | null>(null);
@@ -36,10 +33,11 @@ export class SearchComponent extends BasePagesComponent {
 
   async onSearch() {
     this.loadingGlobalService
-      .wrapLoading(this.humidIpcService.pullComicByUrl(this.searchString()))
+      .wrapLoading(this.mockDataService.pullComicByUrl(this.searchString()))
       .subscribe({
         next: (result) => {
           console.log('Response', result);
+          this.comics.set(result.response || []);
         },
       });
   }

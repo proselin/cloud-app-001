@@ -1,1 +1,162 @@
-<p>chapter works!</p>
+<!-- Loading State -->
+@if (loading()) {
+<div class="flex justify-center items-center min-h-screen bg-black">
+  <div class="loading-spinner animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
+</div>
+}
+
+<!-- Error State -->
+@if (error() && !loading()) {
+<div class="flex flex-col justify-center items-center min-h-screen bg-black text-white">
+  <div class="text-red-400 text-xl mb-4">{{ error() }}</div>
+  <button
+    (click)="goBackToComic()"
+    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+    Go Back to Comic
+  </button>
+</div>
+}
+
+<!-- Chapter Reader -->
+@if (chapter() && !loading() && !error()) {
+<div class="min-h-screen bg-black text-white">
+  <!-- Top Navigation Bar -->
+  <div class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-gray-800 top-nav-bar">
+    <div class="flex items-center justify-between px-4 py-3">
+      <!-- Left: Back button and chapter info -->
+      <div class="flex items-center space-x-4">
+        <button
+          (click)="goBackToComic()"
+          class="flex items-center text-gray-300 hover:text-white transition-colors">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back
+        </button>
+        <div class="text-sm">
+          <div class="font-medium">{{ chapter()!.title }}</div>
+          @if (getCurrentChapterIndex() > 0) {
+          <div class="text-gray-400">Chapter {{ getCurrentChapterIndex() }} of {{ allChapters().length }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- Center: Progress -->
+      <div class="flex-1 max-w-md mx-4">
+        <div class="text-xs text-gray-400 mb-1 text-center">
+          Page {{ currentImageIndex() + 1 }} of {{ chapter()!.images.length }}
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-2">
+          <div
+            class="bg-blue-600 h-2 rounded-full transition-all duration-300 progress-bar"
+            [style.width.%]="getProgress()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Navigation -->
+      <div class="flex items-center space-x-2">
+        <button
+          (click)="goToPreviousChapter()"
+          class="p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded transition-colors"
+          title="Previous Chapter (↑)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+          </svg>
+        </button>
+        <button
+          (click)="goToNextChapter()"
+          class="p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded transition-colors"
+          title="Next Chapter (↓)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chapter Images -->
+  <div #chapterContainer class="pt-16 pb-8 chapter-container">
+    <div class="max-w-4xl mx-auto">
+      @for (image of chapter()!.images; track image.id; let i = $index) {
+      <div
+        class="relative mb-2 group cursor-pointer chapter-image"
+        [attr.data-image-index]="i"
+        (click)="nextImage()"
+        (keydown.enter)="nextImage()"
+        (keydown.space)="nextImage()"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'Next image - Page ' + (i + 1)">
+        <!-- Image placeholder/loader -->
+        <div class="w-full bg-gray-900 flex items-center justify-center min-h-[600px]">
+          <div class="text-center">
+            <div class="text-gray-500 mb-2">Page {{ i + 1 }}</div>
+            <div class="w-16 h-16 bg-gray-700 rounded animate-pulse"></div>
+            <div class="text-xs text-gray-600 mt-2">{{ image.fileName }}</div>
+          </div>
+        </div>
+
+        <!-- Current page indicator -->
+        @if (i === currentImageIndex()) {
+        <div class="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium current-indicator">
+          Current
+        </div>
+        }
+
+        <!-- Page number overlay -->
+        <div class="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm page-number">
+          {{ i + 1 }} / {{ chapter()!.images.length }}
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="fixed bottom-0 left-0 right-0 bg-black bg-opacity-90 backdrop-blur-sm border-t border-gray-800 p-4 bottom-nav-bar">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <button
+        (click)="previousImage()"
+        class="flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+        [disabled]="currentImageIndex() === 0 && getCurrentChapterIndex() === 1">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Previous
+      </button>
+
+      <!-- Page selector -->
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-400">Go to page:</span>
+        <select
+          [value]="currentImageIndex()"
+          (change)="onPageSelect($event)"
+          class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm">
+          @for (image of chapter()!.images; track image.id; let i = $index) {
+          <option [value]="i">{{ i + 1 }}</option>
+          }
+        </select>
+      </div>
+
+      <button
+        (click)="nextImage()"
+        class="flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
+        Next
+        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Keyboard shortcuts help -->
+  <div class="fixed bottom-20 right-4 bg-gray-900 bg-opacity-90 backdrop-blur-sm rounded-lg p-3 text-xs text-gray-300 shortcuts-help">
+    <div class="font-medium mb-2">Keyboard Shortcuts:</div>
+    <div>← → Navigation</div>
+    <div>↑ ↓ Chapters</div>
+    <div>Esc Back</div>
+  </div>
+</div>
+}

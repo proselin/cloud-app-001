@@ -1,35 +1,31 @@
-<h1>Comic</h1>
+<div class="space-y-6">
+  <h1 class="text-3xl font-bold text-gray-900 page-title">Comics</h1>
 
-<!--<nz-carousel nzAutoPlay>-->
-<!--  @for (index of array; track index) {-->
-<!--    <div nz-carousel-content>-->
-<!--      <h3>{{ index }}</h3>-->
-<!--    </div>-->
-<!--  }-->
-<!--</nz-carousel>-->
+  <h2 class="text-xl font-semibold text-gray-700 page-subtitle">List comic</h2>
 
-<h2 class="list-comic">List comic</h2>
+  <div class="border-b border-gray-200 pb-2">
+    <span class="text-sm font-medium text-gray-500">Latest Comics</span>
+  </div>
 
-<nz-divider nzOrientation="left" nzText="Vertical"></nz-divider>
-<div class="container">
-  <nz-list nzGrid>
-    <div nz-row [nzGutter]="16">
-      @for (item of comics(); track item) {
-      <div nz-col [nzSpan]="6">
-        <nz-list-item>
-          <nz-card [nzTitle]="item.title">
-            <div>{{ item.chapterCount }}</div>
-            <cloud-image [fileName]="item.thumbImage?.fileName"></cloud-image>
-          </nz-card>
-        </nz-list-item>
+  <div #comicsContainer class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    @for (item of comics(); track item) {
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform cursor-pointer comic-card"
+         (click)="navigateToComic(item)"
+         (keydown.enter)="navigateToComic(item)"
+         (keydown.space)="navigateToComic(item)"
+         (mouseenter)="onCardHover($event, true)"
+         (mouseleave)="onCardHover($event, false)"
+         tabindex="0"
+         role="button"
+         [attr.aria-label]="'Open comic: ' + item.title">
+      <div class="p-4">
+        <h3 class="font-semibold text-gray-900 text-lg mb-2 truncate">{{ item.title }}</h3>
+        <p class="text-sm text-gray-600 mb-3">Chapters: {{ item.chapterCount }}</p>
+        <div class="aspect-square bg-gray-100 rounded-md overflow-hidden">
+          <cloud-image [fileName]="item.thumbImage?.fileName" class="w-full h-full object-cover"></cloud-image>
+        </div>
       </div>
-      }
     </div>
-  </nz-list>
-  <!--    @for (item of [1,2,3,4]; track item) {-->
-  <!--      <div nz-col nzSpan="4">-->
-  <!--        <cloud-comic-card [comicInfo]="mockComicInfo"></cloud-comic-card>-->
-  <!--      </div>-->
-  <!--    }-->
-  <!--  </div>-->
+    }
+  </div>
 </div>

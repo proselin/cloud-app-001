@@ -19,14 +19,9 @@
           {
             "glob": "**/*",
             "input": "apps/cloud/public"
-          },
-          {
-            "glob": "**/*",
-            "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
-            "output": "apps/cloud/public"
           }
         ],
-        "styles": ["apps/cloud/src/styles.scss", "apps/cloud/src/theme.less"],
+        "styles": ["apps/cloud/src/styles.scss"],
         "scripts": []
       },
       "configurations": {

@@ -1,13 +1,21 @@
-<nz-header>
-  <a [routerLink]="'/'">
-    <div class="logo"></div>
-  </a>
-  <ul nz-menu nzTheme="dark" nzMode="horizontal">
-    @for (route of routes; track route.path) {
-    <li nz-menu-item nzMatchRouter>
-      <a [routerLink]="route.path" [routerLinkActive]="'active'"></a
-      >{{ route?.title }}
-    </li>
-    }
-  </ul>
-</nz-header>
+<header class="bg-gray-900 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <a [routerLink]="'/'">
+        <div class="text-xl font-bold text-blue-400 hover:text-blue-300 transition-colors">
+          Margiet
+        </div>
+      </a>
+      <nav class="flex space-x-4">
+        @for (route of routes; track route.path) {
+        <a
+          [routerLink]="route.path"
+          [routerLinkActive]="'text-blue-400 font-semibold'"
+          class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors">
+          {{ route?.title }}
+        </a>
+        }
+      </nav>
+    </div>
+  </div>
+</header>

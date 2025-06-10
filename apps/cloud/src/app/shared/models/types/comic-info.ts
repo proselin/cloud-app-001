@@ -4,4 +4,8 @@ export type ComicInfo = {
   title: string;
   description: string;
   imageUrl: string;
+  chapterCount?: number;
+  thumbImage?: {
+    fileName: string;
+  };
 };

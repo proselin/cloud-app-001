@@ -1,26 +1,34 @@
+<!-- Loading skeleton -->
 <ng-template #loading>
-  <div class="card">
-    <div class="info">
-      <nz-skeleton [nzActive]="true"></nz-skeleton>
+  <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div class="animate-pulse">
+      <div class="bg-gray-300 aspect-square"></div>
+      <div class="p-4 space-y-2">
+        <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div class="h-3 bg-gray-300 rounded w-1/2"></div>
+      </div>
     </div>
   </div>
 </ng-template>
 
+<!-- Comic card display -->
 <ng-template #cardDisplay let-info>
-  <a [routerLink]="info.url" class="card">
+  <a [routerLink]="info.url" class="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200">
     <img
       [ngSrc]="info.url"
       alt="{{ info.title }} Thumb Image"
       width="210"
       height="210"
+      class="w-full aspect-square object-cover"
     />
-    <div class="info">
-      <p class="title">{{ info.title }}</p>
-      <p class="author">{{ info.author }}</p>
+    <div class="p-4">
+      <p class="font-semibold text-gray-900 text-sm truncate mb-1">{{ info.title }}</p>
+      <p class="text-gray-600 text-xs truncate">{{ info.author }}</p>
     </div>
   </a>
 </ng-template>
 
+<!-- Conditional rendering -->
 <ng-template
   [ngIf]="comicInfo"
   [ngIfThen]="cardDisplay"

@@ -5,20 +5,18 @@ import {
   inject,
   Input,
   OnChanges,
-  SecurityContext,
   signal,
   SimpleChanges,
 } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BaseComponent } from '../../../common/components';
-import { HumidIpcService } from '../../services/ipc/humid-ipc.service';
+import { MockDataService } from '../../services/mock';
 import { ConvertUtils } from '../../../common/utils/convert.utils';
 import { MimeTypes } from '../../../common/variables/mimetype';
 
 @Component({
   selector: 'cloud-image',
-  imports: [NgOptimizedImage],
+  imports: [],
   templateUrl: './image.component.html',
   styleUrl: './image.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,7 +27,7 @@ export class ImageComponent extends BaseComponent implements OnChanges {
   // -----------------------------------------------------------------------------------------------------
 
   private readonly domSanitizer = inject(DomSanitizer);
-  private readonly humidIpcService = inject(HumidIpcService);
+  private readonly mockDataService = inject(MockDataService);
 
   // -----------------------------------------------------------------------------------------------------
   // @ Accessors
@@ -70,7 +68,7 @@ export class ImageComponent extends BaseComponent implements OnChanges {
       if (!this.fileName) {
         this.bufferSource.set('');
       } else {
-        this.humidIpcService.getImageFile(this.fileName).subscribe({
+        this.mockDataService.getImageFile(this.fileName).subscribe({
           next: (result) => {
             if (!result.response) return;
             this.bufferSource.set(

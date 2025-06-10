@@ -9,7 +9,7 @@ describe('ApplyPipe', () => {
 
   it('should call with exact argument', () => {
     const pipe = new ApplyPipe();
-    const mockFn = jest.fn().mockImplementation((a: number, b: string) => 6);
+    const mockFn = jest.fn().mockImplementation(() => 6);
     const result = pipe.transform(mockFn, 2, 'test');
     expect(mockFn).toHaveBeenCalledWith(2, 'test');
     expect(result).toBe(6);
@@ -24,13 +24,13 @@ describe('ApplyPipe', () => {
   });
 
   it('should return the result of the function call', () => {
-    const mockFn = (a: number) => 42;
+    const mockFn = (a: number) => a + 40;
     const result = pipe.transform(mockFn, 2);
     expect(result).toBe(42);
   });
 
   it('should throw an error if the first argument is not a function', () => {
-    expect(() => pipe.transform(null as any)).toThrowError(
+    expect(() => pipe.transform(null as unknown as () => unknown)).toThrowError(
       'First argument must be a function'
     );
   });

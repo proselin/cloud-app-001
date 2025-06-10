@@ -57,9 +57,9 @@ src/
 | Component       | Technology             | Version  | Purpose                  |
 | --------------- | ---------------------- | -------- | ------------------------ |
 | **Framework**   | Angular                | 19.2.6   | Frontend framework       |
-| **UI Library**  | ng-zorro-antd          | 19.2.2   | Component library        |
+| **UI Library**  | Tailwind CSS           | 3.4.17   | Utility-first CSS        |
 | **Language**    | TypeScript             | Latest   | Type-safe development    |
-| **Styling**     | SCSS + Less            | Latest   | Advanced styling         |
+| **Styling**     | SCSS + Tailwind        | Latest   | Advanced styling         |
 | **HTTP Client** | Angular HTTP           | Built-in | API communication        |
 | **Router**      | Angular Router         | Built-in | Client-side routing      |
 | **Forms**       | Angular Reactive Forms | Built-in | Form management          |
@@ -288,14 +288,27 @@ $screen-xxl: 1600px;
 
 ### Theme Configuration
 
-```typescript
-// theme.less
-@import '~ng-zorro-antd/ng-zorro-antd.less';
+```scss
+// styles.scss
+@use './styles/index';
 
-// Custom theme variables
-@primary-color: #1890ff;
-@border-radius-base: 6px;
-@box-shadow-base: 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+```javascript
+// tailwind.config.js
+module.exports = {
+  content: [
+    "./src/**/*.{html,ts}",
+    "./apps/cloud/src/**/*.{html,ts}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
 ```
 
 ## 🧪 Testing

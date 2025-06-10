@@ -1,15 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NzHeaderComponent } from 'ng-zorro-antd/layout';
-import { NzMenuDirective, NzMenuItemComponent } from 'ng-zorro-antd/menu';
 import { BaseComponent } from '../../../common/components';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'cloud-header',
   imports: [
-    NzHeaderComponent,
-    NzMenuDirective,
-    NzMenuItemComponent,
     RouterLink,
     RouterLinkActive,
   ],
