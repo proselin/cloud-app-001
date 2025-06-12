@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
 
+interface AppNotification {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  timestamp: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  private notifications: Array<{
-    id: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    title: string;
-    message: string;
-    timestamp: number;
-  }> = [];
+  private notifications: AppNotification[] = [];
 
   success(title: string, message = '') {
     this.showNotification('success', title, message);
@@ -27,10 +29,9 @@ export class NotificationService {
   info(title: string, message = '') {
     this.showNotification('info', title, message);
   }
-
   private showNotification(type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) {
     const id = Math.random().toString(36).substr(2, 9);
-    const notification = {
+    const notification: AppNotification = {
       id,
       type,
       title,
@@ -49,7 +50,7 @@ export class NotificationService {
     }, 5000);
   }
 
-  private createNotificationElement(notification: Notification) {
+  private createNotificationElement(notification: AppNotification) {
     // Check if container exists, if not create it
     let container = document.getElementById('notification-container');
     if (!container) {
