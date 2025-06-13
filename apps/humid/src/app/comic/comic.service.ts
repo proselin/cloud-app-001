@@ -27,6 +27,25 @@ export class ComicService {
     });
   }
 
+  public async getComicsByPage(
+    page = 0,
+    limit = 10
+  ):Promise<Omit<ComicPlainObject, "chapters">[]> {
+    this.logger.log(`Fetching comics with page=${page}, limit=${limit}`);
+    const [comics, total] = await this.comicRepository.findAndCount({
+      skip: page * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+      relations: ['thumbImage'],
+    });
+    this.logger.log(`Total comics found: ${total}`);
+    return Promise.all(
+      comics.map((comic) => {
+        return ComicEntity.toJSONWithoutChapter(comic);
+      })
+    );
+  }
+
   public async searchComicsByKeyword(key: string, model: 'nettruyen') {
     switch (model) {
       case 'nettruyen': {

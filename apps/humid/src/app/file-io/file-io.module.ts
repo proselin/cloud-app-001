@@ -5,6 +5,7 @@ import {
   ServeStaticModuleOptions,
 } from '@nestjs/serve-static';
 import { ConfigService } from '@nestjs/config';
+import { FileIoController } from './file-io.controller';
 
 @Global()
 @Module({
@@ -21,6 +22,7 @@ import { ConfigService } from '@nestjs/config';
       },
     }),
   ],
+  controllers: [FileIoController],
   providers: [FileIoService],
   exports: [FileIoService],
 })

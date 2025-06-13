@@ -111,7 +111,7 @@ export class ChapterComponent extends BasePagesComponent implements OnInit, Afte
     // Try to fetch from real API first
     this.chapterService.getChapterDetail(this.chapterId).subscribe({
       next: (result) => {
-        if (result.success && result.data) {
+        if (result.data) {
           // Convert API response to ChapterDetailInfo format
           const convertedChapter = this.convertAPIChapterToChapterDetail(result.data);
           this.chapter.set(convertedChapter);
@@ -156,7 +156,7 @@ export class ChapterComponent extends BasePagesComponent implements OnInit, Afte
     // Use the minimized chapters endpoint which includes crawl status
     this.chapterService.getMinimizedChaptersByComic(this.comicId).subscribe({
       next: (result) => {
-        if (result.success && result.data) {
+        if (result.data) {
           // Convert API response to ChapterInfo format
           const convertedChapters: ChapterInfo[] = result.data.map(chapter =>
             this.convertAPIMinimizedChapterToChapterInfo(chapter)

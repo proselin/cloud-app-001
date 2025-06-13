@@ -49,8 +49,13 @@ export class ComicController {
     description: 'Internal server error',
     type: () => ResponseMapper<null>,
   })
-  public search() {
-    return ResponseMapper.success(this.comicService.getAllComic());
+  public search(
+    @Query('pages', new ZodValidationPipe(z.coerce.number().int().optional())) pages?: number,
+    @Query('limit', new ZodValidationPipe(z.coerce.number().int().optional())) limit?: number,
+  ) {
+    if(!pages) pages = 0;
+    if(!limit) limit = 10;
+    return this.comicService.getComicsByPage(pages, limit);
   }
 
   @Get('/suggest')
@@ -112,6 +117,6 @@ export class ComicController {
   async getComicById(@Param('id', ParseIntPipe) id: number) {
     this.logger.log(`Fetching comic details for id: ${id}`);
     const comicDetail = await this.comicService.getComicById(id);
-    return ResponseMapper.success(comicDetail);
+    return comicDetail;
   }
 }

@@ -2,8 +2,8 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 import { CommonEntity, CrawlingStatus } from '../common';
 import { ComicPlainObject } from '../models/types/comic-plain-object';
-import { ChapterEntity } from './chapter.entity';
 import { ImageEntity } from './image.entity';
+import { IChapterEntity } from './types/entity-interfaces';
 
 @Entity('comic')
 export class ComicEntity extends CommonEntity {
@@ -63,10 +63,10 @@ export class ComicEntity extends CommonEntity {
   })
   crawlStatus!: CrawlingStatus;
 
-  @OneToMany(() => ChapterEntity, (chapter) => chapter.comic, {
+  @OneToMany('ChapterEntity', (chapter: IChapterEntity) => chapter.comic, {
     lazy: true,
   })
-  chapters!: ChapterEntity[] | Promise<ChapterEntity[]>;
+  chapters!: IChapterEntity[] | Promise<IChapterEntity[]>;
 
   @JoinColumn({
     name: 'thumb_image_id',
@@ -94,6 +94,9 @@ export class ComicEntity extends CommonEntity {
   }
   static async toJSON(entity: ComicEntity): Promise<ComicPlainObject> {
     await Promise.resolve(entity.thumbImage);
+    
+    // Import ChapterEntity dynamically to avoid circular dependency
+    const { ChapterEntity } = await import('./chapter.entity');
 
     return {
       ...(await CommonEntity.toJSON(entity)),
@@ -105,7 +108,7 @@ export class ComicEntity extends CommonEntity {
       chapters: await Promise.all(
         (
           await entity.chapters
-        )?.map((chapter) => ChapterEntity.toJSONWithoutImage(chapter))
+        )?.map((chapter) => ChapterEntity.toJSONWithoutImage(chapter as any))
       ),
       thumbImage: await ImageEntity.toJSON(entity?.thumbImage),
     };

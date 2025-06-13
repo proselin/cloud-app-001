@@ -86,13 +86,11 @@ export class HomeComponent extends BasePagesComponent implements OnInit, AfterVi
 
       this.isLoadingFromAPI.set(false);
 
-      if (result?.success && result.data && result.data.length > 0) {
+      if (result?.data && Array.isArray(result.data)) {
         const convertedComics = result.data.map(comic => this.convertAPIComicToComicInfo(comic));
         this.comics.set(convertedComics);
         this.animateComicCards();
         console.log('✅ Successfully loaded comics from API:', result.data.length);
-      } else {
-        this.loadMockData();
       }
     } catch (error) {
       this.isLoadingFromAPI.set(false);

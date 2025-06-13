@@ -27,6 +27,16 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Allow all origins for development purposes
+      callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+  }
+  );
+
   const configService = app.get(ConfigService);
   const port = +configService.getOrThrow('humid.server.port');
   const host = configService.getOrThrow('humid.server.host');

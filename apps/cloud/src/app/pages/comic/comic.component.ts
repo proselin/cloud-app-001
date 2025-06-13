@@ -85,7 +85,7 @@ export class ComicComponent extends BasePagesComponent implements OnInit, AfterV
     this.comicService.getComicDetail(comicId).subscribe({
       next: (result) => {
         this.isLoadingFromAPI.set(false);
-        if (result.success && result.data) {
+        if (result.data) {
           // Convert API response to ComicDetailInfo format
           const convertedComic = this.convertAPIComicToComicDetail(result.data);
           this.comic.set(convertedComic);

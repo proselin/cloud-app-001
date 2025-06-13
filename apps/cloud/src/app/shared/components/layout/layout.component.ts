@@ -18,4 +18,5 @@ import { BaseComponent } from '../../../common/components';
 })
 export class LayoutComponent extends BaseComponent {
   isSpinning = computed(() => this.loadingGlobalService.count() > 0);
+  
 }
