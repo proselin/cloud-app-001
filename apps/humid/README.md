@@ -438,7 +438,6 @@ LOG_LEVEL=info
 ## 🔗 Related Projects
 
 - [Cloud (Angular Frontend)](../cloud/README.md)
-- [Platform (Electron Desktop)](../platform/README.md)
 - [Logger (Shared Library)](../../libs/shared/back/logger/README.md)
 
 ## 🤝 Contributing

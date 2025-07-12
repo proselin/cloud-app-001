@@ -619,7 +619,6 @@ export class ElectronService {
 ## 🔗 Related Projects
 
 - [Humid (NestJS Backend)](../humid/README.md)
-- [Platform (Electron Desktop)](../platform/README.md)
 - [Logger (Shared Library)](../../libs/shared/back/logger/README.md)
 
 ## 🤝 Contributing

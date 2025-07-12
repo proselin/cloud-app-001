@@ -37,7 +37,6 @@ cloud-app-001/
 │   ├── cloud-e2e/                # E2E tests for Angular app
 │   ├── humid/                    # NestJS 11 Backend API Server
 │   ├── humid-e2e/                # E2E tests for NestJS API
-│   └── platform/                 # Electron Desktop Application
 ├── libs/
 │   └── shared/
 │       └── back/
@@ -96,16 +95,6 @@ cloud-app-001/
 **Static File Serving**
 
 - `GET /static/imgs/*` - Serve image files
-
-### 🖥️ Platform (Electron Desktop)
-
-- **Technology**: Electron with TypeScript
-- **Purpose**: Cross-platform desktop application
-- **Features**:
-  - Native desktop experience
-  - IPC bridge between frontend and backend
-  - Background service management
-  - Auto-updater support (ready for implementation)
 
 ## 🗄️ Database Schema
 
@@ -175,12 +164,6 @@ npx nx serve humid
 npx nx serve cloud
 ```
 
-3. **Run the Electron desktop app**
-
-```powershell
-npx nx serve platform
-```
-
 ### Production Build
 
 **Build all applications**
@@ -194,7 +177,6 @@ npm run build
 ```powershell
 npx nx build cloud     # Angular app
 npx nx build humid     # NestJS API
-npx nx build platform  # Electron app
 ```
 
 ## 🔧 Configuration
@@ -240,7 +222,6 @@ npx nx e2e humid-e2e     # Backend E2E tests
 ```powershell
 npx nx test cloud        # Angular unit tests
 npx nx test humid        # NestJS unit tests
-npx nx test platform     # Electron unit tests
 ```
 
 ## 📝 Logging
@@ -295,7 +276,7 @@ npx nx show project cloud
 **Run multiple targets**
 
 ```powershell
-npx nx run-many -t build -p humid cloud platform
+npx nx run-many -t build -p humid cloud
 ```
 
 For more Nx commands and capabilities, visit the [Nx documentation](https://nx.dev).
