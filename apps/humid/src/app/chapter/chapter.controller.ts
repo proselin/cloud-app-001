@@ -2,7 +2,6 @@ import { Controller, Get, Logger, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChapterService } from './chapter.service';
 import { ResponseMapper } from '../utils/response-mapper';
-import { ChapterNavigationResponseDto } from './dto/chapter-navigation-response.dto';
 import { ChapterDetailResponseDto } from './dto/chapter-detail-response.dto';
 import { MinimizeChapterResponseDto } from './dto/minimize-chapter-response.dto';
 import { ChapterPlainObject } from '../models/types/chapter-plain-object';
@@ -33,41 +32,9 @@ export class ChapterController {
   })
   async getDetail(
     @Param('id', ParseIntPipe) id: number
-  ): Promise<ResponseMapper<ChapterPlainObject>> {
+  ): Promise<ChapterPlainObject & { comic: { id: number; title: string } }> {
     this.logger.log(`Getting chapter detail for id: ${id}`);
-    const chapter = await this.chapterService.getDetail(id);
-    return ResponseMapper.success(
-      chapter,
-      'Chapter details retrieved successfully'
-    );
-  }
-
-  @Get('/navigation/:comicId')
-  @ApiOperation({ summary: 'Get all chapters for navigation by comic ID' })
-  @ApiParam({
-    name: 'comicId',
-    type: 'number',
-    description: 'Comic ID to get chapters for',
-    example: 1,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Chapters retrieved successfully',
-    type: () => ResponseMapper<ChapterNavigationResponseDto[]>,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'No chapters found for the given comic ID',
-  })
-  async getChaptersForNavigation(
-    @Param('comicId', ParseIntPipe) comicId: number
-  ): Promise<ResponseMapper<ChapterNavigationResponseDto[]>> {
-    this.logger.log(`Getting all chapters for comic id: ${comicId}`);
-
-    const chapters = await this.chapterService.getChaptersForNavigation(
-      comicId
-    );
-    return ResponseMapper.success(chapters, 'Chapters retrieved successfully');
+    return this.chapterService.getDetail(id);
   }
 
   @Get('/by-comic/:comicId')
@@ -89,10 +56,9 @@ export class ChapterController {
   })
   async getChaptersByComicId(
     @Param('comicId', ParseIntPipe) comicId: number
-  ): Promise<ResponseMapper<MinimizeChapterResponseDto[]>> {
+  ): Promise<MinimizeChapterResponseDto[]> {
     this.logger.log(`Getting all chapters for comic id: ${comicId}`);
 
-    const chapters = await this.chapterService.getChaptersByComicId(comicId);
-    return ResponseMapper.success(chapters, 'Chapters retrieved successfully');
+    return this.chapterService.getChaptersByComicId(comicId);
   }
 }

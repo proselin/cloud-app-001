@@ -8,15 +8,17 @@ import { FileIoModule } from './file-io/file-io.module';
 import { ComicModule } from './comic/comic.module';
 import { ChapterModule } from './chapter/chapter.module';
 import { loadConfig } from './config/env/load-config';
-import { resolve } from 'node:path';
-import { LoggingInterceptor, TimeoutInterceptor } from './intercept';
+import {
+  HttpErrorLoggingInterceptor,
+  LoggingInterceptor,
+  TimeoutInterceptor,
+} from './intercept';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   controllers: [],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: resolve('resources', 'config', '.env.humid'),
       isGlobal: true,
       validate: loadConfig,
     }),
@@ -32,6 +34,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
   ],
   providers: [
     LoggingInterceptor,
+    HttpErrorLoggingInterceptor,
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,

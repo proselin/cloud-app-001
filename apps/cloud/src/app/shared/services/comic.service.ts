@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ComicPlainObject, ComicSuggestionResponseDto, ComicSearchParams } from '../models/api/comic.model';
-import { ResponseMapper } from '../models/api/response-mapper.model';
+import {
+  ComicPlainObject,
+  ComicSearchParams,
+  ResponseMapper,
+  SuggestComic,
+} from '../models/api';
+import { ApiCommonService } from '../../common/services/api-common.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ComicService {
-  private readonly apiUrl = 'http://localhost:19202/api/v1/comic';
-
-  constructor(private http: HttpClient) {}
+export class ComicService extends ApiCommonService {
 
   /**
    * Search comics with optional parameters
@@ -30,21 +32,21 @@ export class ComicService {
       params = params.set('genre', searchParams.genre);
     }
 
-    return this.http.get<ResponseMapper<ComicPlainObject[]>>(this.apiUrl, { params });
+    return this.httpClient.get<ResponseMapper<ComicPlainObject[]>>(`${this.env.apiUrl}/comic`, { params });
   }
 
   /**
    * Get comic suggestions by keyword
    */
-  getComicSuggestions(keyword: string): Observable<ComicSuggestionResponseDto[]> {
+  getComicSuggestions(keyword: string): Observable<SuggestComic[]> {
     const params = new HttpParams().set('q', keyword);
-    return this.http.get<ComicSuggestionResponseDto[]>(`${this.apiUrl}/suggest`, { params });
+    return this.httpClient.get<SuggestComic[]>(`${this.env.apiUrl}/comic/suggest`, { params });
   }
 
   /**
    * Get comic details by ID
    */
   getComicDetail(comicId: string): Observable<ResponseMapper<ComicPlainObject>> {
-    return this.http.get<ResponseMapper<ComicPlainObject>>(`${this.apiUrl}/${comicId}`);
+    return this.httpClient.get<ResponseMapper<ComicPlainObject>>(`${this.env.apiUrl}/comic/${comicId}`);
   }
 }

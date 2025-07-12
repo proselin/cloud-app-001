@@ -11,6 +11,8 @@ import en from '@angular/common/locales/en';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
+import { provideEnvironment } from './common/config/environment.token';
+import { environment } from '../environment/environment';
 
 registerLocaleData(en);
 
@@ -21,5 +23,6 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(FormsModule),
     provideAnimationsAsync(),
     provideHttpClient(),
+    provideEnvironment(environment),
   ],
 };

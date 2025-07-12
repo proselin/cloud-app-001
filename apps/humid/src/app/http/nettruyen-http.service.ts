@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { SuggestComicDto } from '../models/internals/suggest-comic.dto';
 import * as cheerio from 'cheerio';
+import { tap } from 'rxjs/operators';
 
 interface INettruyenChapterListResponseItem {
   comic_id: number;
@@ -62,9 +63,6 @@ export class NettruyenHttpService {
   }
 
   getChapterList(domain: string, slug: string, comicId: string) {
-    this.logger.log(
-      `[getChapterList] ${domain}/Comic/Services/ComicService.asmx/ChapterList?slug=${slug}&comicId=${comicId}`
-    );
     return firstValueFrom(
       this.httpService.get<NettruyenGetChapterListResponse>(
         `${domain}/Comic/Services/ComicService.asmx/ChapterList?slug=${slug}&comicId=${comicId}`,

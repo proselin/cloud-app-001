@@ -19,7 +19,12 @@ export function loadConfig(
   };
 
   const dbConfig = {
-    'db.location': z.string().transform(Utils.fromConfigToPath),
+    'db.host': z.string().default('localhost'),
+    'db.port': z.coerce.number().int().min(1).max(65535).default(5432),
+    'db.username': z.string(),
+    'db.password': z.string(),
+    'db.database': z.string(),
+    'db.ssl': z.coerce.boolean().default(false),
   };
   const fileIo = {
     'file.img-location': z.string().transform(Utils.fromConfigToPath),

@@ -9,4 +9,5 @@ import { BaseComponent } from '../../../common/components';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbComponent extends BaseComponent {}
+export class BreadcrumbComponent  {
+}

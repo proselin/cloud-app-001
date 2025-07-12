@@ -25,11 +25,11 @@ export class LoggingInterceptor implements NestInterceptor {
     const handler = context.getHandler().name;
     const type = context.getType();
     const className = context.getClass().name;
+    const url = request.url
+    const method = String(request?.method ?? "Unknown").toUpperCase();
 
     Logger.log(
-      `[${uuid}:${serviceHash}][${handler}]:[${type}]::Request on \n Params ${JSON.stringify(
-        request.params
-      )} \n  Body ${JSON.stringify(request.body)} \n`,
+      `[${uuid}:${serviceHash}]:[${type}]::Request on ${method} - ${url} \n Body ${JSON.stringify(request?.body) ?? "NULL"} \n`,
       className
     );
     const now = Date.now();
@@ -37,7 +37,7 @@ export class LoggingInterceptor implements NestInterceptor {
       tap({
         next: () => {
           Logger.log(
-            `[${uuid}:${serviceHash}][${handler}]:[${type}]::Complete in ${
+            `[${uuid}:${serviceHash}]:[${type}]::Complete in ${
               Date.now() - now
             } ms`,
             className
@@ -45,7 +45,7 @@ export class LoggingInterceptor implements NestInterceptor {
         },
         error: (err) => {
           Logger.error(
-            `[${uuid}:${serviceHash}][${handler}]:[${type}]:: Request error`,
+            `[${uuid}:${serviceHash}]:[${type}]:: Request error`,
             className
           );
           Logger.error(err, className);

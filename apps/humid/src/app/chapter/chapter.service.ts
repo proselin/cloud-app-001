@@ -16,19 +16,25 @@ export class ChapterService {
     private readonly chapterRepository: Repository<ChapterEntity>
   ) {}
 
-  async getDetail(id: number): Promise<ChapterPlainObject> {
+  async getDetail(id: number): Promise<ChapterPlainObject & { comic: { id: number; title: string } }> {
     this.logger.log(`Getting chapter detail for id: ${id}`);
 
     const chapter = await this.chapterRepository.findOne({
       where: { id },
-      relations: ['images'],
+      relations: ['images', 'comic'],
     });
 
     if (!chapter) {
       throw new NotFoundException(`Chapter with id ${id} not found`);
     }
-
-    return ChapterEntity.toJSON(chapter);
+    const comic  = await chapter.comic
+    return {
+      ...(await ChapterEntity.toJSON(chapter)),
+      comic: {
+        id: comic.id,
+        title: comic.title,
+      },
+    }
   }
 
   async getChaptersForNavigation(

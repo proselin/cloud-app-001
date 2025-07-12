@@ -1,36 +1,39 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   CrawlByUrlRequestDto,
+  CrawlChapterProgressEvent,
   CrawlComicByUrlResponseDto,
-  CrawlChapterProgressEvent
-} from '../models/api/crawl.model';
-import { ResponseMapper } from '../models/api/response-mapper.model';
+} from '../models/api';
+import { ResponseMapper } from '../models/api';
+import { ApiCommonService } from '../../common/services/api-common.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CrawlService {
-  private readonly apiUrl = 'http://localhost:19202/api/v1/crawl';
-
-  constructor(private http: HttpClient) {}
-
+export class CrawlService extends ApiCommonService {
   /**
    * Crawl comic by URL
    */
-  crawlComicByUrl(crawlRequest: CrawlByUrlRequestDto): Observable<ResponseMapper<CrawlComicByUrlResponseDto>> {
-    return this.http.post<ResponseMapper<CrawlComicByUrlResponseDto>>(`${this.apiUrl}/by-url`, crawlRequest);
+  crawlComicByUrl(
+    crawlRequest: CrawlByUrlRequestDto
+  ): Observable<ResponseMapper<CrawlComicByUrlResponseDto>> {
+    return this.httpClient.post<ResponseMapper<CrawlComicByUrlResponseDto>>(
+      `${this.env.apiUrl}/by-url`,
+      crawlRequest
+    );
   }
 
   /**
    * Crawl chapter by comic ID using Server-Sent Events
    */
   crawlChapterByIdSSE(comicId: string): Observable<CrawlChapterProgressEvent> {
-    return new Observable(observer => {
-      const eventSource = new EventSource(`${this.apiUrl}/crawl-chapter-by-id-sse?comicId=${comicId}`);
+    return new Observable((observer) => {
+      const eventSource = new EventSource(
+        `${this.env.apiUrl}/crawl-chapter-by-id-sse?comicId=${comicId}`
+      );
 
-      eventSource.onmessage = event => {
+      eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           observer.next(data);
@@ -39,7 +42,7 @@ export class CrawlService {
         }
       };
 
-      eventSource.onerror = error => {
+      eventSource.onerror = (error) => {
         observer.error(error);
         eventSource.close();
       };

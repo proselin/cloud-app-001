@@ -96,7 +96,7 @@ export class NettruyenComicService {
 
   private async getComicOrCrawlNew(href: string) {
     this.logger.log(`START [getIdOrCrawlNew] with href=${href}`);
-    const crawledInformation = await this.extractInfo(href).catch(() => {
+    const crawledInformation = await this.extractInfo(href).catch((e) => {
       throw COMIC_NOT_FOUND_BY_URL;
     });
     const comic = await this.comicRepository.findOneBy({
@@ -122,7 +122,7 @@ export class NettruyenComicService {
       .setHttp(this.nettruyenHttpService)
       .setUrl(url)
       .setHtmlContent(response.data)
-      .extract();
+      .extract()
   }
 
   public async getComicByUrl(url: string) {

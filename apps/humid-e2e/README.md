@@ -364,25 +364,25 @@ export class ApiHelper {
   constructor(private httpServer: any) {}
 
   async createComic(comicData: Partial<Comic>): Promise<Comic> {
-    const response = await request(this.httpServer).post('/api/v1/comics').send(comicData).expect(201);
+    const response = await request(this.httpClientServer).post('/api/v1/comics').send(comicData).expect(201);
 
     return response.body;
   }
 
   async getComics(query: any = {}): Promise<any> {
-    const response = await request(this.httpServer).get('/api/v1/comics').query(query).expect(200);
+    const response = await request(this.httpClientServer).get('/api/v1/comics').query(query).expect(200);
 
     return response.body;
   }
 
   async crawlComic(url: string): Promise<any> {
-    const response = await request(this.httpServer).post('/api/v1/crawling/comic').send({ url }).expect(201);
+    const response = await request(this.httpClientServer).post('/api/v1/crawling/comic').send({ url }).expect(201);
 
     return response.body;
   }
 
   async expectError(method: 'get' | 'post' | 'put' | 'delete', endpoint: string, expectedStatus: number, data?: any): Promise<any> {
-    const req = request(this.httpServer)[method](endpoint);
+    const req = request(this.httpClientServer)[method](endpoint);
 
     if (data) {
       req.send(data);

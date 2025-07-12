@@ -24,7 +24,7 @@ export class NettruyenChapterService {
     private comicRepository: Repository<ComicEntity>,
     private dataSource: DataSource,
     private imageService: NettruyenImageService,
-    private readonly http: NettruyenHttpService,
+    private readonly nettruyenHttpService: NettruyenHttpService,
     @InjectRepository(ChapterEntity)
     private readonly chapterRepository: Repository<ChapterEntity>
   ) {}
@@ -189,7 +189,7 @@ export class NettruyenChapterService {
   private async extractChapterInfo(
     url: string
   ): Promise<ExtractChapterInfoResult$1> {
-    const { data: body } = await this.http.get(url);
+    const { data: body } = await this.nettruyenHttpService.get(url);
     const domain = new URL(url).origin;
     const imageRegex =
       /data-sv1=['"]([^'"]*)['"][^>]*data-sv2=['"]([^'"]*)['"]/g;

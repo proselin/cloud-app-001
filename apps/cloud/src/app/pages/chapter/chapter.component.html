@@ -1,162 +1,209 @@
-<!-- Loading State -->
+<!-- Simple Loading State -->
 @if (loading()) {
-<div class="flex justify-center items-center min-h-screen bg-black">
-  <div class="loading-spinner animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
+<div class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="text-center">
+    <div class="w-8 h-8 border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-gray-600 dark:text-gray-400">Loading chapter...</p>
+  </div>
 </div>
 }
 
-<!-- Error State -->
+<!-- Simple Error State -->
 @if (error() && !loading()) {
-<div class="flex flex-col justify-center items-center min-h-screen bg-black text-white">
-  <div class="text-red-400 text-xl mb-4">{{ error() }}</div>
-  <button
-    (click)="goBackToComic()"
-    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-    Go Back to Comic
-  </button>
+<div class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
+  <div class="text-center max-w-md">
+    <div class="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h2 class="text-xl font-medium text-gray-900 dark:text-white mb-3">Something went wrong</h2>
+    <p class="text-red-600 dark:text-red-400 text-sm mb-6 bg-red-50 dark:bg-red-900/20 rounded-lg p-3 border border-red-200 dark:border-red-800">
+      {{ error() }}
+    </p>
+    <button
+      (click)="goBackToComic()"
+      class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors duration-200">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Go Back
+    </button>
+  </div>
 </div>
 }
 
-<!-- Chapter Reader -->
+<!-- Mobile-First Responsive Chapter Reader -->
 @if (chapter() && !loading() && !error()) {
-<div class="min-h-screen bg-black text-white">
-  <!-- Top Navigation Bar -->
-  <div class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-gray-800 top-nav-bar">
-    <div class="flex items-center justify-between px-4 py-3">
-      <!-- Left: Back button and chapter info -->
-      <div class="flex items-center space-x-4">
-        <button
-          (click)="goBackToComic()"
-          class="flex items-center text-gray-300 hover:text-white transition-colors">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-          Back
-        </button>
-        <div class="text-sm">
-          <div class="font-medium">{{ chapter()!.title }}</div>
-          @if (getCurrentChapterIndex() > 0) {
-          <div class="text-gray-400">Chapter {{ getCurrentChapterIndex() }} of {{ allChapters().length }}</div>
-          }
-        </div>
-      </div>
+<div class="min-h-screen bg-white dark:bg-gray-900">
+  <!-- Fixed Top Navigation - Mobile Optimized -->
+  <nav class="fixed top-0 left-0 right-0 bg-gradient-to-r from-white/95 via-white/95 to-white/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-900/95 backdrop-blur-md border-b border-gray-100/50 dark:border-gray-800/50 z-30 shadow-sm">
+    <!-- Safe area for iPhone notch -->
+    <div class="pt-safe-top">
+      <div class="px-3 sm:px-4 py-2 sm:py-3">
+        <div class="flex items-center justify-between max-w-sm sm:max-w-4xl mx-auto">
+          <!-- Left: Gradient Back Button -->
+          <button
+            (click)="goBackToComic()"
+            class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
 
-      <!-- Center: Progress -->
-      <div class="flex-1 max-w-md mx-4">
-        <div class="text-xs text-gray-400 mb-1 text-center">
-          Page {{ currentImageIndex() + 1 }} of {{ chapter()!.images.length }}
-        </div>
-        <div class="w-full bg-gray-700 rounded-full h-2">
-          <div
-            class="bg-blue-600 h-2 rounded-full transition-all duration-300 progress-bar"
-            [style.width.%]="getProgress()">
+          <!-- Center: Comic Info - Minimal -->
+          <div class="text-center flex-1 mx-3">
+            <h1 class="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{{ comicName() }}</h1>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+              Ch. {{ chapterIndexed() + 1 }}
+            </p>
+          </div>
+
+          <!-- Right: Chapter Counter -->
+          <div class="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-mono min-w-[50px] text-right">
+            {{ chapterIndexed() + 1 }}/{{ allChapters().length }}
           </div>
         </div>
-      </div>
-
-      <!-- Right: Navigation -->
-      <div class="flex items-center space-x-2">
-        <button
-          (click)="goToPreviousChapter()"
-          class="p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded transition-colors"
-          title="Previous Chapter (↑)">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-          </svg>
-        </button>
-        <button
-          (click)="goToNextChapter()"
-          class="p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded transition-colors"
-          title="Next Chapter (↓)">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </button>
       </div>
     </div>
-  </div>
+  </nav>
 
-  <!-- Chapter Images -->
-  <div #chapterContainer class="pt-16 pb-8 chapter-container">
-    <div class="max-w-4xl mx-auto">
-      @for (image of chapter()!.images; track image.id; let i = $index) {
-      <div
-        class="relative mb-2 group cursor-pointer chapter-image"
-        [attr.data-image-index]="i"
-        (click)="nextImage()"
-        (keydown.enter)="nextImage()"
-        (keydown.space)="nextImage()"
-        tabindex="0"
-        role="button"
-        [attr.aria-label]="'Next image - Page ' + (i + 1)">
-        <!-- Image placeholder/loader -->
-        <div class="w-full bg-gray-900 flex items-center justify-center min-h-[600px]">
-          <div class="text-center">
-            <div class="text-gray-500 mb-2">Page {{ i + 1 }}</div>
-            <div class="w-16 h-16 bg-gray-700 rounded animate-pulse"></div>
-            <div class="text-xs text-gray-600 mt-2">{{ image.fileName }}</div>
-          </div>
-        </div>
-
-        <!-- Current page indicator -->
-        @if (i === currentImageIndex()) {
-        <div class="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium current-indicator">
-          Current
-        </div>
-        }
-
-        <!-- Page number overlay -->
-        <div class="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm page-number">
-          {{ i + 1 }} / {{ chapter()!.images.length }}
-        </div>
-      </div>
+  <!-- Chapter Images - Simple Scrolling with Click Areas -->
+  <main class="pt-16 sm:pt-20 pb-16 sm:pb-20 relative">
+    <div class="max-w-sm sm:max-w-4xl mx-auto">
+      <!-- Invisible Click Areas for Chapter Navigation -->
+      @if (hasPreviousChapter()) {
+        <button
+          (click)="onLeftAreaClick()"
+          class="fixed left-0 top-16 sm:top-20 bottom-16 sm:bottom-20 w-1/4 z-10 bg-transparent border-none cursor-pointer focus:outline-none"
+          aria-label="Previous Chapter"
+          title="Previous Chapter">
+        </button>
       }
-    </div>
-  </div>
 
-  <!-- Bottom Navigation -->
-  <div class="fixed bottom-0 left-0 right-0 bg-black bg-opacity-90 backdrop-blur-sm border-t border-gray-800 p-4 bottom-nav-bar">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
-      <button
-        (click)="previousImage()"
-        class="flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-        [disabled]="currentImageIndex() === 0 && getCurrentChapterIndex() === 1">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-        Previous
-      </button>
+      @if (hasNextChapter()) {
+        <button
+          (click)="onRightAreaClick()"
+          class="fixed right-0 top-16 sm:top-20 bottom-16 sm:bottom-20 w-1/4 z-10 bg-transparent border-none cursor-pointer focus:outline-none"
+          aria-label="Next Chapter"
+          title="Next Chapter">
+        </button>
+      }
 
-      <!-- Page selector -->
-      <div class="flex items-center space-x-2">
-        <span class="text-sm text-gray-400">Go to page:</span>
-        <select
-          [value]="currentImageIndex()"
-          (change)="onPageSelect($event)"
-          class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm">
-          @for (image of chapter()!.images; track image.id; let i = $index) {
-          <option [value]="i">{{ i + 1 }}</option>
-          }
-        </select>
+      <div class="flex flex-col">
+        @for (image of chapter()!.images; track image.id; let i = $index) {
+          <div class="relative">
+            <img
+              [src]="image.url"
+              [alt]="'Chapter ' + chapter()!.title + ' - Page ' + (i + 1)"
+              class="w-full h-auto block"
+              loading="lazy"
+              (load)="onImageLoad($event)"
+              (error)="onImageError($event)" />
+
+            <!-- Minimal Loading State -->
+            <div class="absolute inset-0 bg-gray-50 dark:bg-gray-800 flex items-center justify-center loading-overlay"
+                 style="display: block;">
+              <div class="text-center">
+                <div class="w-6 h-6 sm:w-8 sm:h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+                <p class="text-xs sm:text-sm text-gray-400">{{ i + 1 }}</p>
+              </div>
+            </div>
+          </div>
+        }
       </div>
+    </div>
+  </main>
 
-      <button
-        (click)="nextImage()"
-        class="flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
-        Next
-        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-        </svg>
-      </button>
+  <!-- Simple Keyboard Hints - Chapter Navigation Only -->
+  <div class="fixed bottom-20 sm:bottom-24 right-3 sm:right-4 z-20 hidden sm:block">
+    <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg p-3 space-y-2">
+      <div class="flex items-center space-x-2">
+        <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs font-mono">←→</span>
+        <span class="text-xs text-gray-600 dark:text-gray-400">Chapters</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono">ESC</span>
+        <span class="text-xs text-gray-600 dark:text-gray-400">Back</span>
+      </div>
+      <div class="pt-1 border-t border-gray-200/50 dark:border-gray-600/50">
+        <div class="text-xs text-gray-500 dark:text-gray-500">Click sides to navigate</div>
+      </div>
     </div>
   </div>
 
-  <!-- Keyboard shortcuts help -->
-  <div class="fixed bottom-20 right-4 bg-gray-900 bg-opacity-90 backdrop-blur-sm rounded-lg p-3 text-xs text-gray-300 shortcuts-help">
-    <div class="font-medium mb-2">Keyboard Shortcuts:</div>
-    <div>← → Navigation</div>
-    <div>↑ ↓ Chapters</div>
-    <div>Esc Back</div>
-  </div>
+  <!-- Fixed Bottom Navigation - Chapter Selection Only -->
+  <footer class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white/95 via-white/95 to-white/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-900/95 backdrop-blur-md border-t border-gray-100/50 dark:border-gray-800/50 z-30 shadow-lg">
+    <!-- Safe area for iPhone home indicator -->
+    <div class="pb-safe-bottom">
+      <div class="px-3 sm:px-4 py-2 sm:py-3">
+        <div class="flex items-center justify-between max-w-sm sm:max-w-4xl mx-auto">
+          <!-- Left: Previous Chapter Button -->
+          <div class="flex-1">
+            @if (hasPreviousChapter()) {
+              <button
+                (click)="goToPreviousChapter()"
+                class="flex items-center px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-lg transition-all duration-200 active:scale-95">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span class="hidden sm:inline">Previous Chapter</span>
+                <span class="sm:hidden">Prev Ch</span>
+              </button>
+            } @else {
+              <div class="flex items-center px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-300 dark:text-gray-600">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span class="hidden sm:inline">First Chapter</span>
+                <span class="sm:hidden">First</span>
+              </div>
+            }
+          </div>
+
+          <!-- Center: Chapter Selection Only -->
+          <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- Chapter Selector -->
+            <select
+              [ngModel]="chapterIndexed()"
+              (change)="onChapterSelect($event)"
+              class="text-xs sm:text-sm border border-blue-200 dark:border-blue-700 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 bg-blue-50/80 dark:bg-blue-900/20 text-blue-900 dark:text-blue-300 min-w-[80px] sm:min-w-[120px] backdrop-blur focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 font-medium">
+              @for (chapterInfo of allChapters(); track chapterInfo.id; let i = $index) {
+                <option
+                  [value]="i"
+                  class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-1">
+                  Chapter {{ chapterInfo.chapterNumber }}
+                </option>
+              }
+            </select>
+
+          </div>
+
+          <!-- Right: Next Chapter Button -->
+          <div class="flex-1 flex justify-end">
+            @if (hasNextChapter()) {
+              <button
+                (click)="goToNextChapter()"
+                class="flex items-center px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-lg transition-all duration-200 active:scale-95">
+                <span class="hidden sm:inline">Next Chapter</span>
+                <span class="sm:hidden">Next Ch</span>
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            } @else {
+              <div class="flex items-center px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-300 dark:text-gray-600">
+                <span class="hidden sm:inline">Last Chapter</span>
+                <span class="sm:hidden">Last</span>
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 </div>
 }

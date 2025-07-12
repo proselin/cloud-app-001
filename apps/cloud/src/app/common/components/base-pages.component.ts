@@ -1,5 +1,11 @@
 import { BaseComponent } from './base.component';
-import { Directive } from '@angular/core';
+import { Directive, inject } from '@angular/core';
+import { mobileCheck } from '../utils/check-device';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Directive()
-export abstract class BasePagesComponent extends BaseComponent {}
+export abstract class BasePagesComponent extends BaseComponent {
+  protected isMobile = mobileCheck();
+  protected route = inject(ActivatedRoute);
+  protected router = inject(Router);
+}

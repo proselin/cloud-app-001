@@ -2,20 +2,9 @@
  * Comic models for API responses
  */
 
-// Base entity structure from backend
-export interface CommonEntityPlainObject {
-  id: number;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-}
+import { CommonEntityPlainObject, ImagePlainObject } from "./response-mapper.model";
 
-// Image structure from backend
-export interface ImagePlainObject extends CommonEntityPlainObject {
-  fileName: string;
-  originUrls: string;
-  position: number;
-  type: number;
-}
+
 
 // Chapter structure from backend (without images)
 export interface ChapterWithoutImagesPlainObject extends CommonEntityPlainObject {
@@ -43,6 +32,17 @@ export interface ComicSuggestionResponseDto {
   thumbnailUrl: string;
   author: string;
   status: string;
+}
+
+// Backend SuggestComicDto response interface
+export interface SuggestComic {
+  id: number;
+  title: string;
+  url: string;
+  chapter: string;
+  author: string;
+  genres: string[];
+  thumbnail: string;
 }
 
 export interface ComicSearchParams {

@@ -3,8 +3,8 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { CommonEntity } from '../common';
 import { ChapterWithoutImagesPlainObject } from '../models/types/chapter-without-images-plain-object';
 import { ChapterPlainObject } from '../models/types/chapter-plain-object';
+import { ComicEntity } from './comic.entity';
 import { ImageEntity } from './image.entity';
-import { IComicEntity } from './types/entity-interfaces';
 
 @Entity('chapter')
 export class ChapterEntity extends CommonEntity {
@@ -33,13 +33,13 @@ export class ChapterEntity extends CommonEntity {
   })
   crawlStatus!: string;
 
-  @ManyToOne('ComicEntity', (comic: IComicEntity) => comic.chapters, {
+  @ManyToOne(() => ComicEntity, (comic) => comic.chapters, {
     lazy: true,
   })
   @JoinColumn({
     name: 'comic_id',
   })
-  comic!: IComicEntity;
+  comic!: ComicEntity;
 
   @OneToMany(() => ImageEntity, (image) => image.chapter, {
     lazy: true,

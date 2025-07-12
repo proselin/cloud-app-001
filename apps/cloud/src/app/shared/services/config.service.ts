@@ -15,7 +15,7 @@ export class ConfigService {
 
 
  getFileIoSavedFilePath(): Observable<ResponseMapper<string>> {
-   return this.HttpClient.get<ResponseMapper<string>>(`${this.apiUrl}file-io/saved-file-path`).pipe(
+   return this.httpClientClient.get<ResponseMapper<string>>(`${this.env.apiUrl}file-io/saved-file-path`).pipe(
      map((response: ResponseMapper<string>) => {
           this.config['fileIoSavedFilePath'] = response.data;
           return response;

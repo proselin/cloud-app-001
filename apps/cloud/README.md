@@ -43,7 +43,6 @@ src/
 │   │   ├── comic-detail/     # Comic details page
 │   │   └── search/           # Search results page
 │   ├── services/             # Business logic services
-│   │   ├── comic.service.ts  # Comic API integration
 │   │   ├── search.service.ts # Search functionality
 │   │   └── cache.service.ts  # Caching strategy
 │   ├── guards/               # Route guards
@@ -117,21 +116,21 @@ export class ComicCardComponent {
 @Injectable({
   providedIn: 'root',
 })
-export class ComicService {
+export class ComicService extends CommonService{
   private readonly apiUrl = 'http://localhost:3000/api/v1';
 
   constructor(private http: HttpClient) {}
 
   getComics(params?: ComicSearchParams): Observable<ComicResponse> {
-    return this.http.get<ComicResponse>(`${this.apiUrl}/comic`, { params });
+    return this.httpClient.get<ComicResponse>(`${this.env.apiUrl}/comic`, { params });
   }
 
   getComicById(id: number): Observable<Comic> {
-    return this.http.get<Comic>(`${this.apiUrl}/comic/${id}`);
+    return this.httpClient.get<Comic>(`${this.env.apiUrl}/comic/${id}`);
   }
 
   searchComics(query: string): Observable<Comic[]> {
-    return this.http.get<Comic[]>(`${this.apiUrl}/comic/suggest`, {
+    return this.httpClient.get<Comic[]>(`${this.env.apiUrl}/comic/suggest`, {
       params: { q: query },
     });
   }
@@ -533,7 +532,7 @@ CMD ["nginx", "-g", "daemon off;"]
 ### Environment Configuration
 
 ```typescript
-// environment.ts
+// environment
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api/v1',

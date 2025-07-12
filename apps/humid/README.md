@@ -186,7 +186,7 @@ npm install
 The application uses default configurations, but you can customize:
 
 ```typescript
-// src/environments/environment.ts
+// src/environments/environment
 export const environment = {
   production: false,
   database: {

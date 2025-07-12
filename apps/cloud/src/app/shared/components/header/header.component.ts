@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { BaseComponent } from '../../../common/components';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ThemeService } from '../../services';
 
 @Component({
   selector: 'cloud-header',
@@ -14,6 +15,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent extends BaseComponent {
+  themeService = inject(ThemeService);
+
   protected readonly routes: Array<{
     path: string;
     title: string;
@@ -23,4 +26,8 @@ export class HeaderComponent extends BaseComponent {
       title: 'Search',
     },
   ];
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 }

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { Utils } from '../utils';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'node:path';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class FileIoService {
@@ -31,7 +32,7 @@ export class FileIoService {
     if (!extension) {
       throw new BadRequestException('Unsupported content type');
     }
-    const hash = Date.now().toString(3).substring(0, 3);
+    const hash = nanoid(8);
     return `${prefixFileName}-${hash}.${extension}`;
   }
 }

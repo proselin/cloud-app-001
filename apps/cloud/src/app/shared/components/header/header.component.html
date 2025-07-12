@@ -1,21 +1,49 @@
-<header class="bg-gray-900 text-white shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <a [routerLink]="'/'">
-        <div class="text-xl font-bold text-blue-400 hover:text-blue-300 transition-colors">
+<header class="sticky top-0 z-50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border-b border-white/20 dark:border-gray-700/30 shadow-lg shadow-gray-900/5 dark:shadow-black/20">
+  <!-- Glass morphism gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-r from-blue-50/50 via-transparent to-purple-50/50 dark:from-blue-900/10 dark:via-transparent dark:to-purple-900/10 pointer-events-none"></div>
+
+  <div class="relative max-w-6xl mx-auto px-6">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo/Brand with glow effect -->
+      <a [routerLink]="'/'" class="group flex items-center space-x-2">
+        <div class="text-xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 dark:from-primary-400 dark:to-purple-400 bg-clip-text text-transparent group-hover:from-primary-700 group-hover:to-purple-700 dark:group-hover:from-primary-300 dark:group-hover:to-purple-300 transition-all duration-300">
           Margiet
         </div>
       </a>
-      <nav class="flex space-x-4">
-        @for (route of routes; track route.path) {
-        <a
-          [routerLink]="route.path"
-          [routerLinkActive]="'text-blue-400 font-semibold'"
-          class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors">
-          {{ route?.title }}
-        </a>
-        }
-      </nav>
+
+      <!-- Navigation & Theme Toggle -->
+      <div class="flex items-center space-x-6">
+        <!-- Navigation with glass effect -->
+        <nav class="hidden md:flex items-center space-x-1">
+          @for (route of routes; track route.path) {
+          <a
+            [routerLink]="route.path"
+            [routerLinkActive]="'bg-white/60 dark:bg-gray-800/60 text-primary-700 dark:text-primary-300 shadow-sm border border-white/30 dark:border-gray-700/30'"
+            class="px-4 py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-gray-800/40 hover:backdrop-blur-md hover:border hover:border-white/30 dark:hover:border-gray-700/30 transition-all duration-300">
+            {{ route?.title }}
+          </a>
+          }
+        </nav>
+
+        <!-- Theme Toggle with glass effect -->
+        <button
+          (click)="toggleTheme()"
+          class="p-2 rounded-xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-white/30 dark:border-gray-700/30 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-gray-800/60 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:ring-offset-2 dark:focus:ring-offset-transparent"
+          [attr.aria-label]="'Switch to ' + (themeService.isDark() ? 'light' : 'dark') + ' theme'">
+          @if (themeService.isDark()) {
+            <!-- Sun icon for light theme -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+          } @else {
+            <!-- Moon icon for dark theme -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          }
+        </button>
+      </div>
     </div>
   </div>
 </header>

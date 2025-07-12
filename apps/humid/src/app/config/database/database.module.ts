@@ -1,20 +1,24 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import 'better-sqlite3';
+import 'pg';
+import { NODE_ENV } from '../../common';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          type: 'better-sqlite3',
-          appName: 'Humid',
-          database: configService.getOrThrow('db.location'),
-          autoLoadEntities: true,
-          synchronize: true, // only for dev! turns models into tables
+          type: 'postgres',
+          host: configService.getOrThrow('db.host'),
+          port: configService.getOrThrow('db.port'),
+          username: configService.getOrThrow('db.username'),
+          password: configService.getOrThrow('db.password'),
+          database: configService.getOrThrow('db.database'),
+          autoLoadEntities: configService.getOrThrow('node_env') === NODE_ENV.DEVELOPMENT,
+          synchronize: configService.getOrThrow('node_env') === NODE_ENV.DEVELOPMENT,
           retryAttempts: 1,
-          timeout: 30000,
+          connectTimeoutMS: 30000,
         };
       },
     }),

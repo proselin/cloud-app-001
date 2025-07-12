@@ -1,7 +1,7 @@
 import { Extractor } from './extractor';
 import { InfoExtractedResult$1, RawCrawledChapter } from '../../common';
 import { NettruyenHttpService } from '../../http/nettruyen-http.service';
-import * as cheerio from 'cheerio';
+import { Logger } from '@nestjs/common';
 
 export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
   private http!: NettruyenHttpService;
@@ -10,6 +10,7 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
   private domain!: string;
   private comicId!: string;
   private comicSlug!: string;
+  private logger = new Logger(ExtractNettruyenImpl.name);
 
   setHttp(http: NettruyenHttpService) {
     this.http = http;
@@ -27,91 +28,78 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
   }
 
   private extractSlug() {
-    const $ = cheerio.load(this.htmlContent);
-    let slug: string | undefined;
+    // Search for gOpts.comicSlug in the HTML content using regex
+    const slugMatch = this.htmlContent.match(
+      /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"];?\s*/
+    );
 
-    // Search for gOpts.comicSlug in script tags
-    $('script').each((_, element) => {
-      const scriptContent = $(element).html();
-      if (scriptContent && scriptContent.includes('gOpts.comicSlug')) {
-        const slugMatch = scriptContent.match(
-          /gOpts\.comicSlug\s*=\s*['"]([^'"]*)['"];?\s*/
-        );
-        if (slugMatch && slugMatch[1]) {
-          slug = slugMatch[1];
-          return false; // Break the loop
-        }
-      }
-    });
-
-    if (!slug) {
+    if (!slugMatch || !slugMatch[1]) {
       throw new Error('slug is not found !!');
     }
-    return slug;
+
+    return slugMatch[1];
   }
 
   private extractTitle() {
-    const $ = cheerio.load(this.htmlContent);
-    let title: string | undefined;
+    // Search for gOpts.comicName in the HTML content using regex
+    const titleMatch = this.htmlContent.match(
+      /gOpts\.comicName\s*=\s*['"]([^'"]*)['"];?\s*/
+    );
 
-    // Search for gOpts.comicName in script tags
-    $('script').each((_, element) => {
-      const scriptContent = $(element).html();
-      if (scriptContent && scriptContent.includes('gOpts.comicName')) {
-        const nameMatch = scriptContent.match(
-          /gOpts\.comicName\s*=\s*['"]([^'"]*)['"];?\s*/
-        );
-        if (nameMatch && nameMatch[1]) {
-          title = nameMatch[1];
-          return false; // Break the loop
-        }
-      }
-    });
-
-    if (!title) {
+    if (!titleMatch || !titleMatch[1]) {
       throw new Error('Header is not found !!');
     }
-    return title;
+
+    return titleMatch[1];
   }
 
   private extractId() {
-    const $ = cheerio.load(this.htmlContent);
-    let id: string | undefined;
+    // Search for gOpts.comicId in the HTML content using regex
+    // Match both quoted strings and numeric values with flexible whitespace
+    const idMatch = this.htmlContent.match(
+      /gOpts\.comicId\s*=\s*(?:['"]([^'"]*)['"]|(\d+))\s*;/
+    );
 
-    // Search for gOpts.comicId in script tags
-    $('script').each((_, element) => {
-      const scriptContent = $(element).html();
-      if (scriptContent && scriptContent.includes('gOpts.comicId')) {
-        // Match both quoted strings and numeric values with flexible whitespace
-        const idMatch = scriptContent.match(
-          /gOpts\.comicId\s*=\s*(?:['"]([^'"]*)['"]|(\d+))\s*;/
-        );
-        if (idMatch && (idMatch[1] || idMatch[2])) {
-          id = idMatch[1] || idMatch[2];
-          return false; // Break the loop
-        }
-      }
-    });
-
-    if (!id) {
+    if (!idMatch || (!idMatch[1] && !idMatch[2])) {
       throw new Error('comicId is not found !!');
     }
-    return id;
+
+    return idMatch[1] || idMatch[2];
   }
 
   private extractThumb() {
-    const $ = cheerio.load(this.htmlContent);
-    let thumbUrl = $('.detail-content-image img').first().attr('data-src');
+    // Search for image-thumb img with data-src attribute using regex
+    let thumbMatch = this.htmlContent.match(
+      /<img[^>]+class="[^"]*image-thumb[^"]*"[^>]+data-src="([^"]+)"/i
+    );
 
-    // Fallback to src attribute if data-src is not found
-    if (!thumbUrl) {
-      thumbUrl = $('.detail-content-image img').first().attr('src');
+    // If data-src not found, try to find src attribute
+    if (!thumbMatch || !thumbMatch[1]) {
+      thumbMatch = this.htmlContent.match(
+        /<img[^>]+class="[^"]*image-thumb[^"]*"[^>]+src="([^"]+)"/i
+      );
     }
 
-    if (!thumbUrl) {
+    // Alternative pattern: look for any img inside image-thumb class container
+    if (!thumbMatch || !thumbMatch[1]) {
+      const containerMatch = this.htmlContent.match(
+        /<[^>]+class="[^"]*image-thumb[^"]*"[^>]*>(.*?)<\/[^>]+>/is
+      );
+      if (containerMatch && containerMatch[1]) {
+        const imgMatch = containerMatch[1].match(
+          /<img[^>]+(?:data-src|src)="([^"]+)"/i
+        );
+        if (imgMatch && imgMatch[1]) {
+          thumbMatch = imgMatch;
+        }
+      }
+    }
+
+    if (!thumbMatch || !thumbMatch[1]) {
       throw new Error('Not found thumb url !!');
     }
-    return thumbUrl;
+
+    return thumbMatch[1];
   }
 
   private async extractChapter(): Promise<RawCrawledChapter[]> {
@@ -147,19 +135,26 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
   }
 
   async extract() {
-    this.validateInput();
+    try {
+      this.validateInput();
 
-    this.domain = new URL(this.url).origin;
-    this.comicId = this.extractId();
-    this.comicSlug = this.extractSlug();
-    const chapters = await this.extractChapter();
-    return {
-      title: this.extractTitle(),
-      thumbUrl: this.extractThumb(),
-      chapters,
-      slug: this.extractSlug(),
-      comicId: this.comicId,
-      domain: this.domain,
-    } satisfies InfoExtractedResult$1;
+      this.domain = new URL(this.url).origin;
+      this.comicId = this.extractId();
+      this.comicSlug = this.extractSlug();
+      const chapters = await this.extractChapter();
+      return {
+        title: this.extractTitle(),
+        thumbUrl: this.extractThumb(),
+        chapters,
+        slug: this.comicSlug,
+        comicId: this.comicId,
+        domain: this.domain,
+      } satisfies InfoExtractedResult$1;
+    } catch (error) {
+      this.logger.error(
+        error
+      );
+      throw error;
+    }
   }
 }

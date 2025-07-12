@@ -7,11 +7,8 @@ import {
 } from '@angular/core';
 import { BasePagesComponent } from '../../common/components';
 import { FormsModule } from '@angular/forms';
-
-import {
-  MockDataService,
-  SearchComicRes,
-} from '../../shared/services/mock';
+import { ComicService } from '../../shared/services/comic.service';
+import { SuggestComic } from '../../shared/models/api/comic.model';
 
 @Component({
   selector: 'cloud-comic',
@@ -22,9 +19,9 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchComponent extends BasePagesComponent {
-  private mockDataService = inject(MockDataService);
+  private comicService = inject(ComicService);
   searchString = signal('');
-  comics = signal<SearchComicRes>([]);
+  comics = signal<SuggestComic[]>([]);
   imageRaw = signal<Blob | null>(null);
   imageUrl = computed(() => {
     if (!this.imageRaw()) return null;
@@ -32,13 +29,21 @@ export class SearchComponent extends BasePagesComponent {
   });
 
   async onSearch() {
+    if (!this.searchString().trim()) {
+      return;
+    }
+
     this.loadingGlobalService
-      .wrapLoading(this.mockDataService.pullComicByUrl(this.searchString()))
+      .wrapLoading(this.comicService.getComicSuggestions(this.searchString()))
       .subscribe({
         next: (result) => {
-          console.log('Response', result);
-          this.comics.set(result.response || []);
+          console.log('Search Response', result);
+          this.comics.set(result || []);
         },
+        error: (error) => {
+          console.error('Search failed:', error);
+          this.comics.set([]);
+        }
       });
   }
 }
