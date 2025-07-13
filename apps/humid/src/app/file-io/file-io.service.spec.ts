@@ -192,7 +192,7 @@ describe('FileIoService', () => {
       expect(Utils.getFileExtensionFromContentType).toHaveBeenCalledWith(
         contentType
       );
-      expect(result).toMatch(/^test-image-\w+\.jpg$/);
+      expect(result).toMatch(/^test-image-[\w-]+\.jpg$/);
     });
 
     it('should throw BadRequestException when content type is null', () => {

@@ -49,6 +49,12 @@
         }
       }
     },
+    "test:health": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx nx test humid --verbose --detectOpenHandles"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
