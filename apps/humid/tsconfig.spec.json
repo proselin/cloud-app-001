@@ -4,6 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "module": "commonjs",
     "moduleResolution": "node10",
+    "target": "es2018",
     "types": ["jest", "node"]
   },
   "include": [

@@ -4,6 +4,7 @@ import { NotFoundException } from '@nestjs/common';
 import { ChapterService } from './chapter.service';
 import { ChapterEntity } from '../entities/chapter.entity';
 import { CrawlingStatus } from '../common';
+import { CacheService } from '../common/services/cache.service';
 
 describe('ChapterService', () => {
   let service: ChapterService;
@@ -11,6 +12,13 @@ describe('ChapterService', () => {
   const mockChapterRepository = {
     findOne: jest.fn(),
     find: jest.fn(),
+  };
+
+  const mockCacheService = {
+    get: jest.fn(),
+    set: jest.fn(),
+    delete: jest.fn(),
+    generateKey: jest.fn(),
   };
 
   const mockChapter = {
@@ -64,6 +72,10 @@ describe('ChapterService', () => {
           provide: getRepositoryToken(ChapterEntity),
           useValue: mockChapterRepository,
         },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
+        },
       ],
     }).compile();
     service = module.get<ChapterService>(ChapterService);
@@ -78,10 +90,11 @@ describe('ChapterService', () => {
       const chapterId = 1;
       mockChapterRepository.findOne.mockResolvedValue(mockChapter);
 
-      // Mock the expected result
-      const expectedResult = await ChapterEntity.toJSON(
-        mockChapter as unknown as ChapterEntity
-      );
+      // Mock the expected result with comic data
+      const expectedResult = {
+        ...await ChapterEntity.toJSON(mockChapter as unknown as ChapterEntity),
+        comic: { id: 1, title: 'Test Comic' }
+      };
 
       // Act
       const result = await service.getDetail(chapterId);
@@ -89,7 +102,7 @@ describe('ChapterService', () => {
       // Assert
       expect(mockChapterRepository.findOne).toHaveBeenCalledWith({
         where: { id: chapterId },
-        relations: ['images'],
+        relations: ['images', 'comic'],
       });
       expect(result).toEqual(expectedResult);
     });
@@ -105,7 +118,7 @@ describe('ChapterService', () => {
       );
       expect(mockChapterRepository.findOne).toHaveBeenCalledWith({
         where: { id: chapterId },
-        relations: ['images'],
+        relations: ['images', 'comic'],
       });
     });
   });
@@ -126,6 +139,7 @@ describe('ChapterService', () => {
       expect(mockChapterRepository.find).toHaveBeenCalledWith({
         where: { comic: { id: comicId } },
         order: { position: 'ASC' },
+        select: ['id', 'title', 'position'],
       });
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
@@ -147,6 +161,7 @@ describe('ChapterService', () => {
       expect(mockChapterRepository.find).toHaveBeenCalledWith({
         where: { comic: { id: comicId } },
         order: { position: 'ASC' },
+        select: ['id', 'title', 'position'],
       });
     });
   });

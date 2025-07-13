@@ -61,4 +61,28 @@ export class ChapterController {
 
     return this.chapterService.getChaptersByComicId(comicId);
   }
+
+  @Get('/navigation/:comicId')
+  @ApiOperation({ summary: 'Get chapters for navigation by comic ID' })
+  @ApiParam({
+    name: 'comicId',
+    type: 'number',
+    description: 'Comic ID to get navigation chapters for',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Navigation chapters retrieved successfully',
+    type: () => Array,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No chapters found for the given comic ID',
+  })
+  async getChaptersForNavigation(
+    @Param('comicId', ParseIntPipe) comicId: number
+  ): Promise<{ id: number; title: string; position: number }[]> {
+    this.logger.log(`Getting navigation chapters for comic id: ${comicId}`);
+    return this.chapterService.getChaptersForNavigation(comicId);
+  }
 }

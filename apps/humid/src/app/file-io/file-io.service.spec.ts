@@ -234,8 +234,8 @@ describe('FileIoService', () => {
       const result2 = service.generateFileName(prefixFileName, contentType);
 
       expect(result1).not.toBe(result2);
-      expect(result1).toMatch(/^test-image-\w+\.png$/);
-      expect(result2).toMatch(/^test-image-\w+\.png$/);
+      expect(result1).toMatch(/^test-image-[\w-]+\.png$/);
+      expect(result2).toMatch(/^test-image-[\w-]+\.png$/);
     });
   });
 });

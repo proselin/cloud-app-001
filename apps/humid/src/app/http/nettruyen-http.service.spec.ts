@@ -161,7 +161,7 @@ describe('NettruyenHttpService', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         config: {
           url: `${domain}/Comic/Services/ComicService.asmx/ChapterList`,
         } as any,
@@ -215,12 +215,18 @@ describe('NettruyenHttpService', () => {
       };
 
       (httpService.get as jest.Mock).mockReturnValue(of(mockResponse));
-      const logSpy = jest.spyOn(service['logger'], 'log').mockImplementation();
 
       await service.getChapterList(domain, slug, comicId);
 
-      expect(logSpy).toHaveBeenCalledWith(
-        `[getChapterList] ${domain}/Comic/Services/ComicService.asmx/ChapterList?slug=${slug}&comicId=${comicId}`
+      expect(httpService.get).toHaveBeenCalledWith(
+        `${domain}/Comic/Services/ComicService.asmx/ChapterList?slug=${slug}&comicId=${comicId}`,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'allow-origin': '*',
+            accept: '*/*',
+            origin: domain,
+          })
+        })
       );
     });
   });
@@ -511,7 +517,7 @@ describe('NettruyenHttpService', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         config: {
           url: `${domain}/Comic/Services/ComicService.asmx/ChapterList`,
         } as any,

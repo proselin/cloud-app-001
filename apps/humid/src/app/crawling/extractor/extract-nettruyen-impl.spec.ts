@@ -20,7 +20,7 @@ describe('ExtractNettruyenImpl', () => {
           <div class="title-detail">Test Comic Title</div>
           <div class="detail-content">
             <div class="detail-content-image">
-              <img data-src="https://example.com/thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
             </div>
           </div>
         </div>
@@ -121,7 +121,7 @@ describe('ExtractNettruyenImpl', () => {
               <div class="title-detail">Numeric Comic Title</div>
               <div class="detail-content">
                 <div class="detail-content-image">
-                  <img data-src="https://example.com/numeric-thumb.jpg" />
+                  <img class="image-thumb" data-src="https://example.com/numeric-thumb.jpg" />
                 </div>
               </div>
             </div>
@@ -171,7 +171,7 @@ describe('ExtractNettruyenImpl', () => {
               <div class="title-detail">Src Image Title</div>
               <div class="detail-content">
                 <div class="detail-content-image">
-                  <img src="https://example.com/src-thumb.jpg" />
+                  <img class="image-thumb" src="https://example.com/src-thumb.jpg" />
                 </div>
               </div>
             </div>
@@ -211,7 +211,7 @@ describe('ExtractNettruyenImpl', () => {
               <div class="title-detail">Multi Script Title</div>
               <div class="detail-content">
                 <div class="detail-content-image">
-                  <img data-src="https://example.com/multi-thumb.jpg" />
+                  <img class="image-thumb" data-src="https://example.com/multi-thumb.jpg" />
                 </div>
               </div>
             </div>
@@ -451,7 +451,7 @@ describe('ExtractNettruyenImpl', () => {
               <div class="detail-info">
                 <div class="detail-content">
                   <div class="detail-content-image">
-                    <img src="https://example.com/thumb-src.jpg" />
+                    <img class="image-thumb" src="https://example.com/thumb-src.jpg" />
                   </div>
                 </div>
               </div>
@@ -625,7 +625,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img data-src="https://example.com/thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
             </div>
           </body>
         </html>
@@ -653,7 +653,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img data-src="https://example.com/thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
             </div>
           </body>
         </html>
@@ -681,7 +681,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img data-src="https://example.com/thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
             </div>
           </body>
         </html>
@@ -709,7 +709,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img data-src="https://example.com/thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
             </div>
           </body>
         </html>
@@ -737,7 +737,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img data-src="https://example.com/data-src-thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/data-src-thumb.jpg" />
             </div>
           </body>
         </html>
@@ -765,7 +765,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img src="https://example.com/src-thumb.jpg" />
+              <img class="image-thumb" src="https://example.com/src-thumb.jpg" />
             </div>
           </body>
         </html>
@@ -891,7 +891,7 @@ describe('ExtractNettruyenImpl', () => {
           </head>
           <body>
             <div class="detail-content-image">
-              <img data-src="https://example.com/thumb.jpg" />
+              <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
             </div>
           </body>
         </html>

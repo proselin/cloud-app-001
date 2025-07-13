@@ -191,7 +191,7 @@ describe('NettruyenComicService', () => {
             <body>
               <div class="detail-content">
                 <div class="detail-content-image">
-                  <img data-src="https://example.com/thumb.jpg" />
+                  <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
                 </div>
               </div>
             </body>
@@ -275,7 +275,7 @@ describe('NettruyenComicService', () => {
             <body>
               <div class="detail-content">
                 <div class="detail-content-image">
-                  <img data-src="https://example.com/thumb.jpg" />
+                  <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
                 </div>
               </div>
             </body>
@@ -292,6 +292,17 @@ describe('NettruyenComicService', () => {
       mockComicRepository.findOneBy
         .mockResolvedValueOnce(null) // originUrl
         .mockResolvedValueOnce(null); // originId
+
+      // Mock image service
+      mockImageService.handleCrawlThumb.mockResolvedValue({
+        id: 1,
+        fileName: 'thumb.jpg',
+        position: 0,
+        type: 0,
+        originUrls: '["https://example.com/thumb.jpg"]',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       // Mock save to fail during comic creation
       mockEntityManager.save.mockRejectedValue(new Error('Database error'));
@@ -343,7 +354,7 @@ describe('NettruyenComicService', () => {
             <body>
               <div class="detail-content">
                 <div class="detail-content-image">
-                  <img data-src="https://example.com/thumb.jpg" />
+                  <img class="image-thumb" data-src="https://example.com/thumb.jpg" />
                 </div>
               </div>
             </body>

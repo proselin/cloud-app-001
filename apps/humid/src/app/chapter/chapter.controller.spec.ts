@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { ChapterController } from './chapter.controller';
 import { ChapterService } from './chapter.service';
-import { ResponseMapper } from '../utils/response-mapper';
 import { CrawlingStatus } from '../common';
 import { ChapterPlainObject } from '../models/types/chapter-plain-object';
 
@@ -95,12 +94,7 @@ describe('ChapterController', () => {
 
       // Assert
       expect(mockChapterService.getDetail).toHaveBeenCalledWith(chapterId);
-      expect(result).toEqual(
-        ResponseMapper.success(
-          mockChapterDetail,
-          'Chapter details retrieved successfully'
-        )
-      );
+      expect(result).toEqual(mockChapterDetail);
     });
 
     it('should throw NotFoundException when chapter does not exist', async () => {
@@ -127,8 +121,8 @@ describe('ChapterController', () => {
 
       const result = await controller.getDetail(chapterId);
 
-      expect(result.statusCode).toBe(200);
-      expect(result.message).toBe('Chapter details retrieved successfully');
+      expect(result).toEqual(mockChapterDetail);
+      expect(mockChapterService.getDetail).toHaveBeenCalledWith(chapterId);
     });
   });
 
@@ -147,12 +141,7 @@ describe('ChapterController', () => {
       expect(mockChapterService.getChaptersForNavigation).toHaveBeenCalledWith(
         comicId
       );
-      expect(result).toEqual(
-        ResponseMapper.success(
-          mockNavigationChapters,
-          'Chapters retrieved successfully'
-        )
-      );
+      expect(result).toEqual(mockNavigationChapters);
     });
 
     it('should return empty array when comic has no chapters', async () => {
@@ -167,8 +156,7 @@ describe('ChapterController', () => {
       expect(mockChapterService.getChaptersForNavigation).toHaveBeenCalledWith(
         comicId
       );
-      expect(result.data).toEqual([]);
-      expect(result.statusCode).toBe(200);
+      expect(result).toEqual([]);
     });
   });
 
@@ -187,12 +175,7 @@ describe('ChapterController', () => {
       expect(mockChapterService.getChaptersByComicId).toHaveBeenCalledWith(
         comicId
       );
-      expect(result).toEqual(
-        ResponseMapper.success(
-          mockMinimizedChapters,
-          'Chapters retrieved successfully'
-        )
-      );
+      expect(result).toEqual(mockMinimizedChapters);
     });
 
     it('should handle different crawl statuses', async () => {
@@ -223,11 +206,13 @@ describe('ChapterController', () => {
       );
 
       // Act
-      const result = await controller.getChaptersByComicId(comicId); // Assert
-      expect(result.data).toHaveLength(3);
-      expect(result.data[0].crawlStatus).toBe(CrawlingStatus.READY_FOR_CRAWL);
-      expect(result.data[1].crawlStatus).toBe(CrawlingStatus.ON_CRAWL);
-      expect(result.data[2].crawlStatus).toBe(CrawlingStatus.DONE);
+      const result = await controller.getChaptersByComicId(comicId);
+
+      // Assert
+      expect(result).toHaveLength(3);
+      expect(result[0].crawlStatus).toBe(CrawlingStatus.READY_FOR_CRAWL);
+      expect(result[1].crawlStatus).toBe(CrawlingStatus.ON_CRAWL);
+      expect(result[2].crawlStatus).toBe(CrawlingStatus.DONE);
     });
   });
 
