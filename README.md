@@ -90,8 +90,7 @@ cloud-app-001/
 │           └── logger/            # Shared logging utilities
 ├── resources/
 │   ├── config/                   # Configuration files
-│   ├── db/                       # SQLite database
-│   │   └── humid.db
+│   ├── db/                       # Database migrations
 │   └── images/                   # Crawled comic images
 ├── logs/                         # Application logs
 └── package.json                  # Workspace dependencies
@@ -111,7 +110,7 @@ cloud-app-001/
 
 ### 🔧 Humid (NestJS Backend)
 
-- **Technology**: NestJS 11 with TypeORM and SQLite
+- **Technology**: NestJS 11 with TypeORM and PostgreSQL
 - **Purpose**: Core API server handling comic crawling and data management
 - **Features**:
   - Web scraping from nettruyenrr.com
@@ -145,7 +144,7 @@ cloud-app-001/
 
 ## 🗄️ Database Schema
 
-The system uses SQLite with TypeORM for data persistence:
+The system uses PostgreSQL with TypeORM for data persistence:
 
 ### Entities
 
@@ -167,7 +166,7 @@ The system uses SQLite with TypeORM for data persistence:
 | **Frontend**     | Angular                    | 19.2.6  |
 | **UI Library**   | Ant Design (ng-zorro-antd) | 19.2.2  |
 | **Backend**      | NestJS                     | 11.0.17 |
-| **Database**     | SQLite with TypeORM        | 0.3.21  |
+| **Database**     | PostgreSQL with TypeORM    | 15+     |
 | **Desktop**      | Electron                   | 33.4.9  |
 | **Web Scraping** | Cheerio + Axios            | Latest  |
 | **Logging**      | Winston + Pino             | Latest  |
@@ -177,7 +176,7 @@ The system uses SQLite with TypeORM for data persistence:
 ### Prerequisites
 
 - **Node.js** 18+ and **npm** 9+
-- **PostgreSQL** 14+ (for production) or **SQLite** (for development)
+- **PostgreSQL** 14+ for database
 - **Git** for version control
 
 ### 🔥 One-Command Setup
@@ -187,6 +186,24 @@ The system uses SQLite with TypeORM for data persistence:
 git clone https://github.com/proselin/cloud-app-001.git
 cd cloud-app-001
 npm install
+```
+
+### 🗄️ Database Setup
+
+```bash
+# Create PostgreSQL database
+createdb comics_db
+
+# Or using psql
+psql -U postgres
+CREATE DATABASE comics_db;
+\q
+
+# Run database migrations
+npm run db:migrate
+
+# Seed with sample data (optional)
+npm run db:seed
 ```
 
 ### 🚀 Development Mode
@@ -327,7 +344,7 @@ cloud-app-001/
 │   └── *-e2e/                   # End-to-end test suites
 │
 ├── resources/                   # 📁 Static assets
-│   ├── db/humid.db             # SQLite database
+│   ├── db/                     # Database migrations
 │   └── images/                 # Crawled comic images
 │
 └── package.json                # Workspace dependencies
@@ -357,7 +374,7 @@ cloud-app-001/
 
 1. **Input**: Provide a nettruyenrr.com comic URL
 2. **Extraction**: Parse comic metadata (title, chapters, images)
-3. **Storage**: Save comic information to SQLite database
+3. **Storage**: Save comic information to PostgreSQL database
 4. **Image Download**: Crawl and store comic images locally
 5. **API Access**: Serve comic data through RESTful endpoints
 
@@ -383,6 +400,7 @@ npm run dev:frontend     # Frontend only (port 4200)
 # Database operations
 npm run db:migrate       # Run database migrations
 npm run db:seed         # Seed with sample data
+npm run db:setup        # Initial database setup
 ```
 
 ### 🏗️ Building for Production
@@ -417,8 +435,12 @@ apps/humid/src/environments/
 export const environment = {
   production: false,
   database: {
-    type: 'sqlite',
-    database: 'resources/db/humid.db'
+    type: 'postgres',
+    host: 'localhost',
+    port: 5432,
+    username: 'postgres',
+    password: 'password',
+    database: 'comics_db'
   },
   cache: {
     ttl: 600,           // 10 minutes
