@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: cloud-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cloudapp}
+      POSTGRES_USER: ${POSTGRES_USER:-clouduser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cloudpass}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - cloud-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clouduser} -d ${POSTGRES_DB:-cloudapp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache (optional, for session management)
+  redis:
+    image: redis:7-alpine
+    container_name: cloud-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cloud-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # NestJS Backend (Humid App)
+  humid:
+    build:
+      context: .
+      dockerfile: apps/humid/Dockerfile
+    container_name: cloud-humid
+    ports:
+      - "${HUMID_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-clouduser}:${POSTGRES_PASSWORD:-cloudpass}@postgres:5432/${POSTGRES_DB:-cloudapp}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
+      API_PREFIX: ${API_PREFIX:-api}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cloud-network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Angular Frontend (Cloud App)
+  cloud:
+    build:
+      context: .
+      dockerfile: apps/cloud/Dockerfile
+    container_name: cloud-frontend
+    ports:
+      - "${CLOUD_PORT:-80}:80"
+    depends_on:
+      - humid
+    networks:
+      - cloud-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  cloud-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
