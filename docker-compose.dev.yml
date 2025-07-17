@@ -7,11 +7,19 @@ services:
   humid:
     environment:
       NODE_ENV: development
-    volumes:
-      # Mount source code for hot reload (if using nodemon)
-      - ./apps/humid/src:/app/src
-      - ./apps/humid/webpack.config.js:/app/webpack.config.js
-    command: ["npm", "run", "humid:dev"]
+      # Add debug logging
+      DEBUG: "*"
+    # Override health check for development (less strict)
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health", "||", "exit", "1"]
+      interval: 45s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    # Remove the command override to use the default from Dockerfile
+    # volumes:
+    #   # Only mount logs, not source code for now
+    #   - ./logs:/app/logs
 
   cloud:
     # In development, might want to serve from dev server instead

@@ -25,8 +25,8 @@ RUN npx nx build humid --configuration=production
 # Production stage
 FROM node:22-alpine AS production
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install required packages including wget for health checks
+RUN apk add --no-cache dumb-init wget
 
 # Create app directory and user
 WORKDIR /app
@@ -64,12 +64,5 @@ USER nestjs
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
-
-# Use custom entrypoint script
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
 # Start the application with dumb-init
-CMD ["dumb-init", "--", "node", "dist/main.js"]
+CMD ["node", "dist/main.js"]

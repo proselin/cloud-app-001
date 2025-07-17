@@ -19,9 +19,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clouduser} -d ${POSTGRES_DB:-cloudapp}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-
-  # NestJS Backend (Humid App)
+      retries: 5  # NestJS Backend (Humid App)
   humid:
     build:
       context: .
@@ -32,10 +30,27 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-clouduser}:${POSTGRES_PASSWORD:-cloudpass}@postgres:5432/${POSTGRES_DB:-cloudapp}
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key}
-      API_PREFIX: ${API_PREFIX:-api}
+      # Humid server configuration
+      "humid.server.host": "0.0.0.0"
+      "humid.server.port": "3000"
+      "humid.server.prefix": "api"
+      "humid.app.version": "V1"
+      "humid.server.doc-prefix": "swagger"
+      # Database configuration
+      "db.host": "postgres"
+      "db.port": "5432"
+      "db.username": "${POSTGRES_USER:-clouduser}"
+      "db.password": "${POSTGRES_PASSWORD:-cloudpass}"
+      "db.database": "${POSTGRES_DB:-cloudapp}"
+      "db.ssl": "false"
+      # File configuration
+      "file.img-location": "static/imgs"
+      # Redis configuration (if needed)
+      "redis.host": "redis"
+      "redis.port": "6379"
+      # JWT Secret
+      JWT_SECRET: "${JWT_SECRET:-your-super-secret-jwt-key}"
+      API_PREFIX: "${API_PREFIX:-api}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,10 +60,11 @@ services:
       - ./logs:/app/logs:rw
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health", "||", "exit", "1"]
       interval: 30s
-      timeout: 10s
+      timeout: 10si
       retries: 3
+      start_period: 40s
 
   # Angular Frontend (Cloud App)
   cloud:
