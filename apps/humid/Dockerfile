@@ -46,12 +46,16 @@ COPY --from=builder /app/apps/humid/webpack.config.js ./
 # Copy any additional config files if needed
 COPY --from=builder /app/nx.json ./
 
-# Create logs directory structure with proper permissions
+# Copy and set up the entrypoint script
+COPY apps/humid/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Create logs directory structure with proper permissions BEFORE switching to non-root user
 RUN mkdir -p logs/Humid && \
     chown -R nestjs:nodejs logs && \
     chmod -R 755 logs
 
-# Change ownership of the app directory
+# Change ownership of the entire app directory
 RUN chown -R nestjs:nodejs /app
 
 # Switch to non-root user
@@ -67,5 +71,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 # Use custom entrypoint script
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# Start the application
+# Start the application with dumb-init
 CMD ["dumb-init", "--", "node", "dist/main.js"]

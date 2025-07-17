@@ -20,7 +20,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+  // app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
   // Security middleware
   app.use(helmet({

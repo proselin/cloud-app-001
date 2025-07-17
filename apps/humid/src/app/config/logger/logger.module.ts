@@ -4,11 +4,11 @@ import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    WinstonModule.forRootAsync({
-      useFactory: () => {
-        return getLoggerConfig('Humid', utilities);
-      },
-    }),
+    // WinstonModule.forRootAsync({
+    //   useFactory: () => {
+    //     return getLoggerConfig('Humid', utilities);
+    //   },
+    // }),
   ],
 })
 export class LoggerModule {}
