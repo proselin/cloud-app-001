@@ -10,6 +10,7 @@ COPY nx.json ./
 COPY tsconfig.base.json ./
 COPY jest.config.ts ./
 COPY jest.preset.js ./
+COPY eslint.config.mjs ./
 
 # Copy source code
 COPY apps/humid ./apps/humid
@@ -42,11 +43,13 @@ RUN npm ci --only=production && npm cache clean --force
 COPY --from=builder /app/dist/apps/humid ./dist
 COPY --from=builder /app/apps/humid/webpack.config.js ./
 
-# Create logs directory
-RUN mkdir -p logs/Humid && chown -R nestjs:nodejs logs
-
 # Copy any additional config files if needed
 COPY --from=builder /app/nx.json ./
+
+# Create logs directory structure with proper permissions
+RUN mkdir -p logs/Humid && \
+    chown -R nestjs:nodejs logs && \
+    chmod -R 755 logs
 
 # Change ownership of the app directory
 RUN chown -R nestjs:nodejs /app
@@ -61,8 +64,8 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
+# Use custom entrypoint script
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Start the application
-CMD ["node", "dist/main.js"]
+CMD ["dumb-init", "--", "node", "dist/main.js"]
