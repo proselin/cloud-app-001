@@ -55,6 +55,10 @@ RUN mkdir -p logs/Humid && \
     chown -R nestjs:nodejs logs && \
     chmod -R 755 logs
 
+RUN mkdir -p resources/images && \
+    chown -R nestjs:nodejs resources && \
+    chmod -R 770 resources
+
 # Change ownership of the entire app directory
 RUN chown -R nestjs:nodejs /app
 
