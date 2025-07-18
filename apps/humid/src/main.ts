@@ -46,15 +46,15 @@ async function bootstrap() {
   }));
 
   // Global validation pipe with optimization
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      disableErrorMessages: false,
-      validationError: { target: false, value: false },
-    })
-  );
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     transform: true,
+  //     whitelist: true,
+  //     forbidNonWhitelisted: true,
+  //     disableErrorMessages: false,
+  //     validationError: { target: false, value: false },
+  //   })
+  // );
 
   app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
 
