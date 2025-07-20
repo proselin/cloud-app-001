@@ -110,7 +110,8 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
           return {
             href: `${this.domain}/${this.generateChapterUrl(
               this.comicSlug,
-              item.chapter_slug
+              item.chapter_slug,
+              item.chapter_id.toString()
             )}`,
             chapterNumber: item.chapter_num + '',
           } satisfies RawCrawledChapter;
@@ -118,8 +119,8 @@ export class ExtractNettruyenImpl implements Extractor<InfoExtractedResult$1> {
       });
   }
 
-  private generateChapterUrl(comicSlug: string, chapter_slug: string) {
-    return `/truyen-tranh/${comicSlug}/${chapter_slug}`;
+  private generateChapterUrl(comicSlug: string, chapter_slug: string, id: string) {
+    return `/truyen-tranh/${comicSlug}/${chapter_slug}/${id}`
   }
 
   private validateInput() {

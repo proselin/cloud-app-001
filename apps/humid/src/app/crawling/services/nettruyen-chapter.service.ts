@@ -14,6 +14,7 @@ import {
 import { ImageType } from '../../common/constant/image';
 import { NettruyenImageService } from './nettruyen-image.service';
 import { Observable, Subject } from 'rxjs';
+import { runWithConcurrency } from '../../utils';
 
 @Injectable()
 export class NettruyenChapterService {
@@ -120,7 +121,7 @@ export class NettruyenChapterService {
     >();
 
     // Process chapters and handle errors properly
-    Promise.all(
+    runWithConcurrency(
       chapters.map(async (chapter) => {
         try {
           const { domain, image } = await this.extractChapterInfo(
@@ -168,7 +169,7 @@ export class NettruyenChapterService {
           );
           // Continue processing other chapters instead of failing completely
         }
-      })
+      }), 4 // Limit concurrency to 4
     )
       .then(() => {
         sourcePublisher.complete();

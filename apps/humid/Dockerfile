@@ -46,10 +46,6 @@ COPY --from=builder /app/apps/humid/webpack.config.js ./
 # Copy any additional config files if needed
 COPY --from=builder /app/nx.json ./
 
-# Copy and set up the entrypoint script
-COPY apps/humid/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # Create logs directory structure with proper permissions BEFORE switching to non-root user
 RUN mkdir -p logs/Humid && \
     chown -R nestjs:nodejs logs && \
@@ -57,10 +53,10 @@ RUN mkdir -p logs/Humid && \
 
 RUN mkdir -p resources/images && \
     chown -R nestjs:nodejs resources && \
-    chmod -R 770 resources
+    chmod -R 777 resources
 
 # Change ownership of the entire app directory
-RUN chown -R nestjs:nodejs /app
+RUN chown -R nestjs:nodejs /app/dist
 
 # Switch to non-root user
 USER nestjs
@@ -69,4 +65,4 @@ USER nestjs
 EXPOSE 3000
 
 # Start the application with dumb-init
-CMD ["node", "dist/main.js"]
+CMD ["dumb-init", "--", "node", "dist/main.js"]
