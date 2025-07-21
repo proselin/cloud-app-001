@@ -1,7 +1,8 @@
 import { EnvironmentModel } from '../app/common/config/environment.token';
 
 export const environment: EnvironmentModel = {
-  apiUrl: 'http://localhost:19202/api/v1',
-  staticImgsUrl: 'http://localhost:19202/static/imgs',
+  apiUrl: 'https://api-margiet.proselin.id.vn/api/v1',
+  staticImgsUrl: 'https://api-margiet.proselin.id.vn/static/imgs',
   production: false,
+  endPoint: 'https://api-margiet.proselin.id.vn',
 };

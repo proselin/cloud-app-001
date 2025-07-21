@@ -26,7 +26,7 @@ import {
   query,
   stagger
 } from '@angular/animations';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 
 interface ExtendedComicInfo extends ComicInfo {
   id?: string;
@@ -233,22 +233,21 @@ export class HomeComponent extends BasePagesComponent implements OnInit, OnDestr
   }
 
   onImageError(event: Event) {
-    const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/placeholder-comic.jpg'; // Fallback image
+    //handle image error
   }
 
   async onSearch() {
     this.isLoadingFromAPI.set(true);
 
     try {
-      const result = await this.comicService.searchComics({ page: 1, limit: 20 }).toPromise();
+      const result = await firstValueFrom(this.comicService.searchComics({ page: 1, limit: 20 }));
 
       this.isLoadingFromAPI.set(false);
 
-      if (result?.data && Array.isArray(result.data)) {
-        const convertedComics = result.data.map(comic => this.convertAPIComicToComicInfo(comic));
+      if (result?.data?.data && Array.isArray(result.data.data)) {
+        const convertedComics = result.data.data.map(comic => this.convertAPIComicToComicInfo(comic));
         this.comics.set(convertedComics);
-        console.log('✅ Successfully loaded comics from API:', result.data.length);
+        console.log('✅ Successfully loaded comics from API:', result.data.data.length);
       }
     } catch (error) {
       this.isLoadingFromAPI.set(false);

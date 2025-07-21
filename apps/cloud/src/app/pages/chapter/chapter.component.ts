@@ -19,6 +19,7 @@ import {
 } from '../../shared/models/api';
 import { tap } from 'rxjs';
 import { CrawlStatus } from '../../common/variables/crawlStatus';
+import { generateImageLink } from '../../common/utils/functions';
 
 @Component({
   selector: 'cloud-chapter',
@@ -147,7 +148,7 @@ export class ChapterComponent
             id: Number(image.id),
             fileName: image.fileName,
             position: image.position,
-            url: `http://localhost:19202/static/imgs/${image.fileName}`,
+            url: generateImageLink(this.env.staticImgsUrl, image.fileName),
           }))
           .sort((a, b) => a.position - b.position) || [],
     };
@@ -186,7 +187,7 @@ export class ChapterComponent
 
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    img.src = '/assets/placeholder-image.jpg';
+    // img.src = '/placeholder-image.jpg';
 
     // Hide loading overlay even on error
     const container = img.closest('.relative');

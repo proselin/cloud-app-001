@@ -4,6 +4,7 @@ export interface EnvironmentModel {
   apiUrl: string;
   staticImgsUrl: string;
   production: boolean;
+  endPoint: string
 }
 
 export const EnvironmentToken = new InjectionToken<EnvironmentModel>('App configuration via environment //ps: Pls config environment file');

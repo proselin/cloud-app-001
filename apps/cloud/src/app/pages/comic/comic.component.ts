@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BasePagesComponent } from '../../common/components';
 import { ComicService } from '../../shared/services';
@@ -17,7 +17,7 @@ import { generateImageLink } from '../../common/utils/functions';
 })
 export class ComicComponent
   extends BasePagesComponent
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   private comicService = inject(ComicService);
 
@@ -25,6 +25,12 @@ export class ComicComponent
   loading = signal(true);
   error = signal<string | null>(null);
   isLoadingFromAPI = signal<boolean>(false);
+
+  // Sync/Crawl functionality
+  isSyncing = signal(false);
+  syncProgress = signal<string>('');
+  syncStatus = signal<'idle' | 'connecting' | 'syncing' | 'completed' | 'error'>('idle');
+  private eventSource: EventSource | null = null;
 
   // Chapter view mode control
   chapterViewMode = signal<'detailed' | 'compact'>('detailed');
@@ -148,5 +154,94 @@ export class ComicComponent
 
   goBack() {
     this.router.navigate(['/']);
+  }
+
+  // Sync/Crawl functionality
+  syncComic() {
+    const comic = this.comic();
+    if (!comic || this.isSyncing()) return;
+
+    this.isSyncing.set(true);
+    this.syncStatus.set('connecting');
+    this.syncProgress.set('Connecting to server...');
+
+    // Close existing connection if any
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
+
+    const sseUrl = `${this.env.apiUrl}/crawl/crawl-chapter-by-id-sse?comicId=${comic.id}`;
+    this.eventSource = new EventSource(sseUrl);
+
+    this.eventSource.onopen = () => {
+      this.syncStatus.set('syncing');
+      this.syncProgress.set('Starting sync process...');
+    };
+
+    this.eventSource.onmessage = (event) => {
+      console.log('SSE message received:', event.data);
+      try {
+        const data = JSON.parse(event.data);
+        this.syncProgress.set(data.message || 'Processing...');
+        console.log(data)
+        // Update progress based on data
+        if (data.status === 'completed') {
+          this.syncStatus.set('completed');
+          this.syncProgress.set('Sync completed successfully!');
+          this.closeSyncConnection();
+
+          // Refresh comic data after sync
+          setTimeout(() => {
+            this.loadComicDetail(comic.id.toString());
+            this.resetSyncState();
+          }, 2000);
+        } else if (data.status === 'error') {
+          this.syncStatus.set('error');
+          this.syncProgress.set(data.message || 'Sync failed');
+          this.closeSyncConnection();
+
+          setTimeout(() => {
+            this.resetSyncState();
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('Error parsing SSE message:', error);
+        this.syncProgress.set(event.data);
+      }
+    };
+
+    this.eventSource.onerror = (error) => {
+      console.error('SSE connection error:', error);
+      this.syncStatus.set('error');
+      this.syncProgress.set('Connection error. Please try again.');
+      this.closeSyncConnection();
+
+      setTimeout(() => {
+        this.resetSyncState();
+      }, 3000);
+    };
+  }
+
+  private closeSyncConnection() {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+  }
+
+  private resetSyncState() {
+    this.isSyncing.set(false);
+    this.syncStatus.set('idle');
+    this.syncProgress.set('');
+  }
+
+  cancelSync() {
+    this.closeSyncConnection();
+    this.resetSyncState();
+  }
+
+  // Cleanup on component destroy
+  ngOnDestroy() {
+    this.closeSyncConnection();
   }
 }

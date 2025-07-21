@@ -17,7 +17,7 @@ export class ComicService extends ApiCommonService {
   /**
    * Search comics with optional parameters
    */
-  searchComics(searchParams?: ComicSearchParams): Observable<ResponseMapper<ComicPlainObject[]>> {
+  searchComics(searchParams?: ComicSearchParams): Observable<ResponseMapper<{data:  ComicPlainObject[]}>> {
     let params = new HttpParams();
     if (searchParams?.page) {
       params = params.set('page', searchParams.page.toString());
@@ -32,7 +32,7 @@ export class ComicService extends ApiCommonService {
       params = params.set('genre', searchParams.genre);
     }
 
-    return this.httpClient.get<ResponseMapper<ComicPlainObject[]>>(`${this.env.apiUrl}/comic`, { params });
+    return this.httpClient.get<ResponseMapper<{data:  ComicPlainObject[]}>>(`${this.env.apiUrl}/comic`, { params });
   }
 
   /**
