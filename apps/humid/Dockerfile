@@ -30,21 +30,15 @@ RUN apk add --no-cache dumb-init wget
 
 # Create app directory and user
 WORKDIR /app
+
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
 
-# Copy package files
-COPY package*.json ./
+# Copy built application from builder stage
+COPY --from=builder /app/dist/apps/humid ./
 
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist/apps/humid ./dist
-COPY --from=builder /app/apps/humid/webpack.config.js ./
-
-# Copy any additional config files if needed
-COPY --from=builder /app/nx.json ./
 
 # Create logs directory structure with proper permissions BEFORE switching to non-root user
 RUN mkdir -p logs/Humid && \
@@ -56,7 +50,7 @@ RUN mkdir -p resources/images && \
     chmod -R 777 resources
 
 # Change ownership of the entire app directory
-RUN chown -R nestjs:nodejs /app/dist
+RUN chown -R nestjs:nodejs /app
 
 # Switch to non-root user
 USER nestjs
@@ -65,4 +59,4 @@ USER nestjs
 EXPOSE 3000
 
 # Start the application with dumb-init
-CMD ["dumb-init", "--", "node", "dist/main.js"]
+CMD ["dumb-init", "--", "node", "main.js"]
