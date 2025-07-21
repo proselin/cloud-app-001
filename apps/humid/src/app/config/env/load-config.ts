@@ -28,6 +28,8 @@ export function loadConfig(
   };
   const fileIo = {
     'file.img-location': z.string().transform(Utils.fromConfigToPath),
+    'file.cors-allowed-origins': z.string().default('http://localhost:4200'),
+    'file.enable-cors': z.coerce.boolean().default(true),
   };
 
   return z
