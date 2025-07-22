@@ -7,6 +7,7 @@ import { ChapterEntity } from '../../entities/chapter.entity';
 import { DataSource } from 'typeorm';
 import { NettruyenImageService } from './nettruyen-image.service';
 import { NettruyenHttpService } from '../../http/nettruyen-http.service';
+import { CacheService } from '../../common/services/cache.service';
 
 describe('NettruyenChapterService', () => {
   let service: NettruyenChapterService;
@@ -52,6 +53,14 @@ describe('NettruyenChapterService', () => {
     isChapterQueueBusy: jest.fn(),
   };
 
+  const mockCacheService = {
+    clearChapterCache: jest.fn(),
+    clearComicCache: jest.fn(),
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -79,6 +88,10 @@ describe('NettruyenChapterService', () => {
         {
           provide: CrawlingQueueService,
           useValue: mockCrawlingQueueService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();

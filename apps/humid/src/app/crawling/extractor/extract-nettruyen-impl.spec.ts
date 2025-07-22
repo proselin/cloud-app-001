@@ -66,10 +66,12 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 1,
               chapter_slug: 'chapter-1',
+              chapter_id: 'ch1',
             },
             {
               chapter_num: 2,
               chapter_slug: 'chapter-2',
+              chapter_id: 'ch2',
             },
           ],
         },
@@ -91,17 +93,17 @@ describe('ExtractNettruyenImpl', () => {
         thumbUrl: 'https://example.com/thumb.jpg',
         chapters: [
           {
-            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-1',
+            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-1/ch1',
             chapterNumber: '1',
           },
           {
-            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-2',
+            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-2/ch2',
             chapterNumber: '2',
           },
         ],
-        slug: 'test-comic-slug',
         comicId: '12345',
         domain: 'https://example.com',
+        slug: 'test-comic-slug',
       });
     });
 
@@ -141,11 +143,11 @@ describe('ExtractNettruyenImpl', () => {
         thumbUrl: 'https://example.com/numeric-thumb.jpg',
         chapters: [
           {
-            href: 'https://example.com//truyen-tranh/numeric-id-comic/chapter-1',
+            href: 'https://example.com//truyen-tranh/numeric-id-comic/chapter-1/ch1',
             chapterNumber: '1',
           },
           {
-            href: 'https://example.com//truyen-tranh/numeric-id-comic/chapter-2',
+            href: 'https://example.com//truyen-tranh/numeric-id-comic/chapter-2/ch2',
             chapterNumber: '2',
           },
         ],
@@ -473,14 +475,17 @@ describe('ExtractNettruyenImpl', () => {
               {
                 chapter_num: 1,
                 chapter_slug: 'chapter-1',
+                chapter_id: 'ch1',
               },
               {
                 chapter_num: 2,
                 chapter_slug: 'chapter-2',
+                chapter_id: 'ch2',
               },
               {
                 chapter_num: 10,
                 chapter_slug: 'chapter-10',
+                chapter_id: 'ch10',
               },
             ],
           },
@@ -503,15 +508,15 @@ describe('ExtractNettruyenImpl', () => {
 
         expect(result).toEqual([
           {
-            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-1',
+            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-1/ch1',
             chapterNumber: '1',
           },
           {
-            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-2',
+            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-2/ch2',
             chapterNumber: '2',
           },
           {
-            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-10',
+            href: 'https://example.com//truyen-tranh/test-comic-slug/chapter-10/ch10',
             chapterNumber: '10',
           },
         ]);
@@ -532,6 +537,7 @@ describe('ExtractNettruyenImpl', () => {
               {
                 chapter_num: 1.5,
                 chapter_slug: 'chapter-1-5',
+                chapter_id: 'ch1_5',
               },
             ],
           },
@@ -596,10 +602,12 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 1,
               chapter_slug: 'chapter-1',
+              chapter_id: 'ch1',
             },
             {
               chapter_num: 2,
               chapter_slug: 'chapter-2',
+              chapter_id: 'ch2',
             },
           ],
         },
@@ -787,14 +795,17 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 1,
               chapter_slug: 'custom-chapter-1',
+              chapter_id: 'custom1',
             },
             {
               chapter_num: 2,
               chapter_slug: 'custom-chapter-2',
+              chapter_id: 'custom2',
             },
             {
               chapter_num: 3,
               chapter_slug: 'custom-chapter-3',
+              chapter_id: 'custom3',
             },
           ],
         },
@@ -820,6 +831,7 @@ describe('ExtractNettruyenImpl', () => {
             {
               chapter_num: 99,
               chapter_slug: 'special-chapter-slug',
+              chapter_id: 'special99',
             },
           ],
         },
@@ -834,7 +846,7 @@ describe('ExtractNettruyenImpl', () => {
 
       const result = await extractor.extract();
       expect(result.chapters[0].href).toBe(
-        'https://example.com//truyen-tranh/test-comic-slug/special-chapter-slug'
+        'https://example.com//truyen-tranh/test-comic-slug/special-chapter-slug/special99'
       );
     });
 

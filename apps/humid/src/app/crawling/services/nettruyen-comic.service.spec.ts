@@ -6,6 +6,7 @@ import { DataSource, QueryRunner } from 'typeorm';
 import { NettruyenHttpService } from '../../http/nettruyen-http.service';
 import { NettruyenImageService } from './nettruyen-image.service';
 import { NettruyenChapterService } from './nettruyen-chapter.service';
+import { CacheService } from '../../common/services/cache.service';
 import { COMIC_NOT_FOUND_BY_URL } from '../../exceptions/exceptions';
 
 describe('NettruyenComicService', () => {
@@ -38,6 +39,14 @@ describe('NettruyenComicService', () => {
   };
   const mockEntityManager = {
     save: jest.fn(),
+  };
+
+  const mockCacheService = {
+    clearChapterCache: jest.fn(),
+    clearComicCache: jest.fn(),
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -91,6 +100,10 @@ describe('NettruyenComicService', () => {
         {
           provide: NettruyenChapterService,
           useValue: mockChapterService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();
@@ -203,8 +216,8 @@ describe('NettruyenComicService', () => {
       mockNettruyenHttpService.getChapterList.mockResolvedValue({
         data: {
           data: [
-            { chapter_num: 1, chapter_slug: 'chap-1' },
-            { chapter_num: 2, chapter_slug: 'chap-2' },
+            { chapter_num: 1, chapter_slug: 'chap-1', chapter_id: 'ch1' },
+            { chapter_num: 2, chapter_slug: 'chap-2', chapter_id: 'ch2' },
           ],
         },
       });
@@ -286,7 +299,7 @@ describe('NettruyenComicService', () => {
       // Mock chapter list API response
       mockNettruyenHttpService.getChapterList.mockResolvedValue({
         data: {
-          data: [{ chapter_num: 1, chapter_slug: 'chap-1' }],
+          data: [{ chapter_num: 1, chapter_slug: 'chap-1', chapter_id: 'ch1' }],
         },
       }); // No existing comic found
       mockComicRepository.findOneBy
@@ -366,9 +379,9 @@ describe('NettruyenComicService', () => {
       mockNettruyenHttpService.getChapterList.mockResolvedValue({
         data: {
           data: [
-            { chapter_num: 1, chapter_slug: 'chap-1' },
-            { chapter_num: 2, chapter_slug: 'chap-2' },
-            { chapter_num: 3, chapter_slug: 'chap-3' },
+            { chapter_num: 1, chapter_slug: 'chap-1', chapter_id: 'ch1' },
+            { chapter_num: 2, chapter_slug: 'chap-2', chapter_id: 'ch2' },
+            { chapter_num: 3, chapter_slug: 'chap-3', chapter_id: 'ch3' },
           ],
         },
       });
