@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NettruyenChapterService } from './nettruyen-chapter.service';
+import { CrawlingQueueService } from './crawling-queue.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ComicEntity } from '../../entities/comic.entity';
 import { ChapterEntity } from '../../entities/chapter.entity';
@@ -43,6 +44,14 @@ describe('NettruyenChapterService', () => {
     get: jest.fn(),
   };
 
+  const mockCrawlingQueueService = {
+    queueImageTask: jest.fn(),
+    queueChapterTask: jest.fn(),
+    getQueueStatus: jest.fn(),
+    isImageQueueBusy: jest.fn(),
+    isChapterQueueBusy: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -66,6 +75,10 @@ describe('NettruyenChapterService', () => {
         {
           provide: NettruyenHttpService,
           useValue: mockHttpService,
+        },
+        {
+          provide: CrawlingQueueService,
+          useValue: mockCrawlingQueueService,
         },
       ],
     }).compile();

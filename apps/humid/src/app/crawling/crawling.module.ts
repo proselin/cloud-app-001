@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { NettruyenChapterService } from './services/nettruyen-chapter.service';
 import { NettruyenImageService } from './services/nettruyen-image.service';
 import { NettruyenComicService } from './services/nettruyen-comic.service';
+import { CrawlingQueueService } from './services/crawling-queue.service';
 import { CrawlController } from './controllers/crawl.controller';
 import { NettruyenHttpService } from '../http/nettruyen-http.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -19,6 +20,7 @@ import { ImageEntity } from '../entities/image.entity';
     NettruyenComicService,
     NettruyenChapterService,
     NettruyenImageService,
+    CrawlingQueueService,
   ],
 })
 export class CrawlingModule {}

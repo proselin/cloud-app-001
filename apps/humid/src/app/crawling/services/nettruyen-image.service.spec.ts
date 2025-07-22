@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NettruyenImageService } from './nettruyen-image.service';
+import { CrawlingQueueService } from './crawling-queue.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ImageEntity } from '../../entities/image.entity';
 import { ImageType } from '../../common/constant/image';
@@ -26,7 +27,17 @@ describe('NettruyenImageService', () => {
   const mockNettruyenHttpService = {
     get: jest.fn(),
     getImages: jest.fn(),
-  }; // Mock query runner for transaction tests
+  };
+
+  const mockCrawlingQueueService = {
+    queueImageTask: jest.fn(),
+    queueChapterTask: jest.fn(),
+    getQueueStatus: jest.fn(),
+    isImageQueueBusy: jest.fn(),
+    isChapterQueueBusy: jest.fn(),
+  };
+
+  // Mock query runner for transaction tests
   const mockQueryRunner = {
     manager: {
       save: jest.fn().mockImplementation((entity) => entity),
@@ -48,6 +59,10 @@ describe('NettruyenImageService', () => {
         {
           provide: NettruyenHttpService,
           useValue: mockNettruyenHttpService,
+        },
+        {
+          provide: CrawlingQueueService,
+          useValue: mockCrawlingQueueService,
         },
       ],
     }).compile();

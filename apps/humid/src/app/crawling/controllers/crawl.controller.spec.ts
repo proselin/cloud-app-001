@@ -2,10 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CrawlController } from './crawl.controller';
 import { NettruyenComicService } from '../services/nettruyen-comic.service';
 import { NettruyenChapterService } from '../services/nettruyen-chapter.service';
+import { CrawlingQueueService } from '../services/crawling-queue.service';
 import { CrawlByUrlRequestDto } from '../dto/crawl-by-url-request.dto';
 import { CrawlingStatus } from '../../common';
 import { of, Subject } from 'rxjs';
 import { ResponseMapper } from '../../utils/response-mapper';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ChapterEntity } from '../../entities/chapter.entity';
 
 describe('CrawlController', () => {
   let controller: CrawlController;
@@ -16,6 +19,23 @@ describe('CrawlController', () => {
 
   const mockChapterService = {
     handleChapterByComicId: jest.fn(),
+  };
+
+  const mockCrawlingQueueService = {
+    queueImageTask: jest.fn(),
+    queueChapterTask: jest.fn(),
+    getQueueStatus: jest.fn(),
+    isImageQueueBusy: jest.fn(),
+    isChapterQueueBusy: jest.fn(),
+  };
+
+  const mockChapterRepository = {
+    findOne: jest.fn(),
+    save: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    find: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -29,6 +49,14 @@ describe('CrawlController', () => {
         {
           provide: NettruyenChapterService,
           useValue: mockChapterService,
+        },
+        {
+          provide: CrawlingQueueService,
+          useValue: mockCrawlingQueueService,
+        },
+        {
+          provide: getRepositoryToken(ChapterEntity),
+          useValue: mockChapterRepository,
         },
       ],
     }).compile();

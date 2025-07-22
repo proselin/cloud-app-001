@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Logger,
   Post,
   Query,
@@ -12,10 +13,16 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseMapper } from '../../utils/response-mapper';
 import { CrawlByUrlRequestDto } from '../dto/crawl-by-url-request.dto';
 import { CrawlComicByUrlResponseDto } from '../dto/crawl-by-url-response.dto';
+import { CrawlChapterRequestDto } from '../dto/crawl-chapter-request.dto';
+import { CrawlChapterResponseDto } from '../dto/crawl-chapter-response.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { map, Observable } from 'rxjs';
 import { NettruyenChapterService } from '../services/nettruyen-chapter.service';
+import { CrawlingQueueService } from '../services/crawling-queue.service';
 import { z } from 'zod';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ChapterEntity } from '../../entities/chapter.entity';
+import { Repository } from 'typeorm';
 
 @ApiTags('Crawl')
 @Controller('/api/v1/crawl')
@@ -24,7 +31,10 @@ export class CrawlController {
 
   constructor(
     private comicService: NettruyenComicService,
-    private chapterService: NettruyenChapterService
+    private chapterService: NettruyenChapterService,
+    private crawlingQueue: CrawlingQueueService,
+    @InjectRepository(ChapterEntity)
+    private readonly chapterRepository: Repository<ChapterEntity>
   ) {}
 
   @Post('/by-url')
@@ -75,5 +85,48 @@ export class CrawlController {
         ResponseMapper.success(data, 'Comic chapter data streaming')
       )
     );
+  }
+
+  @Post('/chapter')
+  @ApiOperation({
+    summary: 'Crawl a single chapter',
+    description: 'Crawl a specific chapter using the queue system with configurable concurrency'
+  })
+  @ApiBody({
+    type: CrawlChapterRequestDto,
+    description: 'Chapter data to crawl',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Chapter crawled successfully',
+    type: () => ResponseMapper<CrawlChapterResponseDto>,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid chapter data provided',
+    type: () => ResponseMapper<null>,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: () => ResponseMapper<null>,
+  })
+  @UsePipes(ZodValidationPipe)
+  async crawlChapter(
+    @Body() data: CrawlChapterRequestDto
+  ): Promise<CrawlChapterResponseDto | null> {
+    return  this.chapterService.crawlIndividualChapter(data)
+  }
+
+  @Get('/queue-status')
+  @ApiOperation({ summary: 'Get crawling queue status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Queue status retrieved successfully',
+    type: () => ResponseMapper<unknown>,
+  })
+  async getQueueStatus(): Promise<ResponseMapper<unknown>> {
+    const status = this.crawlingQueue.getQueueStatus();
+    return ResponseMapper.success(status, 'Queue status retrieved successfully');
   }
 }

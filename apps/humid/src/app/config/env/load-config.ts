@@ -32,11 +32,18 @@ export function loadConfig(
     'file.enable-cors': z.coerce.boolean().default(true),
   };
 
+  const crawlingConfig = {
+    'crawl.chapter.concurrency': z.coerce.number().int().min(1).max(10).default(1),
+    'crawl.image.concurrency': z.coerce.number().int().min(1).max(10).default(1),
+    'crawl.queue.log-level': z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  };
+
   return z
     .object({
       ...appEnv,
       ...dbConfig,
       ...fileIo,
+      ...crawlingConfig,
     })
     .parse(config);
 }

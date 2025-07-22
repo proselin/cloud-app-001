@@ -6,6 +6,7 @@ import { CrawlImageJobData } from '../../common';
 import { ImageType } from '../../common/constant/image';
 import { FileIoService } from '../../file-io/file-io.service';
 import { ChapterEntity } from '../../entities/chapter.entity';
+import { CrawlingQueueService } from './crawling-queue.service';
 
 @Injectable()
 export class NettruyenImageService {
@@ -13,7 +14,8 @@ export class NettruyenImageService {
 
   constructor(
     private storeService: FileIoService,
-    private http: NettruyenHttpService
+    private http: NettruyenHttpService,
+    private crawlingQueue: CrawlingQueueService
   ) {}
 
   async handleCrawlThumb(data: CrawlImageJobData, queryRunner?: QueryRunner) {
@@ -45,31 +47,41 @@ export class NettruyenImageService {
     imagesRawData: CrawlImageJobData[],
     queryRunner?: QueryRunner
   ) {
-    return Promise.all(
-      imagesRawData.map(async (data) => {
-        try {
-          const fileName = await this.crawlAndSaveImage(
-            `img-${data.chapterId}`,
-            data.dataUrls,
-            data.domain
-          );
+    const results = [];
 
-          return this.createImage(
-            {
-              fileName,
-              position: data.position,
-              originUrls: data.dataUrls,
-              type: data.type,
-            },
-            data.chapterId,
-            queryRunner
-          );
-        } catch (error) {
-          this.logger.error(`ERROR [handleCrawlImage]`);
-          this.logger.error(error);
-        }
-      })
-    );
+    for (const data of imagesRawData) {
+      try {
+        const result = await this.crawlingQueue.queueImageTask({
+          id: `img-${data.chapterId}-${data.position}`,
+          execute: async () => {
+            const fileName = await this.crawlAndSaveImage(
+              `img-${data.chapterId}`,
+              data.dataUrls,
+              data.domain
+            );
+
+            return this.createImage(
+              {
+                fileName,
+                position: data.position,
+                originUrls: data.dataUrls,
+                type: data.type,
+              },
+              data.chapterId,
+              queryRunner
+            );
+          }
+        });
+
+        results.push(result);
+      } catch (error) {
+        this.logger.error(`ERROR [handleCrawlImage]`);
+        this.logger.error(error);
+        results.push(undefined);
+      }
+    }
+
+    return results.filter((item) => !!item);
   }
 
   private async createImage(
@@ -139,7 +151,7 @@ export class NettruyenImageService {
         if (buffer) break;
       }
       if (!buffer) {
-        throw new BadRequestException(
+        throw new Error(
           `Not result found on ${JSON.stringify(imageUrls)}`
         );
       }
