@@ -171,4 +171,32 @@ export class CacheService {
       clearInterval(this.cleanupInterval);
     }
   }
+
+  public clearChapterCache(chapterId?: number, comicId?: number): void {
+    if (chapterId) {
+      this.delete(`chapter:${chapterId}`);
+    }
+    if (comicId) {
+      this.delete(`chapters:navigation:${comicId}`);
+      this.delete(`chapters:comic:${comicId}`);
+      this.delete(`comic:${comicId}`);
+    }
+    this.logger.debug('Chapter cache cleared');
+  }
+
+  public clearComicCache(comicId?: number): void {
+    if (comicId) {
+      this.delete(`comic:${comicId}`);
+      this.delete(`comics:all`);
+      this.delete(`comics:page`);
+    }
+    this.logger.debug('Comic cache cleared');
+  }
+
+  public clearComicDetail(comicId?: number): void {
+    if (comicId) {
+      this.clearPattern('comic-detail:*');
+      this.logger.debug('Comic detail cache cleared');
+    }
+  }
 }

@@ -4,6 +4,8 @@ import {
   CrawlByUrlRequestDto,
   CrawlChapterProgressEvent,
   CrawlComicByUrlResponseDto,
+  CrawlChapterRequestDto,
+  CrawlChapterResponseDto,
 } from '../models/api';
 import { ResponseMapper } from '../models/api';
 import { ApiCommonService } from '../../common/services/api-common.service';
@@ -19,7 +21,7 @@ export class CrawlService extends ApiCommonService {
     crawlRequest: CrawlByUrlRequestDto
   ): Observable<ResponseMapper<CrawlComicByUrlResponseDto>> {
     return this.httpClient.post<ResponseMapper<CrawlComicByUrlResponseDto>>(
-      `${this.env.apiUrl}/by-url`,
+      `${this.env.apiUrl}/crawl/by-url`,
       crawlRequest
     );
   }
@@ -30,7 +32,7 @@ export class CrawlService extends ApiCommonService {
   crawlChapterByIdSSE(comicId: string): Observable<CrawlChapterProgressEvent> {
     return new Observable((observer) => {
       const eventSource = new EventSource(
-        `${this.env.apiUrl}/crawl-chapter-by-id-sse?comicId=${comicId}`
+        `${this.env.apiUrl}/crawl/crawl-chapter-by-id-sse?comicId=${comicId}`
       );
 
       eventSource.onmessage = (event) => {
@@ -52,5 +54,17 @@ export class CrawlService extends ApiCommonService {
         eventSource.close();
       };
     });
+  }
+
+  /**
+   * Crawl a single chapter by chapter ID
+   */
+  crawlSingleChapter(
+    crawlRequest: CrawlChapterRequestDto
+  ): Observable<ResponseMapper<CrawlChapterResponseDto>> {
+    return this.httpClient.post<ResponseMapper<CrawlChapterResponseDto>>(
+      `${this.env.apiUrl}/crawl/chapter`,
+      crawlRequest
+    );
   }
 }

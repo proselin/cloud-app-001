@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal }
 import { CommonModule } from '@angular/common';
 import { BasePagesComponent } from '../../common/components';
 import { ComicService } from '../../shared/services';
-import { ChapterShortInfo, ComicDetailInfo, ComicPlainObject } from '../../shared/models/api';
+import { CrawlService } from '../../shared/services/crawl.service';
+import { ChapterShortInfo, ComicDetailInfo, ComicPlainObject, CrawlChapterRequestDto } from '../../shared/models/api';
 import { CrawlStatus } from '../../common/variables/crawlStatus';
 import { generateImageLink } from '../../common/utils/functions';
 
@@ -20,6 +21,7 @@ export class ComicComponent
   implements OnInit, OnDestroy
 {
   private comicService = inject(ComicService);
+  private crawlService = inject(CrawlService);
 
   comic = signal<ComicDetailInfo | null>(null);
   loading = signal(true);
@@ -31,6 +33,11 @@ export class ComicComponent
   syncProgress = signal<string>('');
   syncStatus = signal<'idle' | 'connecting' | 'syncing' | 'completed' | 'error'>('idle');
   private eventSource: EventSource | null = null;
+  private completionTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Chapter individual crawling state
+  crawlingChapters = signal<Set<number>>(new Set());
+  crawlErrors = signal<Map<number, string>>(new Map());
 
   // Chapter view mode control
   chapterViewMode = signal<'detailed' | 'compact'>('detailed');
@@ -181,32 +188,37 @@ export class ComicComponent
     this.eventSource.onmessage = (event) => {
       console.log('SSE message received:', event.data);
       try {
-        const data = JSON.parse(event.data);
-        this.syncProgress.set(data.message || 'Processing...');
-        console.log(data)
-        // Update progress based on data
-        if (data.status === 'completed') {
-          this.syncStatus.set('completed');
-          this.syncProgress.set('Sync completed successfully!');
-          this.closeSyncConnection();
+        const response = JSON.parse(event.data);
 
-          // Refresh comic data after sync
-          setTimeout(() => {
-            this.loadComicDetail(comic.id.toString());
-            this.resetSyncState();
-          }, 2000);
-        } else if (data.status === 'error') {
-          this.syncStatus.set('error');
-          this.syncProgress.set(data.message || 'Sync failed');
-          this.closeSyncConnection();
+        // Handle regular chapter data
+        if (response.data) {
+          const chapterTitle = response.data.title || `Chapter ${response.data.chapterNumber}`;
+          this.syncProgress.set(`Processing ${chapterTitle}...`);
+          console.log('Chapter processed:', response.data);
 
-          setTimeout(() => {
-            this.resetSyncState();
-          }, 3000);
+          // Reset completion timeout since we're still receiving data
+          if (this.completionTimeout) {
+            clearTimeout(this.completionTimeout);
+          }
+
+          // Set a new timeout to detect completion
+          this.completionTimeout = setTimeout(() => {
+            this.syncStatus.set('completed');
+            this.syncProgress.set('Sync completed successfully!');
+            this.closeSyncConnection();
+
+            // Refresh comic data after sync
+            setTimeout(() => {
+              this.loadComicDetail(comic.id.toString());
+              this.resetSyncState();
+            }, 2000);
+          }, 3000); // Wait 3 seconds after last message
+        } else {
+          this.syncProgress.set(response.message || 'Processing...');
         }
       } catch (error) {
         console.error('Error parsing SSE message:', error);
-        this.syncProgress.set(event.data);
+        this.syncProgress.set('Processing...');
       }
     };
 
@@ -227,6 +239,10 @@ export class ComicComponent
       this.eventSource.close();
       this.eventSource = null;
     }
+    if (this.completionTimeout) {
+      clearTimeout(this.completionTimeout);
+      this.completionTimeout = null;
+    }
   }
 
   private resetSyncState() {
@@ -243,5 +259,96 @@ export class ComicComponent
   // Cleanup on component destroy
   ngOnDestroy() {
     this.closeSyncConnection();
+  }
+
+  /**
+   * Crawl a specific chapter
+   */
+  crawlChapter(chapter: ChapterShortInfo, event?: Event) {
+    if (event) {
+      event.stopPropagation(); // Prevent navigation when clicking crawl button
+    }
+
+    if (this.crawlingChapters().has(chapter.id)) return;
+
+    const crawlingSet = new Set(this.crawlingChapters());
+    crawlingSet.add(chapter.id);
+    this.crawlingChapters.set(crawlingSet);
+
+    // Clear any previous errors for this chapter
+    const errorMap = new Map(this.crawlErrors());
+    errorMap.delete(chapter.id);
+    this.crawlErrors.set(errorMap);
+
+    const crawlRequest: CrawlChapterRequestDto = {
+      chapterId: chapter.id
+    };
+
+    this.crawlService.crawlSingleChapter(crawlRequest).subscribe({
+      next: (response) => {
+        if (response.data && response.data.crawlStatus === CrawlStatus.DONE) {
+          // Remove from crawling set
+          const crawlingSet = new Set(this.crawlingChapters());
+          crawlingSet.delete(chapter.id);
+          this.crawlingChapters.set(crawlingSet);
+
+          // Update chapter status in the comic
+          const comic = this.comic();
+          if (comic) {
+            const updatedChapters = comic.chapters.map(ch =>
+              ch.id === chapter.id
+                ? { ...ch, isCrawled: true, updatedAt: new Date().toISOString() }
+                : ch
+            );
+            this.comic.set({ ...comic, chapters: updatedChapters });
+          }
+        } else {
+          // Handle crawl failure
+          const crawlingSet = new Set(this.crawlingChapters());
+          crawlingSet.delete(chapter.id);
+          this.crawlingChapters.set(crawlingSet);
+
+          const errorMap = new Map(this.crawlErrors());
+          errorMap.set(chapter.id, 'Failed to crawl chapter');
+          this.crawlErrors.set(errorMap);
+        }
+      },
+      error: (error) => {
+        console.error('Error crawling chapter:', error);
+
+        // Remove from crawling set
+        const crawlingSet = new Set(this.crawlingChapters());
+        crawlingSet.delete(chapter.id);
+        this.crawlingChapters.set(crawlingSet);
+
+        // Set error message
+        const errorMap = new Map(this.crawlErrors());
+        errorMap.set(chapter.id, 'Failed to crawl chapter. Please try again.');
+        this.crawlErrors.set(errorMap);
+      }
+    });
+  }
+
+  /**
+   * Check if a chapter is currently being crawled
+   */
+  isChapterCrawling(chapterId: number): boolean {
+    return this.crawlingChapters().has(chapterId);
+  }
+
+  /**
+   * Get crawl error for a chapter
+   */
+  getChapterCrawlError(chapterId: number): string | null {
+    return this.crawlErrors().get(chapterId) || null;
+  }
+
+  /**
+   * Clear crawl error for a chapter
+   */
+  clearChapterCrawlError(chapterId: number) {
+    const errorMap = new Map(this.crawlErrors());
+    errorMap.delete(chapterId);
+    this.crawlErrors.set(errorMap);
   }
 }

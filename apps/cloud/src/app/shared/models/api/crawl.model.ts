@@ -33,3 +33,20 @@ export interface CrawlChapterProgressEvent {
   progress?: number;
   data?: unknown;
 }
+
+export interface CrawlChapterRequestDto {
+  chapterId: number;
+}
+
+export interface CrawlChapterResponseDto {
+  chapterId: number;
+  chapterNumber: string;
+  chapterTitle: string;
+  chapterUrl: string;
+  position: number;
+  crawlStatus: string;
+  comicId: number;
+  comicTitle: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

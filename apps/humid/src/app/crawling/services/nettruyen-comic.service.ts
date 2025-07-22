@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { COMIC_NOT_FOUND_BY_URL } from '../../exceptions/exceptions';
 import { ChapterEntity } from '../../entities/chapter.entity';
 import { ComicEntity } from '../../entities/comic.entity';
+import { CacheService } from '../../common/services/cache.service';
 
 @Injectable()
 export class NettruyenComicService {
@@ -22,7 +23,7 @@ export class NettruyenComicService {
     private readonly dataSource: DataSource,
     private readonly nettruyenHttpService: NettruyenHttpService,
     private readonly imageService: NettruyenImageService,
-    private readonly chapterService: NettruyenChapterService
+    private readonly cacheService: CacheService,
   ) {}
 
   private async pullNewComic(
@@ -84,7 +85,8 @@ export class NettruyenComicService {
       comic.chapters = await queryRunner.manager.save(ChapterEntity, chapters);
 
       await queryRunner.commitTransaction();
-
+      this.cacheService.clearChapterCache(undefined, comic.id);
+      this.cacheService.clearComicCache(comic.id);
       this.logger.log(`DONE [handleCrawlComic] with href=${href}`);
       return comic;
     } catch (e) {
@@ -108,6 +110,7 @@ export class NettruyenComicService {
       );
       return this.pullNewComic(href, crawledInformation).then((r) => {
         this.logger.log(`DONE [getIdOrCrawlNew]`);
+        this.cacheService.clearComicCache(r.id );
         return r;
       });
     }

@@ -14,13 +14,10 @@ import { ChapterEntity } from '../../entities/chapter.entity';
 describe('CrawlController - Single Chapter', () => {
   let controller: CrawlController;
   let chapterService: NettruyenChapterService;
-  let crawlingQueue: CrawlingQueueService;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let chapterRepository: any;
 
   beforeEach(async () => {
     const mockChapterService = {
-      handleCrawlChapter: jest.fn(),
+      crawlIndividualChapter: jest.fn(),
     };
 
     const mockCrawlingQueue = {
@@ -64,8 +61,6 @@ describe('CrawlController - Single Chapter', () => {
 
     controller = module.get<CrawlController>(CrawlController);
     chapterService = module.get<NettruyenChapterService>(NettruyenChapterService);
-    crawlingQueue = module.get<CrawlingQueueService>(CrawlingQueueService);
-    chapterRepository = module.get(getRepositoryToken(ChapterEntity));
   });
 
   describe('crawlChapter', () => {
@@ -73,55 +68,7 @@ describe('CrawlController - Single Chapter', () => {
       // Arrange
       const requestDto = { chapterId: 789 };
 
-      const mockChapterEntity = {
-        id: 789,
-        chapterNumber: '1.5',
-        sourceUrl: 'https://example.com/chapter/123',
-        title: 'Chapter 1.5',
-        position: 1,
-        crawlStatus: 'completed',
-        comic: Promise.resolve({ id: 456, title: 'Amazing Comic Series' }),
-        images: Promise.resolve([{ id: 1 }, { id: 2 }, { id: 3 }]), // 3 images
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z',
-      };
-
-      // Mock repository to return the chapter
-      chapterRepository.findOne.mockResolvedValue(mockChapterEntity);
-
-      // Mock the queue to execute the task immediately
-      (crawlingQueue.queueChapterTask as jest.Mock).mockImplementation(async (task) => {
-        return await task.execute();
-      });
-
-      (chapterService.handleCrawlChapter as jest.Mock).mockResolvedValue(mockChapterEntity);
-
-      // Act
-      const result = await controller.crawlChapter(requestDto);
-
-      // Assert
-      expect(chapterRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 789 },
-        relations: ['comic'],
-      });
-
-      expect(crawlingQueue.queueChapterTask).toHaveBeenCalledWith({
-        id: `chapter-789`,
-        priority: 1,
-        execute: expect.any(Function),
-      });
-
-      expect(chapterService.handleCrawlChapter).toHaveBeenCalledWith({
-        url: 'https://example.com/chapter/123',
-        chapNumber: '1.5',
-        comicId: 456,
-        position: 1,
-      });
-
-      expect(result.statusCode).toBe(200);
-      expect(result.message).toBe('Chapter crawled successfully');
-      expect(result.data).toBeDefined();
-      expect(result.data).toMatchObject({
+      const mockResponse = {
         chapterId: 789,
         chapterNumber: '1.5',
         chapterTitle: 'Chapter 1.5',
@@ -130,155 +77,70 @@ describe('CrawlController - Single Chapter', () => {
         crawlStatus: 'completed',
         comicId: 456,
         comicTitle: 'Amazing Comic Series',
-        imageCount: 3,
-        status: 'completed',
-        message: 'Chapter crawled successfully',
-      });
-      expect(result.data).toBeDefined();
-      if (result.data) {
-        expect(result.data.crawledAt).toBeDefined();
-        expect(result.data.createdAt).toBeDefined();
-        expect(result.data.updatedAt).toBeDefined();
-      }
+        createdAt: new Date('2024-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+      };
+
+      (chapterService.crawlIndividualChapter as jest.Mock).mockResolvedValue(mockResponse);
+
+      // Act
+      const result = await controller.crawlChapter(requestDto);
+
+      // Assert
+      expect(chapterService.crawlIndividualChapter).toHaveBeenCalledWith(requestDto);
+      expect(result).toEqual(mockResponse);
     });
 
     it('should handle chapter crawling errors', async () => {
       // Arrange
       const requestDto = { chapterId: 789 };
 
-      const mockChapterEntity = {
-        id: 789,
-        chapterNumber: '1.5',
-        sourceUrl: 'https://example.com/chapter/123',
-        title: 'Chapter 1.5',
-        position: 1,
-        crawlStatus: 'pending',
-        comic: Promise.resolve({ id: 456 }),
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z',
-      };
-
-      const errorMessage = 'Network timeout';
-
-      // Mock repository to return the chapter
-      chapterRepository.findOne.mockResolvedValue(mockChapterEntity);
-
-      // Mock the queue to execute the task and throw an error
-      (crawlingQueue.queueChapterTask as jest.Mock).mockImplementation(async (task) => {
-        return await task.execute();
-      });
-
-      (chapterService.handleCrawlChapter as jest.Mock).mockRejectedValue(new Error(errorMessage));
-
-      // Act
-      const result = await controller.crawlChapter(requestDto);
-
-      // Assert
-      expect(result.statusCode).toBe(500);
-      expect(result.message).toBe('Failed to crawl chapter');
-      expect(result.data).toMatchObject({
+      const mockErrorResponse = {
         chapterId: 789,
-        chapterNumber: 'N/A', // In error cases, it's N/A
+        chapterNumber: 'N/A',
         chapterTitle: 'N/A',
         chapterUrl: 'N/A',
         position: 0,
         crawlStatus: 'failed',
         comicId: 0,
         comicTitle: 'N/A',
-        imageCount: 0,
-        status: 'failed',
-        message: errorMessage,
-      });
+        createdAt: new Date('2024-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+      };
+
+      (chapterService.crawlIndividualChapter as jest.Mock).mockResolvedValue(mockErrorResponse);
+
+      // Act
+      const result = await controller.crawlChapter(requestDto);
+
+      // Assert
+      expect(chapterService.crawlIndividualChapter).toHaveBeenCalledWith(requestDto);
+      expect(result).toEqual(mockErrorResponse);
     });
 
-    it('should handle queue errors', async () => {
+    it('should handle service exceptions', async () => {
       // Arrange
       const requestDto = { chapterId: 789 };
 
-      const mockChapterEntity = {
-        id: 789,
-        chapterNumber: '1.5',
-        sourceUrl: 'https://example.com/chapter/123',
-        title: 'Chapter 1.5',
-        position: 1,
-        crawlStatus: 'pending',
-        comic: Promise.resolve({ id: 456 }),
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z',
-      };
+      (chapterService.crawlIndividualChapter as jest.Mock).mockRejectedValue(new Error('Service error'));
 
-      const errorMessage = 'Queue is full';
-
-      // Mock repository to return the chapter
-      chapterRepository.findOne.mockResolvedValue(mockChapterEntity);
-
-      (crawlingQueue.queueChapterTask as jest.Mock).mockRejectedValue(new Error(errorMessage));
-
-      // Act
-      const result = await controller.crawlChapter(requestDto);
-
-      // Assert
-      expect(result.statusCode).toBe(500);
-      expect(result.message).toBe('Failed to crawl chapter');
-      expect(result.data).toBeDefined();
-      if (result.data) {
-        expect(result.data.status).toBe('failed');
-        expect(result.data.message).toBe(errorMessage);
-      }
-    });
-
-    it('should handle chapters with no images', async () => {
-      // Arrange
-      const requestDto = { chapterId: 790 };
-
-      const mockChapterEntity = {
-        id: 790,
-        chapterNumber: '2.0',
-        sourceUrl: 'https://example.com/chapter/empty',
-        title: 'Chapter 2.0',
-        position: 2,
-        crawlStatus: 'completed',
-        comic: Promise.resolve({ id: 456 }),
-        images: Promise.resolve([]), // No images
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z',
-      };
-
-      // Mock repository to return the chapter
-      chapterRepository.findOne.mockResolvedValue(mockChapterEntity);
-
-      (crawlingQueue.queueChapterTask as jest.Mock).mockImplementation(async (task) => {
-        return await task.execute();
-      });
-
-      (chapterService.handleCrawlChapter as jest.Mock).mockResolvedValue(mockChapterEntity);
-
-      // Act
-      const result = await controller.crawlChapter(requestDto);
-
-      // Assert
-      expect(result.statusCode).toBe(200);
-      expect(result.data).toBeDefined();
-      if (result.data) {
-        expect(result.data.imageCount).toBe(0);
-        expect(result.data.status).toBe('completed');
-      }
+      // Act & Assert
+      await expect(controller.crawlChapter(requestDto)).rejects.toThrow('Service error');
+      expect(chapterService.crawlIndividualChapter).toHaveBeenCalledWith(requestDto);
     });
 
     it('should handle chapter not found', async () => {
       // Arrange
       const requestDto = { chapterId: 999 };
 
-      // Mock repository to return null (chapter not found)
-      chapterRepository.findOne.mockResolvedValue(null);
+      (chapterService.crawlIndividualChapter as jest.Mock).mockResolvedValue(null);
 
       // Act
       const result = await controller.crawlChapter(requestDto);
 
       // Assert
-      expect(result.statusCode).toBe(404);
-      expect(result.message).toBe('Chapter not found');
-      expect(result.data).toBeNull(); // Controller returns null for not found case
+      expect(chapterService.crawlIndividualChapter).toHaveBeenCalledWith(requestDto);
+      expect(result).toBeNull();
     });
   });
 });

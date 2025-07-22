@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ComicEntity } from '../../entities/comic.entity';
-import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ChapterEntity } from '../../entities/chapter.entity';
 import { NettruyenHttpService } from '../../http/nettruyen-http.service';
 import {
@@ -17,6 +17,7 @@ import { Observable, Subject } from 'rxjs';
 import { CrawlingQueueService } from './crawling-queue.service';
 import { CrawlChapterRequestDto } from '../dto/crawl-chapter-request.dto';
 import { CrawlChapterResponseDto } from '../dto/crawl-chapter-response.dto';
+import { CacheService } from '../../common/services/cache.service';
 
 @Injectable()
 export class NettruyenChapterService {
@@ -24,36 +25,42 @@ export class NettruyenChapterService {
 
   constructor(
     @InjectRepository(ComicEntity)
-    private comicRepository: Repository<ComicEntity>,
-    private dataSource: DataSource,
-    private imageService: NettruyenImageService,
+    private readonly comicRepository: Repository<ComicEntity>,
+    private readonly dataSource: DataSource,
+    private readonly imageService: NettruyenImageService,
     private readonly nettruyenHttpService: NettruyenHttpService,
     @InjectRepository(ChapterEntity)
     private readonly chapterRepository: Repository<ChapterEntity>,
-    private crawlingQueue: CrawlingQueueService
+    private readonly crawlingQueue: CrawlingQueueService,
+    private readonly cacheService: CacheService
   ) {}
 
-  async handleCrawlChapter(data: CrawlChapterData, queryRunner?: QueryRunner) {
-    const isolate = !queryRunner;
-    queryRunner ??= this.dataSource.createQueryRunner();
-    if (!isolate) await queryRunner.startTransaction();
+  async handleCrawlChapter(
+    data: CrawlChapterData,
+    chapterEntity?: ChapterEntity
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
     this.logger.log(
       `Start handleCrawlChapter with params ${JSON.stringify(data)}`
     );
 
     try {
       const { domain, image } = await this.extractChapterInfo(data.url);
+      const chapter = chapterEntity ?? new ChapterEntity();
 
       const comic = await this.comicRepository.findOneByOrFail({
         id: data.comicId,
       });
-      const chapter = new ChapterEntity();
 
-      chapter.chapterNumber = data.chapNumber;
-      chapter.position = data.position;
-      chapter.title = 'Chapter ' + data.chapNumber;
-      chapter.sourceUrl = data.url;
-      chapter.comic = comic;
+      if (!chapterEntity) {
+        chapter.chapterNumber = data.chapNumber;
+        chapter.position = data.position;
+        chapter.title = 'Chapter ' + data.chapNumber;
+        chapter.sourceUrl = data.url;
+        chapter.comic = comic;
+        chapter.chapterNumber = data.chapNumber;
+      }
       chapter.crawlStatus = CrawlingStatus.ON_CRAWL;
 
       await queryRunner.manager.save(chapter);
@@ -68,13 +75,15 @@ export class NettruyenChapterService {
           chapterId: chapter.id,
         } satisfies CrawlImageJobData;
       });
-
-      chapter.images = await this.imageService
+      chapter.crawlStatus = CrawlingStatus.DONE;
+      await this.imageService
         .handleCrawlImages(requestImages, queryRunner)
         .then((r) => {
           return r.filter((item) => !!item);
         });
-      if (!isolate) await queryRunner.commitTransaction();
+
+      await queryRunner.manager.save(chapter);
+      await queryRunner.commitTransaction();
 
       this.logger.log(
         `Complete handleCrawlChapter with chapterId=${chapter.id}`
@@ -194,6 +203,7 @@ export class NettruyenChapterService {
         });
 
         sourcePublisher.next(await ChapterEntity.toJSONWithoutImage(chapter));
+        this.cacheService.clearChapterCache(chapter.id);
       } catch (chapterError) {
         this.logger.error(
           `Error processing chapter ${chapter.id}: ${
@@ -228,7 +238,9 @@ export class NettruyenChapterService {
     return results;
   }
 
-  async crawlIndividualChapter(data: CrawlChapterRequestDto): Promise<CrawlChapterResponseDto | null> {
+  async crawlIndividualChapter(
+    data: CrawlChapterRequestDto
+  ): Promise<CrawlChapterResponseDto | null> {
     this.logger.log(`START crawlChapter with chapter ID: ${data.chapterId}`);
     // Fetch the chapter from database using the injected repository
     const chapter = await this.chapterRepository.findOne({
@@ -244,7 +256,7 @@ export class NettruyenChapterService {
 
     if (chapter.crawlStatus == CrawlingStatus.DONE) {
       this.logger.warn(`Chapter ${chapter.id} has already been crawled.`);
-      const response: CrawlChapterResponseDto = {
+      return {
         chapterId: chapter.id,
         chapterNumber: chapter.chapterNumber,
         chapterTitle: chapter.title,
@@ -256,8 +268,6 @@ export class NettruyenChapterService {
         createdAt: new Date(chapter.createdAt),
         updatedAt: new Date(chapter.updatedAt),
       };
-
-      return response;
     }
 
     // Extract comic data and build CrawlChapterData
@@ -273,7 +283,7 @@ export class NettruyenChapterService {
       priority: 1, // Give single chapter requests higher priority
       execute: async () => {
         // Use the existing chapter service method with extracted data
-        return await this.handleCrawlChapter(crawlData);
+        return this.handleCrawlChapter(crawlData, chapter);
       },
     });
 
@@ -290,7 +300,7 @@ export class NettruyenChapterService {
       updatedAt: new Date(chapter.updatedAt),
     };
     this.logger.log(`DONE crawlChapter for chapter ID: ${data.chapterId}`);
-
+    this.cacheService.clearChapterCache(data.chapterId, comic.id);
     return response;
   }
 }

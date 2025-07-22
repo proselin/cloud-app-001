@@ -10,12 +10,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BasePagesComponent } from '../../common/components';
 import { ChapterService } from '../../shared/services';
+import { CrawlService } from '../../shared/services/crawl.service';
 import {
   ChapterDetailInfo,
   ChapterInfo,
   ChapterPlainObject,
   ImagePlainObject,
   MinimizeChapterResponseDto,
+  CrawlChapterRequestDto,
 } from '../../shared/models/api';
 import { tap } from 'rxjs';
 import { CrawlStatus } from '../../common/variables/crawlStatus';
@@ -34,12 +36,15 @@ export class ChapterComponent
   implements OnInit, OnDestroy
 {
   private chapterService = inject(ChapterService);
+  private crawlService = inject(CrawlService);
 
   chapter = signal<ChapterDetailInfo | null>(null);
   allChapters = signal<ChapterInfo[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   chapterIndexed = signal<number>(-1);
+  crawling = signal(false);
+  crawlError = signal<string | null>(null);
 
   comicId!: number;
   chapterId!: number;
@@ -108,16 +113,22 @@ export class ChapterComponent
       next: (response) => {
         const chapter = response.data;
         const chapterDetail = this.convertAPIChapterToChapterDetail(chapter);
-        this.chapter.set(chapterDetail);
-        this.comicName.set(chapter.comic?.title || 'Unknown Comic');
-        this.loading.set(false);
 
-        // Ensure chapter index is set correctly (in case chapters were loaded after)
-        const currentIndex = this.allChapters().findIndex(
-          (ch) => ch.id === Number(this.chapterId)
-        );
-        if (currentIndex !== -1) {
-          this.chapterIndexed.set(currentIndex);
+        // If chapter is not crawled and has no images, trigger auto-crawling
+        if (!chapterDetail.isCrawled && chapterDetail.images.length === 0) {
+          this.crawlCurrentChapter();
+        } else {
+          this.chapter.set(chapterDetail);
+          this.comicName.set(chapter.comic?.title || 'Unknown Comic');
+          this.loading.set(false);
+
+          // Ensure chapter index is set correctly (in case chapters were loaded after)
+          const currentIndex = this.allChapters().findIndex(
+            (ch) => ch.id === Number(this.chapterId)
+          );
+          if (currentIndex !== -1) {
+            this.chapterIndexed.set(currentIndex);
+          }
         }
       },
       error: (error) => {
@@ -253,5 +264,51 @@ export class ChapterComponent
 
   goBackToComic() {
     this.router.navigate(['/comic', this.comicId]);
+  }
+
+  /**
+   * Crawl the current chapter
+   */
+  crawlCurrentChapter() {
+    if (this.crawling()) return;
+
+    this.crawling.set(true);
+    this.crawlError.set(null);
+
+    const crawlRequest: CrawlChapterRequestDto = {
+      chapterId: this.chapterId
+    };
+
+    this.crawlService.crawlSingleChapter(crawlRequest).subscribe({
+      next: (response) => {
+        if (response.data && response.data.crawlStatus === CrawlStatus.DONE) {
+          // Reload the chapter detail after successful crawling
+          this.loadChapterDetail();
+        } else {
+          this.crawlError.set('Failed to crawl chapter. Please try again.');
+          this.crawling.set(false);
+        }
+      },
+      error: (error) => {
+        console.error('Error crawling chapter:', error);
+        this.crawlError.set('Failed to crawl chapter. Please try again.');
+        this.crawling.set(false);
+      }
+    });
+  }
+
+  /**
+   * Check if current chapter is crawled
+   */
+  isCurrentChapterCrawled(): boolean {
+    const chapter = this.chapter();
+    return chapter ? chapter.isCrawled : false;
+  }
+
+  /**
+   * Manual crawl button click
+   */
+  onManualCrawlClick() {
+    this.crawlCurrentChapter();
   }
 }

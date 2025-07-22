@@ -56,12 +56,35 @@
             <h1 class="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{{ comicName() }}</h1>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
               Ch. {{ chapterIndexed() + 1 }}
+              @if (!isCurrentChapterCrawled() && !crawling()) {
+                <span class="ml-1 text-orange-500 dark:text-orange-400">• Not crawled</span>
+              }
+              @if (crawling()) {
+                <span class="ml-1 text-blue-500 dark:text-blue-400">• Crawling...</span>
+              }
             </p>
           </div>
 
-          <!-- Right: Chapter Counter -->
-          <div class="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-mono min-w-[50px] text-right">
-            {{ chapterIndexed() + 1 }}/{{ allChapters().length }}
+          <!-- Right: Chapter Counter + Crawl Button -->
+          <div class="flex items-center space-x-2">
+            @if (!isCurrentChapterCrawled() && !crawling()) {
+              <button
+                (click)="onManualCrawlClick()"
+                class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-full shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
+                title="Crawl Chapter">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </button>
+            }
+            @if (crawling()) {
+              <div class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9">
+                <div class="w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+              </div>
+            }
+            <div class="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-mono min-w-[50px] text-right">
+              {{ chapterIndexed() + 1 }}/{{ allChapters().length }}
+            </div>
           </div>
         </div>
       </div>
@@ -70,6 +93,63 @@
 
   <!-- Chapter Images - Simple Scrolling with Click Areas -->
   <main class="pt-16 sm:pt-20 pb-16 sm:pb-20 relative">
+    <!-- Crawling Status Banner -->
+    @if (crawlError()) {
+      <div class="max-w-sm sm:max-w-4xl mx-auto px-3 sm:px-4 mb-4">
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+              <p class="text-red-800 dark:text-red-200 text-sm font-medium">Crawling Error</p>
+              <p class="text-red-600 dark:text-red-400 text-sm">{{ crawlError() }}</p>
+            </div>
+            <button
+              (click)="onManualCrawlClick()"
+              class="ml-3 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors duration-200">
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (!isCurrentChapterCrawled() && !crawling() && !crawlError() && chapter()!.images.length === 0) {
+      <div class="max-w-sm sm:max-w-4xl mx-auto px-3 sm:px-4 mb-4">
+        <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-orange-600 dark:text-orange-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+              <p class="text-orange-800 dark:text-orange-200 text-sm font-medium">Chapter Not Crawled</p>
+              <p class="text-orange-600 dark:text-orange-400 text-sm">This chapter hasn't been crawled yet. Click to start crawling.</p>
+            </div>
+            <button
+              (click)="onManualCrawlClick()"
+              class="ml-3 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-md transition-colors duration-200">
+              Crawl Now
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (crawling()) {
+      <div class="max-w-sm sm:max-w-4xl mx-auto px-3 sm:px-4 mb-4">
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div class="flex items-center">
+            <div class="w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mr-3"></div>
+            <div class="flex-1">
+              <p class="text-blue-800 dark:text-blue-200 text-sm font-medium">Crawling Chapter</p>
+              <p class="text-blue-600 dark:text-blue-400 text-sm">Please wait while we fetch the chapter images...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
     <div class="max-w-sm sm:max-w-4xl mx-auto">
       <!-- Invisible Click Areas for Chapter Navigation -->
       @if (hasPreviousChapter()) {
@@ -91,23 +171,52 @@
       }
 
       <div class="flex flex-col">
-        @for (image of chapter()!.images; track image.id; let i = $index) {
-          <div class="relative">
-            <img
-              [src]="image.url"
-              [alt]="'Chapter ' + chapter()!.title + ' - Page ' + (i + 1)"
-              class="w-full h-auto block"
-              loading="lazy"
-              (load)="onImageLoad($event)"
-              (error)="onImageError($event)" />
+        @if (chapter()!.images.length > 0) {
+          @for (image of chapter()!.images; track image.id; let i = $index) {
+            <div class="relative">
+              <img
+                [src]="image.url"
+                [alt]="'Chapter ' + chapter()!.title + ' - Page ' + (i + 1)"
+                class="w-full h-auto block"
+                loading="lazy"
+                (load)="onImageLoad($event)"
+                (error)="onImageError($event)" />
 
-            <!-- Minimal Loading State -->
-            <div class="absolute inset-0 bg-gray-50 dark:bg-gray-800 flex items-center justify-center loading-overlay"
-                 style="display: block;">
-              <div class="text-center">
-                <div class="w-6 h-6 sm:w-8 sm:h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
-                <p class="text-xs sm:text-sm text-gray-400">{{ i + 1 }}</p>
+              <!-- Minimal Loading State -->
+              <div class="absolute inset-0 bg-gray-50 dark:bg-gray-800 flex items-center justify-center loading-overlay"
+                   style="display: block;">
+                <div class="text-center">
+                  <div class="w-6 h-6 sm:w-8 sm:h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+                  <p class="text-xs sm:text-sm text-gray-400">{{ i + 1 }}</p>
+                </div>
               </div>
+            </div>
+          }
+        } @else if (!crawling() && isCurrentChapterCrawled()) {
+          <!-- Chapter is crawled but has no images -->
+          <div class="flex items-center justify-center min-h-[400px]">
+            <div class="text-center">
+              <svg class="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Images Available</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-sm">This chapter has been crawled but contains no images.</p>
+            </div>
+          </div>
+        } @else if (!crawling() && !isCurrentChapterCrawled()) {
+          <!-- Chapter is not crawled - placeholder content -->
+          <div class="flex items-center justify-center min-h-[400px]">
+            <div class="text-center">
+              <svg class="w-16 h-16 text-orange-400 dark:text-orange-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Chapter Not Crawled</h3>
+              <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">This chapter needs to be crawled before you can read it.</p>
+              <button
+                (click)="onManualCrawlClick()"
+                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200">
+                Crawl Chapter
+              </button>
             </div>
           </div>
         }

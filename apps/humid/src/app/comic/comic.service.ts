@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ComicEntity } from '../entities/comic.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { NettruyenHttpService } from '../http/nettruyen-http.service';
 import { ComicPlainObject } from '../models/types/comic-plain-object';
