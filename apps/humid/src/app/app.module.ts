@@ -51,10 +51,10 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       provide: APP_INTERCEPTOR,
       useClass: PerformanceInterceptor,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TimeoutInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: TimeoutInterceptor,
+    // },
   ],
 })
 export class AppModule {}
